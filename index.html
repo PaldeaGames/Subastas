@@ -1754,7 +1754,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v30</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v31</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2287,7 +2287,14 @@ const firebaseConfig = {
   appId: "1:1091049649403:web:487a0b64c3977c85936c5e"
 };
 
-console.log("%cPaldea Subastas v30 — 24 jul 2026","color:#f5c842;font-weight:bold");
+// ── Hora del servidor ──────────────────────────────────────────────
+// offsetServidor = (hora del servidor Firebase) - (reloj local del aparato).
+// Se sincroniza abajo con /.info/serverTimeOffset. Mientras no llegue el
+// valor real vale 0, así que ahoraSrv() nunca devuelve NaN.
+var offsetServidor = 0;
+function ahoraSrv(){ return Date.now() + offsetServidor; }
+
+console.log("%cPaldea Subastas v31 — 27 jul 2026","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -2296,6 +2303,17 @@ setInterval(chequearCountdownInicio, 250);
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
 const auth = getAuth(firebaseApp);
+
+// Sincroniza el reloj contra el servidor. Firebase publica aquí la diferencia
+// en ms entre su hora y la del aparato; con esto todos los dispositivos ven
+// exactamente el mismo tiempo restante aunque tengan la hora mal configurada.
+onValue(ref(db, ".info/serverTimeOffset"), snap => {
+  const v = snap.val();
+  if(typeof v === "number" && isFinite(v)){
+    offsetServidor = v;
+    if(Math.abs(v) > 3000) console.warn("Reloj local desfasado " + Math.round(v/1000) + "s respecto al servidor. Corregido.");
+  }
+});
 
 // ── Debug visible en pantalla ──
 // Se activa con #debug en la URL. Muestra cada paso del login para poder
@@ -2785,13 +2803,41 @@ function mostrarAvisoRedirect(){
   const b = document.getElementById("login-redirect-aviso");
   if(b){ b.style.display="block"; b.textContent = "Redirigiendo a Google… vuelve en un momento."; }
 }
+function esAndroid(){
+  return /android/i.test(navigator.userAgent || "");
+}
+
+// Abre la página en Chrome de verdad, saliendo de la webview de Instagram.
+// El esquema intent:// es de Android; si Chrome no está, el sistema ignora la
+// llamada y la persona sigue con el botón de copiar link como respaldo.
+function abrirEnChrome(){
+  const host = location.host + location.pathname + location.search;
+  location.href = "intent://" + host + "#Intent;scheme=https;package=com.android.chrome;end";
+}
+
 function mostrarAvisoAbrirFuera(){
   const b = document.getElementById("login-redirect-aviso");
   if(!b) return;
+  const btnChrome = esAndroid()
+    ? `<button onclick="abrirEnChrome()" style="display:block;width:100%;margin:10px 0 0;background:var(--gold);color:#07070d;border:none;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">🚀 Abrir en Chrome</button>`
+    : "";
   b.style.display = "block";
-  b.innerHTML = `⚠️ Para iniciar sesión, abre esta página en <strong>Chrome o Safari</strong>
+  b.innerHTML = `⚠️ Instagram no permite iniciar sesión con Google.
+    Abre esta página en <strong>Chrome o Safari</strong>
     (toca el menú <strong>⋯</strong> arriba a la derecha → "Abrir en el navegador").
-    <button onclick="copiarLinkSubasta()" style="display:block;margin:8px auto 0;background:var(--gold);color:#07070d;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">📋 Copiar link</button>`;
+    ${btnChrome}
+    <button onclick="copiarLinkSubasta()" style="display:block;width:100%;margin:7px 0 0;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:7px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">📋 Copiar link</button>`;
+}
+
+// Si ya entró desde Instagram, avisar apenas carga la página en vez de esperar
+// a que toque "Continuar con Google" y crea que la página está rota.
+function avisarInAppAlCargar(){
+  if(esNavegadorInApp()) mostrarAvisoAbrirFuera();
+}
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", avisarInAppAlCargar);
+}else{
+  avisarInAppAlCargar();
 }
 function copiarLinkSubasta(){
   const url = location.href;
@@ -2805,10 +2851,19 @@ async function loginGoogle(){
   // antes, Firebase usa el modo por defecto y pierde la sesión al volver.
   try{ await persistenciaLista; }catch(e){}
 
-  // Móvil (o navegador in-app): popup abre chico/desalineado en móvil o
-  // Google lo bloquea en Instagram/FB. En ambos casos, redirect ocupa toda
-  // la pantalla y es el flujo estándar recomendado por Google.
-  if(esNavegadorInApp() || esMovil()){
+  // Navegador embebido (Instagram, Facebook, TikTok…): Google BLOQUEA el login
+  // OAuth dentro de webviews, y además Instagram borra el sessionStorage al
+  // volver del redirect ("missing initial state"). No sirve ni popup ni
+  // redirect: hay que salir a Chrome/Safari. Avisamos sin intentar nada, para
+  // no dejar a la persona dando vueltas en la pantalla de login.
+  if(esNavegadorInApp()){
+    mostrarAvisoAbrirFuera();
+    return;
+  }
+
+  // Móvil real (Chrome/Safari): el popup abre chico y desalineado, así que
+  // redirect, que ocupa toda la pantalla y es el flujo recomendado por Google.
+  if(esMovil()){
     try{
       mostrarAvisoRedirect();
       await signInWithRedirect(auth, googleProvider);
@@ -3105,7 +3160,7 @@ function renderApp(){
   // Timer para subasta programada: mostrar cuenta regresiva al inicio
   const timerEl = document.getElementById("timer-val");
   if(sub.estado==="programada" && inicioSubasta()){
-    const restoInicio = inicioSubasta() - Date.now();
+    const restoInicio = inicioSubasta() - ahoraSrv();
     if(restoInicio > 0){
       const h = Math.floor(restoInicio/3600000);
       const m = Math.floor((restoInicio%3600000)/60000);
@@ -3978,7 +4033,7 @@ function doBid(monto){
   if(S.subasta.estado!=="activa"){ toast("La subasta no está activa","warn"); return; }
   // El estado puede decir "activa" pero el tiempo ya estar cumplido
   // (el timer aún no alcanzó a cerrar). Validar contra el reloj real.
-  if(S.subasta.finTs && Date.now() >= S.subasta.finTs){
+  if(S.subasta.finTs && ahoraSrv() >= S.subasta.finTs){
     toast("⏰ La subasta acaba de terminar","warn"); return;
   }
   if(!user){ toast("Debes estar logueado","err"); return; }
@@ -4044,7 +4099,7 @@ function iniciarTimerModal(){
   box.style.display = "block";
 
   const pintar = () => {
-    const resto = S.subasta.finTs - Date.now();
+    const resto = S.subasta.finTs - ahoraSrv();
     if(resto <= 0){
       el.textContent = "00:00";
       el.style.color = "var(--red)";
@@ -4080,7 +4135,7 @@ let pujaEnCurso = false;
 async function ejecutarPuja(val){
   if(pujaEnCurso) return;                       // doble clic
   if(S.subasta.estado!=="activa"){ toast("La subasta ya terminó","warn"); return; }
-  if(S.subasta.finTs && Date.now() >= S.subasta.finTs){
+  if(S.subasta.finTs && ahoraSrv() >= S.subasta.finTs){
     toast("⏰ La subasta terminó mientras confirmabas","warn");
     renderApp(); return;
   }
@@ -4110,7 +4165,7 @@ async function ejecutarPuja(val){
 
       const sub = actual.subasta || {};
       if(sub.estado !== "activa") return;                     // abortar
-      if(sub.finTs && Date.now() >= sub.finTs) return;        // abortar
+      if(sub.finTs && ahoraSrv() >= sub.finTs) return;        // abortar
 
       const bloq = normalizarLista(actual.bloqueados);
       if(bloq.includes(user.uid || user.ig)) return;           // abortar
@@ -4121,7 +4176,7 @@ async function ejecutarPuja(val){
       if(val < minServidor) return;                            // abortar
 
       // Anti-snipe medido contra el finTs del servidor.
-      const resto = sub.finTs ? sub.finTs - Date.now() : Infinity;
+      const resto = sub.finTs ? sub.finTs - ahoraSrv() : Infinity;
       const enUltimoMinuto = resto > 0 && resto <= 60000;
       const esAntisnipe = enUltimoMinuto || (sub.antisnipeUsado === true && resto > 0);
 
@@ -4182,7 +4237,7 @@ async function ejecutarPuja(val){
 
     if(bloq.includes(user.uid || user.ig)){
       toast("⛔ Tu cuenta ha sido bloqueada","err");
-    } else if(sub.estado !== "activa" || (sub.finTs && Date.now() >= sub.finTs)){
+    } else if(sub.estado !== "activa" || (sub.finTs && ahoraSrv() >= sub.finTs)){
       toast("⏰ La subasta ya terminó","warn");
     } else if(val < minServidor){
       toast(`Alguien pujó primero. Nuevo mínimo: ${fmtCLP(minServidor)}`,"err");
@@ -4217,7 +4272,7 @@ function startCountdownToStart(){
     if(S.subasta.estado !== "programada") { clearInterval(timerInterval); timerInterval=null; return; }
     const ini = inicioSubasta();
     if(!ini){ clearInterval(timerInterval); timerInterval=null; return; }
-    const resto = ini - Date.now();
+    const resto = ini - ahoraSrv();
     const el = document.getElementById("timer-val");
     if(resto <= 0){ clearInterval(timerInterval); timerInterval=null; return; }
     const h = Math.floor(resto/3600000);
@@ -4237,7 +4292,7 @@ function cerrarSubastaEnServidor(){
     if(!actual) return actual;
     const sub = actual.subasta;
     if(!sub || sub.estado !== "activa") return;          // ya cerrada: abortar
-    if(!sub.finTs || Date.now() < sub.finTs) return;     // aún no toca: abortar
+    if(!sub.finTs || ahoraSrv() < sub.finTs) return;     // aún no toca: abortar
     actual.subasta.estado = "finalizada";
     return actual;
   }).catch(err => console.warn("No se pudo cerrar la subasta:", err));
@@ -4257,7 +4312,7 @@ function startTimer(){
       if(isTVMode) renderTV(); else renderApp();   // el estado real toma el control
       return;
     }
-    const resto = S.subasta.finTs - Date.now();
+    const resto = S.subasta.finTs - ahoraSrv();
     const el    = document.getElementById("timer-val");
     const tvEl  = document.getElementById("tv-timer");
 
@@ -4743,7 +4798,7 @@ function adminStart(){
   }
 
   const inicioProgTs = S.subasta.inicioProgTs;
-  const ahora = Date.now();
+  const ahora = ahoraSrv();
 
   if(inicioProgTs && inicioProgTs > ahora){
     // Inicio programado en el futuro
@@ -4791,7 +4846,7 @@ function adminStart(){
 
 function scheduleAutoStart(inicioTs, durMs){
   if(scheduleTimeout) clearTimeout(scheduleTimeout);
-  const delay = inicioTs - Date.now();
+  const delay = inicioTs - ahoraSrv();
 
   // Si la hora ya pasó (equipo apagado, pestaña cerrada) → arrancar de inmediato
   // pero respetando la hora programada original.
@@ -4810,7 +4865,7 @@ function activarSubasta(inicioTs, durMs){
   if(S.subasta.estado !== "programada") return;   // ya la activó otro dispositivo
 
   const finReal = inicioTs + durMs;
-  if(finReal <= Date.now()){
+  if(finReal <= ahoraSrv()){
     // Se pasó completa mientras nadie miraba
     S.subasta.estado = "finalizada";
     S.subasta.finTs  = finReal;
@@ -5238,7 +5293,7 @@ function renderLogTV(flashId){
     return;
   }
   // Fuego en el top-2 solo en el último minuto real de una subasta activa
-  const resto = S.subasta.finTs ? S.subasta.finTs - Date.now() : Infinity;
+  const resto = S.subasta.finTs ? S.subasta.finTs - ahoraSrv() : Infinity;
   const enLlamas = S.subasta.estado==="activa" && resto > 0 && resto <= 60000;
 
   el.innerHTML = S.pujas.map((p,i)=>{
@@ -5292,7 +5347,7 @@ function chequearCountdownInicio(){
   if(S.subasta.estado !== "programada") return;
   const ini = inicioSubasta();
   if(!ini) return;
-  const resto = ini - Date.now();
+  const resto = ini - ahoraSrv();
   if(resto <= 0 || resto > 3500) return;
 
   // Evitar disparar el mismo countdown dos veces (por recargas o dos pantallas)
@@ -5310,7 +5365,7 @@ function dispararCountdown(iniTs){
   if(!el || !num) return;
 
   const paso = () => {
-    const resto = iniTs - Date.now();
+    const resto = iniTs - ahoraSrv();
     if(resto <= 0){
       // ¡YA!
       el.classList.add("go");
@@ -6123,7 +6178,7 @@ function renderLoginLivePanel(){
       const urgEl   = document.getElementById("login-live-urgente");
       if(!timerEl) return;
       if(S.subasta.estado !== "programada"){ renderLoginLivePanel(); return; }
-      const resto = inicioProg - Date.now();
+      const resto = inicioProg - ahoraSrv();
       if(resto <= 0){ renderLoginLivePanel(); return; }  // ya arrancó
       const d = Math.floor(resto/86400000);
       const h = Math.floor((resto%86400000)/3600000);
@@ -6184,7 +6239,7 @@ function renderLoginLivePanel(){
     const tlblEl  = document.getElementById("login-live-tlbl");
     if(!timerEl) return;
     if(S.subasta.estado !== "activa"){ renderLoginLivePanel(); return; }
-    const resto = S.subasta.finTs - Date.now();
+    const resto = S.subasta.finTs - ahoraSrv();
     if(resto <= 0){
       timerEl.textContent = "00:00";
       timerEl.style.color = "var(--red)";
@@ -6334,6 +6389,7 @@ document.addEventListener("keydown", e => {
 window.doLogin         = doLogin;
 window.loginGoogle     = loginGoogle;
 window.copiarLinkSubasta = copiarLinkSubasta;
+window.abrirEnChrome = abrirEnChrome;
 window.cancelarGoogle  = cancelarGoogle;
 window.cerrarModalPuja = cerrarModalPuja;
 window.confirmarGanador= confirmarGanador;
