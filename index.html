@@ -1754,7 +1754,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v36</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v37</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2269,6 +2269,49 @@ body.express-tema #login-live-panel{
   <div id="debug-log"></div>
 </div>
 
+<!-- Detección de navegador in-app: este script NO es module para que funcione
+     aunque los imports de Firebase fallen (Instagram WebView los bloquea). -->
+<script>
+(function(){
+  var ua = (navigator.userAgent || navigator.vendor || "").toLowerCase();
+  var isInApp = /instagram|fbav|fb_iab|fban|messenger|line\/|musical_ly|tiktok|snapchat|pinterest|twitter|linkedin/.test(ua)
+    || /; wv\)/.test(ua)
+    || (/iphone|ipad|ipod/.test(ua) && !/safari/.test(ua));
+  if(!isInApp) return;
+
+  var isAndroid = /android/i.test(ua);
+  var isIOS = /iphone|ipad|ipod/.test(ua);
+
+  function mostrar(){
+    var b = document.getElementById("login-redirect-aviso");
+    if(!b) return;
+    var btnAccion = "";
+    var instruccion = "";
+    if(isAndroid){
+      btnAccion = '<button onclick="(function(){var h=location.host+location.pathname+location.search;location.href=\'intent://\'+h+\'#Intent;scheme=https;package=com.android.chrome;end\'})()" style="display:block;width:100%;margin:10px 0 0;background:#f5c842;color:#07070d;border:none;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer">🚀 Abrir en Chrome</button>';
+      instruccion = 'Toca el menú <strong>⋯</strong> arriba a la derecha → <strong>Abrir en el navegador</strong>.';
+    } else if(isIOS){
+      instruccion = 'Toca el ícono de <strong>Safari 🧭</strong> (abajo a la derecha) o los <strong>tres puntos ···</strong> → <strong>Abrir en Safari</strong>.';
+    } else {
+      instruccion = 'Copia el link y ábrelo en <strong>Chrome o Safari</strong>.';
+    }
+    b.style.display = "block";
+    b.innerHTML = '⚠️ Este navegador no permite iniciar sesión con Google. ' + instruccion + btnAccion +
+      '<button onclick="navigator.clipboard.writeText(location.href).then(function(){alert(\'Link copiado — pégalo en Chrome o Safari\')}).catch(function(){prompt(\'Copia este link:\',location.href)})" style="display:block;width:100%;margin:7px 0 0;background:transparent;color:#f5c842;border:1px solid #f5c842;border-radius:7px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">📋 Copiar link</button>';
+
+    // También ocultar el botón de Google para que no intenten tocarlo
+    var btn = document.querySelector(".btn-google");
+    if(btn) btn.style.display = "none";
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", mostrar);
+  } else {
+    mostrar();
+  }
+})();
+</script>
+
 <script type="module">
 // ══════════════════════════════════════
 //  FIREBASE CONFIG
@@ -2294,7 +2337,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v36 — 27 jul 2026","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v37 — 27 jul 2026","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
