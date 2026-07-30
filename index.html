@@ -6106,11 +6106,11 @@ async function migrarDatos(){
 function exportarCorreos(){
   const lista = (P.visitantes||[]).filter(v => v.marketing && v.email);
   if(lista.length === 0){ toast("Nadie aceptó recibir novedades aún","warn"); return; }
-  const texto = lista.map(v => v.email).join(", ");
+  const texto = lista.map(v => `${v.nombre || "Sin nombre"} | ${v.email}`).join("\n");
   navigator.clipboard.writeText(texto).then(()=>{
-    toast(`✅ ${lista.length} correo${lista.length!==1?"s":""} copiado${lista.length!==1?"s":""}`,"ok");
+    toast(`✅ ${lista.length} contacto${lista.length!==1?"s":""} copiado${lista.length!==1?"s":""}`,"ok");
   }).catch(()=>{
-    prompt("Copia los correos:", texto);
+    prompt("Copia los contactos:", texto);
   });
 }
 
