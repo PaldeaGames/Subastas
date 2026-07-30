@@ -1530,6 +1530,7 @@ body.express-tema #login-live-panel{
           <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
           Continuar con Google
         </button>
+        <button id="btn-reintentar-login" style="display:none;width:100%;margin-top:8px;background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:12px;border-radius:10px;font-size:13px;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer" onclick="limpiarYReintentar()">🔄 Reintentar sesión</button>
 
         <div id="login-redirect-aviso" style="display:none;background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.3);border-radius:10px;padding:11px 14px;margin-top:14px;font-size:12px;color:var(--muted2);line-height:1.6;text-align:center"></div>
 
@@ -1754,7 +1755,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v37</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v38</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2337,7 +2338,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v37 — 27 jul 2026","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v38 — 27 jul 2026","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -2878,27 +2879,59 @@ function abrirEnChrome(){
   location.href = "intent://" + host + "#Intent;scheme=https;package=com.android.chrome;end";
 }
 
+function mostrarBotonReintentar(){
+  const b = document.getElementById("btn-reintentar-login");
+  if(b) b.style.display = "block";
+}
+
+async function limpiarYReintentar(){
+  const b = document.getElementById("btn-reintentar-login");
+  if(b) b.textContent = "Limpiando...";
+  try{ await signOut(auth); }catch(e){}
+  googleUser = null;
+  // Limpiar sessionStorage de Firebase Auth (estado de redirect pendiente)
+  try{
+    for(const key in sessionStorage){
+      if(key.startsWith("firebase:") || key.includes("redirect")) sessionStorage.removeItem(key);
+    }
+  }catch(e){}
+  if(b){ b.textContent = "🔄 Reintentar sesión"; b.style.display = "none"; }
+  toast("Estado limpiado. Intentando de nuevo...","ok");
+  setTimeout(()=> loginGoogle(), 600);
+}
+
 function mostrarAvisoAbrirFuera(){
   const b = document.getElementById("login-redirect-aviso");
   if(!b) return;
 
   let btnAccion = "";
   let instruccion = "";
+  let extraBtn = "";
 
   if(esAndroid()){
     btnAccion = `<button onclick="abrirEnChrome()" style="display:block;width:100%;margin:10px 0 0;background:var(--gold);color:#07070d;border:none;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">🚀 Abrir en Chrome</button>`;
     instruccion = "Toca el menú <strong>⋯</strong> arriba a la derecha → <strong>Abrir en el navegador</strong>.";
   } else if(esIOS()){
     instruccion = "Toca el ícono de <strong>Safari 🧭</strong> (abajo a la derecha) o los <strong>tres puntos ···</strong> → <strong>Abrir en Safari</strong>.";
+  } else if(esSafari()){
+    // Safari real: no es in-app. Probablemente el estado del redirect se perdió.
+    instruccion = "Hubo un problema temporal con la sesión de Google. Toca <strong>Reintentar</strong> abajo.";
+    extraBtn = `<button onclick="limpiarYReintentar()" style="display:block;width:100%;margin:10px 0 0;background:var(--gold);color:#07070d;border:none;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">🔄 Reintentar sesión</button>`;
   } else {
     instruccion = "Copia el link y ábrelo en <strong>Chrome o Safari</strong>.";
   }
 
   b.style.display = "block";
-  b.innerHTML = `⚠️ Este navegador no permite iniciar sesión con Google.
-    ${instruccion}
+  b.innerHTML = `⚠️ ${instruccion}
     ${btnAccion}
+    ${extraBtn}
     <button onclick="copiarLinkSubasta()" style="display:block;width:100%;margin:7px 0 0;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:7px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">📋 Copiar link</button>`;
+
+  // Ocultar el botón de Google SOLO si no estamos en Safari real (donde sí debería funcionar)
+  if(!esSafari()){
+    var btn = document.querySelector(".btn-google");
+    if(btn) btn.style.display = "none";
+  }
 }
 
 // Si ya entró desde Instagram, avisar apenas carga la página en vez de esperar
@@ -2937,24 +2970,61 @@ function copiarLinkSubasta(){
 }
 
 async function loginGoogle(){
-  // Esperar a que la persistencia quede fijada. Si el redirect se dispara
-  // antes, Firebase usa el modo por defecto y pierde la sesión al volver.
+  // Esperar a que la persistencia quede fijada.
   try{ await persistenciaLista; }catch(e){}
 
-  // Navegador embebido (Instagram, Facebook, TikTok…): Google BLOQUEA el login
-  // OAuth dentro de webviews, y además Instagram borra el sessionStorage al
-  // volver del redirect ("missing initial state"). No sirve ni popup ni
-  // redirect: hay que salir a Chrome/Safari. Avisamos sin intentar nada, para
-  // no dejar a la persona dando vueltas en la pantalla de login.
+  // Navegador embebido: salir inmediatamente.
   if(esNavegadorInApp()){
     mostrarAvisoAbrirFuera();
     return;
   }
 
-  // Móvil real (Chrome/Safari): redirect, que ocupa toda la pantalla.
-  // Safari escritorio: también redirect, porque Safari bloquea popups
-  // de terceros de forma silenciosa y el usuario se queda esperando.
-  if(esMovil() || esSafari()){
+  // SAFARI (Mac e iOS): popup primero. Safari con ITP borra el estado de
+  // los redirects, causando 'missing-initial-state' en la vuelta. El popup
+  // mantiene la pestaña original y no sufre de ese bug.
+  if(esSafari()){
+    try{
+      const result = await signInWithPopup(auth, googleProvider);
+      const u = result.user;
+      googleUser = {
+        uid:    u.uid,
+        nombre: u.displayName || "Sin nombre",
+        email:  u.email || "",
+        foto:   u.photoURL || ""
+      };
+      mostrarPasoDatos();
+      return;
+    }catch(err){
+      if(err.code === "auth/popup-closed-by-user" ||
+         err.code === "auth/cancelled-popup-request" ||
+         err.code === "auth/user-cancelled") return;
+
+      console.error("Safari popup error:", err);
+
+      // Fallback a redirect solo si el popup fue bloqueado o no soportado
+      if(err.code === "auth/popup-blocked" ||
+         err.code === "auth/operation-not-supported-in-this-environment"){
+        try{
+          mostrarAvisoRedirect();
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        }catch(err2){
+          console.error("Safari redirect fallback error:", err2);
+          toast("No se pudo iniciar sesión. Toca Reintentar.","err");
+          mostrarBotonReintentar();
+          return;
+        }
+      }
+
+      // Otro error en Safari: ofrecer reintentar
+      toast("No se pudo iniciar sesión. Reintenta.","err");
+      mostrarBotonReintentar();
+      return;
+    }
+  }
+
+  // Móvil no-Safari (Chrome Android, etc.)
+  if(esMovil()){
     try{
       mostrarAvisoRedirect();
       await signInWithRedirect(auth, googleProvider);
@@ -2965,7 +3035,8 @@ async function loginGoogle(){
       return;
     }
   }
-  // Escritorio (Chrome, Firefox, Edge): popup funciona bien.
+
+  // Escritorio no-Safari (Chrome, Firefox, Edge): popup funciona bien.
   try{
     const result = await signInWithPopup(auth, googleProvider);
     const u = result.user;
@@ -5629,13 +5700,29 @@ renderLoginInfo();
 // que aquí solo capturamos errores. NO recargamos: recargar crea un loop
 // porque en la segunda llamada getRedirectResult devuelve null y ahí
 // quedaría atrapado el usuario.
+// Restaurar sesión tras signInWithRedirect (móvil).
+// CRÍTICO: en Safari, ITP (Intelligent Tracking Prevention) borra el estado
+// del redirect, causando 'missing-initial-state'. Eso NO significa que el
+// navegador sea incompatible: onAuthStateChanged puede tener la sesión ya.
+// Solo mostramos errores fatales; el resto se ignora para no bloquear la UI.
 getRedirectResult(auth).catch(err => {
-  if(err && err.code === "auth/unauthorized-domain"){
+  if(!err) return;
+  debug("getRedirectResult error:", err.code, err.message);
+
+  if(err.code === "auth/unauthorized-domain"){
     toast("Este sitio no está autorizado. Avisa a @paldea.games","err");
-  } else if(err){
-    console.error("getRedirectResult error:", err.code || err);
-    mostrarAvisoAbrirFuera();
+    return;
   }
+
+  // Safari con ITP: el estado del redirect se pierde. No bloquear la UI.
+  if(err.code === "auth/missing-initial-state" && esSafari()){
+    debug("Safari ITP: estado de redirect perdido, ignorando...");
+    return;
+  }
+
+  // Cualquier otro error: solo log, nunca mostrar aviso de navegador incompatible.
+  // Si onAuthStateChanged trae al usuario, la app sigue funcionando.
+  console.warn("getRedirectResult (recuperable):", err.code);
 });
 
 onAuthStateChanged(auth, (fbUser) => {
@@ -5643,6 +5730,15 @@ onAuthStateChanged(auth, (fbUser) => {
   if(urlP.get("tv")==="1") return; // TV no usa sesión
 
   if(fbUser){
+    // CRÍTICO: si un error previo de getRedirectResult dejó la UI bloqueada
+    // (aviso visible, botón oculto), limpiar TODO y dejar entrar.
+    const aviso = document.getElementById("login-redirect-aviso");
+    if(aviso){ aviso.style.display = "none"; aviso.innerHTML = ""; }
+    const btnGoogle = document.querySelector(".btn-google");
+    if(btnGoogle) btnGoogle.style.display = "";
+    const btnReint = document.getElementById("btn-reintentar-login");
+    if(btnReint) btnReint.style.display = "none";
+
     googleUser = {
       uid:    fbUser.uid,
       nombre: fbUser.displayName || "Sin nombre",
@@ -6565,6 +6661,7 @@ window.openTV       = openTV;
 window.copiarNombreCorreo = copiarNombreCorreo;
 window.copiarHistorialGanadores = copiarHistorialGanadores;
 window.borrarHistorialGanadores = borrarHistorialGanadores;
+window.limpiarYReintentar = limpiarYReintentar;
 </script>
 </body>
 </html>
