@@ -1754,7 +1754,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v34</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v36</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2294,7 +2294,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v34 — 27 jul 2026","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v36 — 27 jul 2026","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -2788,7 +2788,16 @@ let googleUser = null; // datos verificados de Google
 // pestaña y vuelve), que sí funciona dentro de la webview de Instagram.
 function esNavegadorInApp(){
   const ua = (navigator.userAgent || navigator.vendor || "").toLowerCase();
-  return /instagram|fbav|fb_iab|fban|messenger|line\/|musical_ly|tiktok|; wv\)/.test(ua);
+  // Detección directa por nombre de app en el UA
+  if(/instagram|fbav|fb_iab|fban|messenger|line\/|musical_ly|tiktok|snapchat|pinterest|twitter|linkedin/.test(ua)) return true;
+  // Android WebView genérico
+  if(/; wv\)/.test(ua)) return true;
+  // iOS: si es iPhone/iPad y NO tiene "safari" en el UA, es un in-app browser.
+  // Safari real siempre incluye "Safari/xxx" al final. Los WebViews de apps no.
+  // SFSafariViewController sí incluye "Safari", pero no podemos hacer mucho ahí
+  // (se comporta casi como Safari real y el login funciona).
+  if(/iphone|ipad|ipod/.test(ua) && !/safari/.test(ua)) return true;
+  return false;
 }
 
 // En móvil el popup de Google abre chico y desalineado (heurística del navegador).
@@ -2812,6 +2821,10 @@ function esSafari(){
   const ua = (navigator.userAgent || "").toLowerCase();
   // Safari real: contiene "safari" pero NO "chrome", "crios", "fxios", "edgios"
   return /safari/.test(ua) && !/chrome|crios|fxios|edgios|opera|opr\//.test(ua);
+}
+
+function esAndroid(){
+  return /android/i.test(navigator.userAgent || "");
 }
 
 // Abre la página en Chrome de verdad, saliendo de la webview de Instagram.
@@ -2849,6 +2862,24 @@ function mostrarAvisoAbrirFuera(){
 // a que toque "Continuar con Google" y crea que la página está rota.
 function avisarInAppAlCargar(){
   if(esNavegadorInApp()) mostrarAvisoAbrirFuera();
+  // Debug: si la URL tiene #debug, mostrar el user-agent en la zona de login
+  // para diagnosticar problemas de detección en dispositivos remotos.
+  if(location.hash === "#debug"){
+    const aviso = document.getElementById("login-redirect-aviso");
+    if(aviso){
+      aviso.style.display = "block";
+      const ua = navigator.userAgent || "—";
+      const inApp = esNavegadorInApp();
+      const movil = esMovil();
+      const safari = esSafari();
+      const ios = esIOS();
+      aviso.innerHTML = (aviso.innerHTML ? aviso.innerHTML + "<hr style='border-color:rgba(255,255,255,.1);margin:8px 0'>" : "") +
+        `<div style="text-align:left;font-size:10px;word-break:break-all;color:var(--muted)">
+        <strong>UA:</strong> ${ua}<br>
+        <strong>inApp:</strong> ${inApp} | <strong>móvil:</strong> ${movil} | <strong>safari:</strong> ${safari} | <strong>iOS:</strong> ${ios}
+        </div>`;
+    }
+  }
 }
 if(document.readyState === "loading"){
   document.addEventListener("DOMContentLoaded", avisarInAppAlCargar);
