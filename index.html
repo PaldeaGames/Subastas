@@ -1754,7 +1754,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v31</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v33</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2294,7 +2294,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v31 — 27 jul 2026","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v33 — 27 jul 2026","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -2803,8 +2803,15 @@ function mostrarAvisoRedirect(){
   const b = document.getElementById("login-redirect-aviso");
   if(b){ b.style.display="block"; b.textContent = "Redirigiendo a Google… vuelve en un momento."; }
 }
-function esAndroid(){
-  return /android/i.test(navigator.userAgent || "");
+function esIOS(){
+  const ua = (navigator.userAgent || navigator.vendor || "").toLowerCase();
+  return /iphone|ipad|ipod/.test(ua) || (navigator.maxTouchPoints > 1 && /mac/.test(ua));
+}
+
+function esSafari(){
+  const ua = (navigator.userAgent || "").toLowerCase();
+  // Safari real: contiene "safari" pero NO "chrome", "crios", "fxios", "edgios"
+  return /safari/.test(ua) && !/chrome|crios|fxios|edgios|opera|opr\//.test(ua);
 }
 
 // Abre la página en Chrome de verdad, saliendo de la webview de Instagram.
@@ -2818,14 +2825,23 @@ function abrirEnChrome(){
 function mostrarAvisoAbrirFuera(){
   const b = document.getElementById("login-redirect-aviso");
   if(!b) return;
-  const btnChrome = esAndroid()
-    ? `<button onclick="abrirEnChrome()" style="display:block;width:100%;margin:10px 0 0;background:var(--gold);color:#07070d;border:none;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">🚀 Abrir en Chrome</button>`
-    : "";
+
+  let btnAccion = "";
+  let instruccion = "";
+
+  if(esAndroid()){
+    btnAccion = `<button onclick="abrirEnChrome()" style="display:block;width:100%;margin:10px 0 0;background:var(--gold);color:#07070d;border:none;border-radius:7px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">🚀 Abrir en Chrome</button>`;
+    instruccion = "Toca el menú <strong>⋯</strong> arriba a la derecha → <strong>Abrir en el navegador</strong>.";
+  } else if(esIOS()){
+    instruccion = "Toca el ícono de <strong>Safari 🧭</strong> (abajo a la derecha) o los <strong>tres puntos ···</strong> → <strong>Abrir en Safari</strong>.";
+  } else {
+    instruccion = "Copia el link y ábrelo en <strong>Chrome o Safari</strong>.";
+  }
+
   b.style.display = "block";
-  b.innerHTML = `⚠️ Instagram no permite iniciar sesión con Google.
-    Abre esta página en <strong>Chrome o Safari</strong>
-    (toca el menú <strong>⋯</strong> arriba a la derecha → "Abrir en el navegador").
-    ${btnChrome}
+  b.innerHTML = `⚠️ Este navegador no permite iniciar sesión con Google.
+    ${instruccion}
+    ${btnAccion}
     <button onclick="copiarLinkSubasta()" style="display:block;width:100%;margin:7px 0 0;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:7px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">📋 Copiar link</button>`;
 }
 
@@ -2861,9 +2877,10 @@ async function loginGoogle(){
     return;
   }
 
-  // Móvil real (Chrome/Safari): el popup abre chico y desalineado, así que
-  // redirect, que ocupa toda la pantalla y es el flujo recomendado por Google.
-  if(esMovil()){
+  // Móvil real (Chrome/Safari): redirect, que ocupa toda la pantalla.
+  // Safari escritorio: también redirect, porque Safari bloquea popups
+  // de terceros de forma silenciosa y el usuario se queda esperando.
+  if(esMovil() || esSafari()){
     try{
       mostrarAvisoRedirect();
       await signInWithRedirect(auth, googleProvider);
@@ -2874,7 +2891,7 @@ async function loginGoogle(){
       return;
     }
   }
-  // Escritorio: popup
+  // Escritorio (Chrome, Firefox, Edge): popup funciona bien.
   try{
     const result = await signInWithPopup(auth, googleProvider);
     const u = result.user;
@@ -2891,8 +2908,8 @@ async function loginGoogle(){
        err.code === "auth/user-cancelled") return;
 
     console.error("Google login error:", err);
-    if(err.code === "auth/popup-blocked"){
-      // Popup bloqueado aun sin ser in-app conocido: intentar redirect
+    if(err.code === "auth/popup-blocked" ||
+       err.code === "auth/operation-not-supported-in-this-environment"){
       try{ mostrarAvisoRedirect(); await signInWithRedirect(auth, googleProvider); return; }
       catch(e2){ mostrarAvisoAbrirFuera(); return; }
     } else if(err.code === "auth/network-request-failed"){
@@ -2900,7 +2917,8 @@ async function loginGoogle(){
     } else if(err.code === "auth/unauthorized-domain"){
       toast("Este sitio no está autorizado. Avisa a @paldea.games","err");
     } else {
-      toast("No se pudo iniciar sesión. Reintenta.","err");
+      try{ mostrarAvisoRedirect(); await signInWithRedirect(auth, googleProvider); return; }
+      catch(e2){ toast("No se pudo iniciar sesión. Reintenta.","err"); return; }
     }
   }
 }
