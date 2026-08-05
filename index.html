@@ -1785,13 +1785,13 @@ body.express-tema #login-live-panel{
         <div style="font-size:11px;color:var(--muted2);margin-bottom:6px;line-height:1.5">
           ⚡ <strong>Pega aquí los datos de la carta</strong> (una línea o separados con <code style="background:var(--s3);padding:1px 4px;border-radius:4px">|</code>) y toca <strong>Llenar campos</strong>:
         </div>
-        <textarea class="a-input" id="a-parse-text" placeholder="Charizard VMAX&#10;Japonés&#10;sv2a 092/165&#10;Fuentes Milagrosas&#10;Ultra Rare&#10;NM" style="resize:vertical;min-height:80px;font-size:12px;line-height:1.6"></textarea>
+        <textarea class="a-input" id="a-parse-text" placeholder="Pega aquí el texto de TCGplayer o escribe manualmente...&#10;&#10;Ejemplo TCGplayer (copia y pega directo):&#10;Team Rocket's Wobbuffet - SV: Scarlet & Violet Promo Cards (SVP)&#10;Card Number / Rarity: 203 / Promo&#10;NM&#10;&#10;Ejemplo manual:&#10;Charizard VMAX&#10;Japonés&#10;sv2a 092/165&#10;Fuentes Milagrosas&#10;Ultra Rare&#10;NM style="resize:vertical;min-height:80px;font-size:12px;line-height:1.6"></textarea>
         <div style="display:flex;gap:8px;margin-top:6px">
           <button class="a-btn-sm" onclick="parsearTextoCarta()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070d;font-weight:700;border-color:transparent">⚡ Llenar campos automáticamente</button>
           <button class="a-btn-sm" onclick="document.getElementById('a-parse-text').value=''" style="color:var(--muted)">🗑 Limpiar</button>
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.5">
-          Orden sugerido: <strong>Nombre · Idioma · Set+Número · Set español · Rareza · Estado</strong>. También funciona en una sola línea separado por barras.
+          Funciona con <strong>texto copiado de TCGplayer</strong> (Ctrl+A, Ctrl+C, Ctrl+V) o escrito a mano. Detecta automáticamente: nombre, set, código, rareza y estado. También acepta formato separado por barras <code style="background:var(--s3);padding:1px 4px;border-radius:4px">|</code>.
         </div>
       </div>
       <div class="sep" style="margin-bottom:14px"></div>
@@ -4923,6 +4923,21 @@ function parsearTextoCarta(){
 
     const pNorm = linea.toUpperCase().replace(/[ÁÀÄÂ]/g,"A").replace(/[ÉÈËÊ]/g,"E").replace(/[ÍÌÏÎ]/g,"I").replace(/[ÓÒÖÔ]/g,"O").replace(/[ÚÙÜÛ]/g,"U");
     if(conds[pNorm] && !usados.has(i)){ cond=conds[pNorm]; usados.add(i); continue; }
+
+    // --- Número / Rareza suelto: "203 / Promo" ---
+    const matchNumRarSuelto = linea.match(/^(\d{1,3})\s*\/\s*(.+)$/);
+    if(matchNumRarSuelto && !usados.has(i)){
+      const num = matchNumRarSuelto[1].trim();
+      const rTexto = matchNumRarSuelto[2].trim();
+      if(setCod) setCod = setCod + " " + num;
+      else setCod = num;
+      for(const r of rarezas){
+        const rLow = r.text.toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
+        const rtLow = rTexto.toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
+        if(rLow.includes(rtLow) || rtLow.includes(rLow)){ rareza=r.value; break; }
+      }
+      usados.add(i); continue;
+    }
 
     for(const r of rarezas){
       const rLow = r.text.toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
