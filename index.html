@@ -89,7 +89,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .btn-ghost{background:none;border:1px solid var(--border);color:var(--muted2);
   padding:5px 10px;border-radius:7px;font-size:11px;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif}
 .btn-ghost:hover{border-color:var(--red);color:var(--red)}
-
+@media(max-width:480px){
+  .app-header{padding:10px 12px;gap:8px;}
+  .hdr-right{gap:6px;flex-shrink:0;}
+  .hdr-user{max-width:80px;font-size:11px;}
+  .btn-ghost{padding:4px 8px;font-size:10px;}
+  .pill{padding:4px 8px;font-size:10px;}
+}
 /* ════════════════════════════
    MAIN LAYOUT
 ════════════════════════════ */
@@ -1133,12 +1139,25 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   display:inline-flex; align-items:center; gap:4px;
   background:linear-gradient(90deg,#ff6a1a,#ff3b5c);
   color:#fff !important;
-  -webkit-text-fill-color:#fff !important;   /* el logo usa texto transparente; el badge NO debe heredarlo */
+  -webkit-text-fill-color:#fff !important;
   -webkit-background-clip:border-box !important; background-clip:border-box !important;
   font-family:'Outfit',sans-serif;
   font-size:11px; font-weight:800; letter-spacing:1px;
   padding:3px 9px; border-radius:20px; margin-left:8px; vertical-align:middle;
   animation:blink 1.5s ease-in-out infinite;
+  flex-shrink:0;
+}
+@media(max-width:480px){
+  .express-badge{
+    font-size:9px;
+    padding:2px 6px;
+    margin-left:4px;
+    letter-spacing:.5px;
+  }
+  .hdr-logo{
+    font-size:16px;
+    letter-spacing:2px;
+  }
 }
 
 /* Tema Express: acentos rojo/naranja en toda la interfaz cuando está activa */
@@ -1512,7 +1531,7 @@ body.express-tema #login-live-panel{
           👀 Sin pago en 1 hora → se consulta al 2° y 3° lugar. Sin respuesta, se anula la subasta<br>
           🚛 <strong style="color:var(--text)">Todos los envíos salen desde Santiago, Providencia</strong> · Starken por pagar<br>
           ⛔ Rechazar el envío o no responder tras ganar → <strong style="color:var(--red)">bloqueo inmediato</strong><br>
-          ⚡ Anti-snipe: cada puja en el último minuto suma 5 min<br>
+          ⚡ Anti-snipe: cada puja en el último minuto suma <span id="login-antisnipe">5</span> min<br>
           🇨🇱 Solo Chile continental
         </div>
       </div>
@@ -2667,13 +2686,17 @@ function aplicarTemaExpress(){
   const marca = (id) => {
     const cont = document.getElementById(id);
     if(!cont) return;
-    let badge = cont.querySelector(".express-badge");
+    // El badge se inserta como hermano inmediato, NO como hijo.
+    // Esto evita que herede el -webkit-background-clip:text del logo
+    // que causaba cortes visuales en móvil.
+    let badge = cont.nextElementSibling;
+    if(badge && !badge.classList.contains("express-badge")) badge = null;
     if(esExpress && activa){
       if(!badge){
         badge = document.createElement("span");
         badge.className = "express-badge";
         badge.textContent = "⚡ EXPRESS";
-        cont.appendChild(badge);
+        cont.insertAdjacentElement('afterend', badge);
       }
     } else if(badge){ badge.remove(); }
   };
@@ -3804,11 +3827,8 @@ function armarMensajeGanador(){
 ¡Felicidades! Ganaste la subasta de ${carta || "la carta"} con tu oferta de ${monto}.
 
 Para coordinar:
-💰 Tienes 1 hora para realizar el pago por transferencia. Te dejo los datos aquí abajo.
+💰 Tienes 1 hora para realizar el pago por transferencia.
 📦 El envío se hace desde Providencia por Starken (por pagar), o si prefieres retiro presencial te mando el punto de encuentro.
-
-Datos de transferencia:
-[PEGA AQUÍ TUS DATOS]
 
 Cualquier duda me dices. ¡Gracias por participar! 💛
 @paldea.games`;
@@ -4862,6 +4882,19 @@ function toggleExpressUI(){
   const on = document.getElementById("a-express")?.checked;
   const tiempos = document.getElementById("express-tiempos");
   if(tiempos) tiempos.style.display = on ? "flex" : "none";
+
+  if(on){
+    // Express: prellenar inicio 18:00 y fin 20:00 (mismo día; si ya pasó, mañana)
+    const ahora = new Date();
+    const ini = new Date(ahora); ini.setHours(18,0,0,0);
+    const fin = new Date(ahora); fin.setHours(20,0,0,0);
+    if(ahora >= ini){ ini.setDate(ini.getDate()+1); fin.setDate(fin.getDate()+1); }
+    const iniInput = document.getElementById("a-inicio");
+    const finInput = document.getElementById("a-fin");
+    if(iniInput) iniInput.value = aDatetimeLocal(ini);
+    if(finInput) finInput.value = aDatetimeLocal(fin);
+    recalcDuracion();
+  }
 }
 
 // Preconfigura una duración rápida (en minutos) para la subasta Express.
@@ -6544,6 +6577,10 @@ function renderLoginInfo(){
     bd.innerHTML = badges;
   }
   // Idioma en login — bien visible
+  // Anti-snipe dinámico en el reglamento del login
+  const asLogin = document.getElementById("login-antisnipe");
+  if(asLogin) asLogin.textContent = String(S.subasta.antisnipeAgrega || 5);
+
   const idiomaLogin = document.getElementById("login-card-idioma");
   if(idiomaLogin){
     if(c.idioma){
