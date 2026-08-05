@@ -6414,9 +6414,9 @@ function renderLoginLivePanel(){
     // Encabezado del panel: "PRÓXIMAMENTE" en vez de "EN VIVO"
     panel.style.borderColor = "var(--gold)";
     panel.style.background = "linear-gradient(135deg,rgba(245,200,66,.12),rgba(245,200,66,.02))";
-    if(pujasEl) pujasEl.textContent = "Precio de salida";
+    if(pujasEl) pujasEl.textContent = "Precio base";
     const plblEl = panel.querySelector(".login-live-plbl");
-    if(plblEl) plblEl.textContent = "Precio de salida";
+    if(plblEl) plblEl.textContent = "Precio base";
     const lblEncabezado = panel.querySelector(".login-live-head");
     if(lblEncabezado){ lblEncabezado.textContent = "PRÓXIMAMENTE"; }
 
