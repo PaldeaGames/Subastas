@@ -4830,22 +4830,17 @@ function parsearTextoCarta(){
   const raw = document.getElementById("a-parse-text").value.trim();
   if(!raw){ toast("Pega el texto de la carta primero","warn"); return; }
 
-  // ── 1. LIMPIAR Y SEPARAR ──
-  // Quitar símbolos de moneda, precios, botones, URLs
   let limpio = raw
-    .replace(/\$[\d,.]+/g, "")           // precios $8.72
+    .replace(/\$[\d,.]+/g, "")
     .replace(/Add to Cart|Learn more|Sold by|Shipping|PayPal|TCGPlayer Direct|Official/gi, "")
-    .replace(/https?:\/\/\S+/g, "")      // URLs
-    .replace(/\b\d+\s*of\s*\d+\b/g, ""); // "1 of 1"
+    .replace(/https?:\/\/\S+/g, "")
+    .replace(/\b\d+\s*of\s*\d+\b/g, "");
 
-  // Separar por líneas
   let lineas = limpio.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>0);
-  // Si es una sola línea con pipes, separar por pipes
   if(lineas.length === 1 && raw.includes("|")){
     lineas = raw.split("|").map(l=>l.trim()).filter(l=>l.length>0);
   }
 
-  // ── 2. PREPARAR DICCIONARIOS ──
   const rarezaSelect = document.getElementById("a-rareza");
   const rarezas = [];
   for(const opt of rarezaSelect.options){
@@ -4870,19 +4865,16 @@ function parsearTextoCarta(){
   let nombre="", idioma="", setCod="", setEs="", rareza="", cond="";
   const usados = new Set();
 
-  // ── 3. DETECTAR PATRONES TCGPLAYER / FORMATOS CON ETIQUETAS ──
   for(let i=0;i<lineas.length;i++){
     if(usados.has(i)) continue;
     const linea = lineas[i];
     const lineaLow = linea.toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
 
-    // --- TCGplayer: "Card Number / Rarity: 203 / Promo" ---
     const matchNumRar = linea.match(/Card Number\s*\/\s*Rarity[:\s]+(.+)/i);
     if(matchNumRar){
       const partesNR = matchNumRar[1].split("/").map(s=>s.trim());
       if(partesNR.length >= 2){
-        setCod = (setCod ? setCod + " " : "") + partesNR[0]; // número
-        // La rareza puede ser "Promo", "Holofoil", etc.
+        setCod = (setCod ? setCod + " " : "") + partesNR[0];
         const rTexto = partesNR[1];
         for(const r of rarezas){
           const rLow = r.text.toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
@@ -4891,7 +4883,6 @@ function parsearTextoCarta(){
           }
         }
         if(!rareza){
-          // Fallback: buscar coincidencia parcial
           for(const r of rarezas){
             if(r.text.toLowerCase().includes(rTexto.toLowerCase().replace(/foil$/,"").trim())){
               rareza = r.value; break;
@@ -4902,18 +4893,14 @@ function parsearTextoCarta(){
       }
     }
 
-    // --- TCGplayer: "Card Type / HP / Stage: Psychic / 110 / Basic" ---
     const matchTipo = linea.match(/Card Type\s*\/\s*HP\s*\/\s*Stage[:\s]+(.+)/i);
-    if(matchTipo){ usados.add(i); continue; } // no usamos tipo/hp/stage por ahora
+    if(matchTipo){ usados.add(i); continue; }
 
-    // --- TCGplayer: "Artist: Soboteri" ---
     const matchArtist = linea.match(/Artist[:\s]+(.+)/i);
     if(matchArtist){ usados.add(i); continue; }
 
-    // --- "All versions" u otros links ---
     if(/All versions|View more|See all/i.test(linea)){ usados.add(i); continue; }
 
-    // --- Set entre paréntesis al final del nombre: "Nombre - Set (CÓDIGO)" ---
     const matchSetParen = linea.match(/^(.+?)\s*[-—]\s*(.+?)\s*\(([^)]+)\)$/);
     if(matchSetParen && !usados.has(i)){
       nombre = matchSetParen[1].trim();
@@ -4922,7 +4909,6 @@ function parsearTextoCarta(){
       usados.add(i); continue;
     }
 
-    // --- Set con guión: "Nombre - Set" sin paréntesis ---
     const matchSetDash = linea.match(/^(.+?)\s*[-—]\s*(.+)$/);
     if(matchSetDash && !usados.has(i) && linea.length > 10){
       nombre = matchSetDash[1].trim();
@@ -4930,24 +4916,20 @@ function parsearTextoCarta(){
       usados.add(i); continue;
     }
 
-    // --- Idioma ---
     for(const [k,v] of Object.entries(idiomas)){
       if(lineaLow.includes(k) && !usados.has(i)){ idioma=v; usados.add(i); break; }
     }
     if(usados.has(i)) continue;
 
-    // --- Condición exacta ---
     const pNorm = linea.toUpperCase().replace(/[ÁÀÄÂ]/g,"A").replace(/[ÉÈËÊ]/g,"E").replace(/[ÍÌÏÎ]/g,"I").replace(/[ÓÒÖÔ]/g,"O").replace(/[ÚÙÜÛ]/g,"U");
     if(conds[pNorm] && !usados.has(i)){ cond=conds[pNorm]; usados.add(i); continue; }
 
-    // --- Rareza por coincidencia de texto ---
     for(const r of rarezas){
       const rLow = r.text.toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
       if(lineaLow.includes(rLow) && !usados.has(i)){ rareza=r.value; usados.add(i); break; }
     }
     if(usados.has(i)) continue;
 
-    // --- Set con número: "sv2a 092/165", "SWSH 261", "123/456" ---
     if(/^[a-z0-9]+[\s-]+\d{1,3}(\/\d{1,3})?$/i.test(linea) && !usados.has(i)){
       setCod = linea; usados.add(i); continue;
     }
@@ -4956,7 +4938,6 @@ function parsearTextoCarta(){
     }
   }
 
-  // ── 4. ASIGNAR RESTO (líneas no usadas) ──
   const resto = lineas.filter((_,i)=>!usados.has(i));
   if(resto.length >= 1 && !nombre) nombre = resto[0];
   if(resto.length >= 2 && !setEs)  setEs  = resto[1];
@@ -4973,7 +4954,6 @@ function parsearTextoCarta(){
     }
   }
 
-  // ── 5. APLICAR A LOS CAMPOS ──
   if(nombre) document.getElementById("a-title").value = nombre;
   if(idioma) document.getElementById("a-idioma").value = idioma;
   if(setCod) document.getElementById("a-set").value = setCod;
@@ -4981,7 +4961,6 @@ function parsearTextoCarta(){
   if(rareza) document.getElementById("a-rareza").value = rareza;
   if(cond)   document.getElementById("a-cond").value = cond;
 
-  // ── 6. RESUMEN VISUAL DE LO DETECTADO ──
   const detectados = [];
   if(nombre) detectados.push("Nombre");
   if(idioma) detectados.push("Idioma");
@@ -4998,9 +4977,6 @@ function parsearTextoCarta(){
   let msg = "✅ " + (detectados.length > 0 ? detectados.join(" · ") : "Nada detectado");
   if(faltan.length > 0) msg += "  |  Falta: " + faltan.join(", ");
   toast(msg, detectados.length >= 4 ? "ok" : "warn");
-}
-
-  toast("✅ Campos llenados automáticamente","ok");
 }
 
 function fillAdminFields(){
