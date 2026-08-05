@@ -1779,6 +1779,23 @@ body.express-tema #login-live-panel{
       </div>
 
       <div class="section-label">Carta</div>
+
+      <!-- PEGAR TEXTO RÁPIDO -->
+      <div class="admin-grid1" style="margin-bottom:10px">
+        <div style="font-size:11px;color:var(--muted2);margin-bottom:6px;line-height:1.5">
+          ⚡ <strong>Pega aquí los datos de la carta</strong> (una línea o separados con <code style="background:var(--s3);padding:1px 4px;border-radius:4px">|</code>) y toca <strong>Llenar campos</strong>:
+        </div>
+        <textarea class="a-input" id="a-parse-text" placeholder="Charizard VMAX&#10;Japonés&#10;sv2a 092/165&#10;Fuentes Milagrosas&#10;Ultra Rare&#10;NM" style="resize:vertical;min-height:80px;font-size:12px;line-height:1.6"></textarea>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="a-btn-sm" onclick="parsearTextoCarta()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070d;font-weight:700;border-color:transparent">⚡ Llenar campos automáticamente</button>
+          <button class="a-btn-sm" onclick="document.getElementById('a-parse-text').value=''" style="color:var(--muted)">🗑 Limpiar</button>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.5">
+          Orden sugerido: <strong>Nombre · Idioma · Set+Número · Set español · Rareza · Estado</strong>. También funciona en una sola línea separado por barras.
+        </div>
+      </div>
+      <div class="sep" style="margin-bottom:14px"></div>
+
       <div class="admin-grid2">
         <input class="a-input" id="a-title" placeholder="Nombre carta" />
         <select class="a-input" id="a-cond" style="cursor:pointer;color:var(--text)">
@@ -4809,6 +4826,183 @@ function toggleAdmin(){
   if(!visible) fillAdminFields();
 }
 
+function parsearTextoCarta(){
+  const raw = document.getElementById("a-parse-text").value.trim();
+  if(!raw){ toast("Pega el texto de la carta primero","warn"); return; }
+
+  // ── 1. LIMPIAR Y SEPARAR ──
+  // Quitar símbolos de moneda, precios, botones, URLs
+  let limpio = raw
+    .replace(/\$[\d,.]+/g, "")           // precios $8.72
+    .replace(/Add to Cart|Learn more|Sold by|Shipping|PayPal|TCGPlayer Direct|Official/gi, "")
+    .replace(/https?:\/\/\S+/g, "")      // URLs
+    .replace(/\b\d+\s*of\s*\d+\b/g, ""); // "1 of 1"
+
+  // Separar por líneas
+  let lineas = limpio.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>0);
+  // Si es una sola línea con pipes, separar por pipes
+  if(lineas.length === 1 && raw.includes("|")){
+    lineas = raw.split("|").map(l=>l.trim()).filter(l=>l.length>0);
+  }
+
+  // ── 2. PREPARAR DICCIONARIOS ──
+  const rarezaSelect = document.getElementById("a-rareza");
+  const rarezas = [];
+  for(const opt of rarezaSelect.options){
+    if(opt.text && !opt.text.startsWith("—") && opt.text.length > 2 && opt.text !== "Otra"){
+      rarezas.push({ text: opt.text, value: opt.value || opt.text });
+    }
+  }
+
+  const idiomas = {
+    "japonés": "🇯🇵 Japonés", "japones": "🇯🇵 Japonés", "jp": "🇯🇵 Japonés",
+    "inglés": "🇺🇸 Inglés", "ingles": "🇺🇸 Inglés", "en": "🇺🇸 Inglés",
+    "español": "🇪🇸 Español", "espanol": "🇪🇸 Español", "es": "🇪🇸 Español",
+    "coreano": "🇰🇷 Coreano", "kr": "🇰🇷 Coreano",
+    "chino": "🇨🇳 Chino", "cn": "🇨🇳 Chino",
+    "alemán": "🇩🇪 Alemán", "aleman": "🇩🇪 Alemán",
+    "francés": "🇫🇷 Francés", "frances": "🇫🇷 Francés",
+    "italiano": "🇮🇹 Italiano",
+    "portugués": "🇵🇹 Portugués", "portugues": "🇵🇹 Portugués"
+  };
+  const conds = {"M":"M","NM":"NM","LP":"LP","MP":"MP","HP":"HP","DMG":"DMG"};
+
+  let nombre="", idioma="", setCod="", setEs="", rareza="", cond="";
+  const usados = new Set();
+
+  // ── 3. DETECTAR PATRONES TCGPLAYER / FORMATOS CON ETIQUETAS ──
+  for(let i=0;i<lineas.length;i++){
+    if(usados.has(i)) continue;
+    const linea = lineas[i];
+    const lineaLow = linea.toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
+
+    // --- TCGplayer: "Card Number / Rarity: 203 / Promo" ---
+    const matchNumRar = linea.match(/Card Number\s*\/\s*Rarity[:\s]+(.+)/i);
+    if(matchNumRar){
+      const partesNR = matchNumRar[1].split("/").map(s=>s.trim());
+      if(partesNR.length >= 2){
+        setCod = (setCod ? setCod + " " : "") + partesNR[0]; // número
+        // La rareza puede ser "Promo", "Holofoil", etc.
+        const rTexto = partesNR[1];
+        for(const r of rarezas){
+          const rLow = r.text.toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
+          if(rLow.includes(rTexto.toLowerCase()) || rTexto.toLowerCase().includes(rLow)){
+            rareza = r.value; break;
+          }
+        }
+        if(!rareza){
+          // Fallback: buscar coincidencia parcial
+          for(const r of rarezas){
+            if(r.text.toLowerCase().includes(rTexto.toLowerCase().replace(/foil$/,"").trim())){
+              rareza = r.value; break;
+            }
+          }
+        }
+        usados.add(i); continue;
+      }
+    }
+
+    // --- TCGplayer: "Card Type / HP / Stage: Psychic / 110 / Basic" ---
+    const matchTipo = linea.match(/Card Type\s*\/\s*HP\s*\/\s*Stage[:\s]+(.+)/i);
+    if(matchTipo){ usados.add(i); continue; } // no usamos tipo/hp/stage por ahora
+
+    // --- TCGplayer: "Artist: Soboteri" ---
+    const matchArtist = linea.match(/Artist[:\s]+(.+)/i);
+    if(matchArtist){ usados.add(i); continue; }
+
+    // --- "All versions" u otros links ---
+    if(/All versions|View more|See all/i.test(linea)){ usados.add(i); continue; }
+
+    // --- Set entre paréntesis al final del nombre: "Nombre - Set (CÓDIGO)" ---
+    const matchSetParen = linea.match(/^(.+?)\s*[-—]\s*(.+?)\s*\(([^)]+)\)$/);
+    if(matchSetParen && !usados.has(i)){
+      nombre = matchSetParen[1].trim();
+      setEs = matchSetParen[2].trim();
+      setCod = matchSetParen[3].trim();
+      usados.add(i); continue;
+    }
+
+    // --- Set con guión: "Nombre - Set" sin paréntesis ---
+    const matchSetDash = linea.match(/^(.+?)\s*[-—]\s*(.+)$/);
+    if(matchSetDash && !usados.has(i) && linea.length > 10){
+      nombre = matchSetDash[1].trim();
+      setEs = matchSetDash[2].trim();
+      usados.add(i); continue;
+    }
+
+    // --- Idioma ---
+    for(const [k,v] of Object.entries(idiomas)){
+      if(lineaLow.includes(k) && !usados.has(i)){ idioma=v; usados.add(i); break; }
+    }
+    if(usados.has(i)) continue;
+
+    // --- Condición exacta ---
+    const pNorm = linea.toUpperCase().replace(/[ÁÀÄÂ]/g,"A").replace(/[ÉÈËÊ]/g,"E").replace(/[ÍÌÏÎ]/g,"I").replace(/[ÓÒÖÔ]/g,"O").replace(/[ÚÙÜÛ]/g,"U");
+    if(conds[pNorm] && !usados.has(i)){ cond=conds[pNorm]; usados.add(i); continue; }
+
+    // --- Rareza por coincidencia de texto ---
+    for(const r of rarezas){
+      const rLow = r.text.toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
+      if(lineaLow.includes(rLow) && !usados.has(i)){ rareza=r.value; usados.add(i); break; }
+    }
+    if(usados.has(i)) continue;
+
+    // --- Set con número: "sv2a 092/165", "SWSH 261", "123/456" ---
+    if(/^[a-z0-9]+[\s-]+\d{1,3}(\/\d{1,3})?$/i.test(linea) && !usados.has(i)){
+      setCod = linea; usados.add(i); continue;
+    }
+    if(/^[a-z0-9]+[\s]+\d{1,3}\s*\/\s*\d{1,3}$/i.test(linea) && !usados.has(i)){
+      setCod = linea.replace(/\s*\/\s*/,"/"); usados.add(i); continue;
+    }
+  }
+
+  // ── 4. ASIGNAR RESTO (líneas no usadas) ──
+  const resto = lineas.filter((_,i)=>!usados.has(i));
+  if(resto.length >= 1 && !nombre) nombre = resto[0];
+  if(resto.length >= 2 && !setEs)  setEs  = resto[1];
+  for(let j=2;j<resto.length;j++){
+    const rLow = resto[j].toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
+    if(!rareza){
+      for(const r of rarezas){
+        const rLow2 = r.text.toLowerCase().replace(/[áàäâ]/g,"a").replace(/[éèëê]/g,"e").replace(/[íìïî]/g,"i").replace(/[óòöô]/g,"o").replace(/[úùüû]/g,"u");
+        if(rLow.includes(rLow2)){ rareza=r.value; break; }
+      }
+    }
+    if(!cond && conds[resto[j].toUpperCase().replace(/[ÁÀÄÂ]/g,"A").replace(/[ÉÈËÊ]/g,"E").replace(/[ÍÌÏÎ]/g,"I").replace(/[ÓÒÖÔ]/g,"O").replace(/[ÚÙÜÛ]/g,"U")]){
+      cond = conds[resto[j].toUpperCase().replace(/[ÁÀÄÂ]/g,"A").replace(/[ÉÈËÊ]/g,"E").replace(/[ÍÌÏÎ]/g,"I").replace(/[ÓÒÖÔ]/g,"O").replace(/[ÚÙÜÛ]/g,"U")];
+    }
+  }
+
+  // ── 5. APLICAR A LOS CAMPOS ──
+  if(nombre) document.getElementById("a-title").value = nombre;
+  if(idioma) document.getElementById("a-idioma").value = idioma;
+  if(setCod) document.getElementById("a-set").value = setCod;
+  if(setEs)  document.getElementById("a-set-es").value = setEs;
+  if(rareza) document.getElementById("a-rareza").value = rareza;
+  if(cond)   document.getElementById("a-cond").value = cond;
+
+  // ── 6. RESUMEN VISUAL DE LO DETECTADO ──
+  const detectados = [];
+  if(nombre) detectados.push("Nombre");
+  if(idioma) detectados.push("Idioma");
+  if(setCod) detectados.push("Set+Código");
+  if(setEs)  detectados.push("Set ES");
+  if(rareza) detectados.push("Rareza");
+  if(cond)   detectados.push("Estado");
+  const faltan = [];
+  if(!nombre) faltan.push("Nombre");
+  if(!setCod) faltan.push("Set+Código");
+  if(!rareza) faltan.push("Rareza");
+  if(!cond)   faltan.push("Estado");
+
+  let msg = "✅ " + (detectados.length > 0 ? detectados.join(" · ") : "Nada detectado");
+  if(faltan.length > 0) msg += "  |  Falta: " + faltan.join(", ");
+  toast(msg, detectados.length >= 4 ? "ok" : "warn");
+}
+
+  toast("✅ Campos llenados automáticamente","ok");
+}
+
 function fillAdminFields(){
   llenarHoras();
   document.getElementById("a-title").value    = S.carta.titulo;
@@ -6699,6 +6893,7 @@ window.copiarNombreCorreo = copiarNombreCorreo;
 window.copiarHistorialGanadores = copiarHistorialGanadores;
 window.borrarHistorialGanadores = borrarHistorialGanadores;
 window.limpiarYReintentar = limpiarYReintentar;
+window.parsearTextoCarta = parsearTextoCarta;
 </script>
 </body>
 </html>
