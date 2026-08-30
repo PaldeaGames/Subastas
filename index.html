@@ -1807,7 +1807,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v42</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v44</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2283,6 +2283,24 @@ body.express-tema #login-live-panel{
   </div>
 </div>
 
+<!-- Ventana de rectificación: doble chequeo del contacto ANTES de guardarlo -->
+<div class="modal-overlay" id="modal-rectificar">
+  <div class="modal-box" style="max-width:420px">
+    <div style="font-size:44px;margin-bottom:6px">🔍</div>
+    <div class="modal-title" style="color:var(--gold);font-size:22px">¿Estos datos están correctos?</div>
+    <div style="font-size:12px;color:var(--muted2);margin-bottom:14px;line-height:1.5">Revísalos con calma, letra por letra: <strong style="color:var(--text)">te contactaremos aquí si ganas</strong>.</div>
+
+    <div id="rect-lista" style="background:var(--s2);border:1.5px solid var(--gold);border-radius:11px;padding:13px 14px;margin-bottom:12px;text-align:left"></div>
+
+    <div style="background:rgba(255,59,92,.08);border:1px solid rgba(255,59,92,.3);border-radius:10px;padding:11px 13px;margin-bottom:14px;font-size:12px;color:var(--muted2);line-height:1.6;text-align:left">
+      ⚠️ <strong style="color:var(--red)">Si tus datos están mal escritos, no podremos contactarte para entregarte tu premio</strong> y la carta pasará al siguiente lugar. Una vez guardados, no se pueden modificar.
+    </div>
+
+    <button class="btn-primary" onclick="confirmarRectificacion()">✓ SÍ, ESTÁN CORRECTOS</button>
+    <button class="btn-ghost" style="width:100%;margin-top:8px;justify-content:center" onclick="cerrarRectificacion()">← Volver a corregir</button>
+  </div>
+</div>
+
 <!-- Popup de agradecimiento tras confirmar el contacto -->
 <div class="modal-overlay" id="modal-gracias">
   <div class="modal-box" style="max-width:380px;text-align:center">
@@ -2396,7 +2414,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v42 — contacto +18 obligatorio una vez para todos","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v44 — doble chequeo de contacto al registrarse","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -2668,7 +2686,11 @@ function initPrivadoListener(){
     P.strikes = snap.val() || {};
     if(admin) renderApp();
   }, (err) => {
-    if(admin) console.error("No se pudo leer strikes:", err.code || err);
+    if(admin){
+      console.error("No se pudo leer strikes:", err.code || err);
+      const lista = document.getElementById("strikes-list");
+      if(lista) lista.innerHTML = '<div style="padding:14px;text-align:center;font-size:12px;color:var(--red)">⚠️ Sin permiso — falta habilitar privado/strikes en las reglas de Firebase</div>';
+    }
   });
 }
 
@@ -3159,6 +3181,9 @@ function mostrarPasoDatos(){
   if(perfilPrevio){
     if(elIg && perfilPrevio.ig) elIg.value = String(perfilPrevio.ig).replace(/^@+/,"");
     if(elWa && perfilPrevio.whatsapp) elWa.value = String(perfilPrevio.whatsapp).replace("+56","");
+    // Ya aceptó antes: pre-marcar la preferencia de marketing
+    const chkM = document.getElementById("chk-marketing");
+    if(chkM) chkM.checked = !!perfilPrevio.marketing;
   }
 }
 
@@ -3253,23 +3278,68 @@ async function doLogin(){
     return;
   }
 
+  // ── DOBLE CHEQUEO ──
+  // Todo válido: antes de guardar, abrir la ventana de rectificación para
+  // que la persona revise su contacto en grande. Recién al confirmar ahí
+  // se guarda el registro (no se puede modificar después).
+  registroPendiente = {
+    ig:       igFinal,
+    whatsapp: waFinal,
+    marketing: !!(chkMkt && chkMkt.checked)
+  };
+  mostrarRectificacion();
+}
+
+// Datos validados a la espera de que el usuario los rectifique en la ventana
+let registroPendiente = null;
+
+function mostrarRectificacion(){
+  if(!registroPendiente) return;
+  const lista = document.getElementById("rect-lista");
+  const fila = (etiqueta, valor) => `
+    <div style="margin-bottom:10px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:3px">${etiqueta}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:800;color:var(--gold);word-break:break-all">${esc(valor)}</div>
+    </div>`;
+  let html = fila("Nombre", googleUser.nombre) + fila("Correo", googleUser.email);
+  if(registroPendiente.ig) html += fila("📷 Instagram", registroPendiente.ig);
+  if(registroPendiente.whatsapp){
+    const w = registroPendiente.whatsapp;   // "+56912345678" → "+56 9 1234 5678"
+    html += fila("💬 WhatsApp", `+56 ${w.slice(3,4)} ${w.slice(4,8)} ${w.slice(8)}`);
+  }
+  lista.innerHTML = html;
+  document.getElementById("modal-rectificar").classList.add("open");
+}
+
+function cerrarRectificacion(){
+  // Vuelve al formulario con los datos tal como los escribió: nada se pierde
+  document.getElementById("modal-rectificar").classList.remove("open");
+}
+
+// Segundo paso: los datos ya fueron revisados y confirmados por el usuario
+function confirmarRectificacion(){
+  if(!registroPendiente || !googleUser) return;
+  document.getElementById("modal-rectificar").classList.remove("open");
+
   user = {
     uid:      googleUser.uid,
     nombre:   googleUser.nombre,
     email:    googleUser.email,
     foto:     googleUser.foto,
-    ig:       igFinal,
-    whatsapp: waFinal
+    ig:       registroPendiente.ig,
+    whatsapp: registroPendiente.whatsapp
   };
 
   try{ sessionStorage.setItem("subasta_user", JSON.stringify(user)); }catch(e){}
 
-  registrarVisitante(!!(chkMkt && chkMkt.checked));
+  registrarVisitante(registroPendiente.marketing);
+  registroPendiente = null;
 
   document.getElementById("screen-login").style.display = "none";
   document.getElementById("screen-app").style.display   = "block";
   document.getElementById("hdr-user").textContent       = user.nombre;
   renderApp();
+  toast("✅ Contacto registrado — ¡a pujar!","ok");
 }
 
 async function doLogout(){
@@ -3593,7 +3663,10 @@ function renderApp(){
           <div style="font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:8px">📋 PRÓXIMOS PASOS</div>
           ${(S.policies||"").replace(/\n\n/g,'</p><p style="margin-top:8px">').replace(/\n/g,"<br>")}
         `;
-        if(soyElGanador && !S.ganadorAvisado){
+        // El botón queda SIEMPRE disponible para el ganador: la marca
+        // ganadorAvisado solo apaga la apertura automática del pop-up,
+        // no el acceso manual a las instrucciones de pago.
+        if(soyElGanador){
           wmsg.innerHTML +=
             `<button class="btn-primary" style="margin-top:12px" onclick="reabrirModalGanador()">🏆 VER INSTRUCCIONES DE PAGO</button>`;
         }
@@ -3770,24 +3843,9 @@ function abrirIgGanador(){
   }
 }
 
-// ── Modal exclusivo del ganador ──
-let modalGanadorMostrado = false;
-function checkModalGanador(){
-  if(isTVMode) return;                  // la TV nunca muestra modales
-  if(!user || !S.lider) return;
-  if(admin) return;                     // el admin no lo ve
-  // Comparar por uid de Google (verificado). Fallback a ig por compatibilidad.
-  const soyGanador = S.lider.uid
-    ? (S.lider.uid === user.uid)
-    : (S.lider.ig === user.ig);
-  if(!soyGanador) return;
-  if(S.ganadorAvisado) return;          // ya confirmó (marca pública)
-
-  // Si ya está abierto, no reabrir (evita perder lo escrito en cada render)
-  const m = document.getElementById("modal-ganador");
-  if(m && m.classList.contains("open")) return;
-  // modalGanadorMostrado solo evita reabrirlo en el MISMO render.
-  modalGanadorMostrado = true;
+// Rellena el contenido del modal del ganador (monto, carta y su contacto).
+// Lo usan tanto la apertura automática como el botón manual del banner.
+function llenarModalGanador(){
   document.getElementById("modal-ganador-monto").textContent = fmtCLP(S.lider.monto);
   document.getElementById("modal-ganador-carta").textContent = S.carta.titulo || "";
   // El contacto ya se pidió al ingresar: aquí solo se le recuerda por dónde
@@ -3801,6 +3859,26 @@ function checkModalGanador(){
                      : ig ? `📷 ${ig}`
                      : "—";
   }
+}
+
+// ── Modal exclusivo del ganador ──
+let modalGanadorMostrado = false;
+function checkModalGanador(){
+  if(isTVMode) return;                  // la TV nunca muestra modales
+  if(!user || !S.lider) return;
+  if(admin) return;                     // el admin no lo ve
+  // Comparar por uid de Google (verificado). Fallback a ig por compatibilidad.
+  const soyGanador = S.lider.uid
+    ? (S.lider.uid === user.uid)
+    : (S.lider.ig === user.ig);
+  if(!soyGanador) return;
+  if(S.ganadorAvisado) return;          // ya lo vio: no abrir automáticamente
+
+  // Si ya está abierto, no reabrir (evita perder lo escrito en cada render)
+  const m = document.getElementById("modal-ganador");
+  if(m && m.classList.contains("open")) return;
+  modalGanadorMostrado = true;
+  llenarModalGanador();
   document.getElementById("modal-ganador").classList.add("open");
 }
 
@@ -4040,8 +4118,15 @@ function finalizarHistoria(canvas){
 }
 
 function reabrirModalGanador(){
-  modalGanadorMostrado = false;
-  checkModalGanador();
+  // Apertura MANUAL desde el banner: funciona siempre, incluso después de
+  // haber tocado "Entendido" (ganadorAvisado solo apaga la auto-apertura).
+  if(!user || !S.lider) return;
+  const soyGanador = S.lider.uid
+    ? (S.lider.uid === user.uid)
+    : (S.lider.ig === user.ig);
+  if(!soyGanador) return;
+  llenarModalGanador();
+  document.getElementById("modal-ganador").classList.add("open");
 }
 
 function cerrarGracias(){
@@ -4139,6 +4224,17 @@ function renderLog(){
 // ══════════════════════════════════════
 //  PUJA
 // ══════════════════════════════════════
+// El bloqueo debe alcanzar a la persona por CUALQUIERA de sus identidades:
+// uid de Google (lo normal) o Instagram (bloqueos antiguos hechos por IG).
+// Antes era `user.uid || user.ig`: como el uid siempre existe, un bloqueo
+// guardado por IG nunca se aplicaba.
+function estaBloqueado(bloq, u){
+  if(!u) return false;
+  if(u.uid && bloq.includes(u.uid)) return true;
+  if(u.ig  && bloq.includes(u.ig))  return true;
+  return false;
+}
+
 function minBid(){
   return S.subasta.precioAct>0
     ? S.subasta.precioAct + S.subasta.inc
@@ -4154,7 +4250,7 @@ function doBid(monto){
     toast("⏰ La subasta acaba de terminar","warn"); return;
   }
   if(!user){ toast("Debes estar logueado","err"); return; }
-  if(S.bloqueados && S.bloqueados.includes(user.uid || user.ig)){
+  if(S.bloqueados && estaBloqueado(S.bloqueados, user)){
     toast("⛔ Tu cuenta ha sido bloqueada de esta subasta","err"); return;
   }
 
@@ -4256,7 +4352,7 @@ async function ejecutarPuja(val){
     toast("⏰ La subasta terminó mientras confirmabas","warn");
     renderApp(); return;
   }
-  if(S.bloqueados && S.bloqueados.includes(user.uid || user.ig)){
+  if(S.bloqueados && estaBloqueado(S.bloqueados, user)){
     toast("⛔ Tu cuenta ha sido bloqueada","err"); return;
   }
 
@@ -4285,7 +4381,7 @@ async function ejecutarPuja(val){
       if(sub.finTs && ahoraSrv() >= sub.finTs) return;        // abortar
 
       const bloq = normalizarLista(actual.bloqueados);
-      if(bloq.includes(user.uid || user.ig)) return;           // abortar
+      if(estaBloqueado(bloq, user)) return;                     // abortar
 
       // Mínimo según el precio REAL del servidor, no el de mi pantalla
       const inc = sub.inc || 1000;
@@ -4352,7 +4448,7 @@ async function ejecutarPuja(val){
     const minServidor = (sub.precioAct > 0) ? sub.precioAct + inc : (sub.base || 0);
     const bloq = normalizarLista(datos && datos.bloqueados);
 
-    if(bloq.includes(user.uid || user.ig)){
+    if(estaBloqueado(bloq, user)){
       toast("⛔ Tu cuenta ha sido bloqueada","err");
     } else if(sub.estado !== "activa" || (sub.finTs && ahoraSrv() >= sub.finTs)){
       toast("⏰ La subasta ya terminó","warn");
@@ -5023,11 +5119,14 @@ function leerFormulario(){
   S.carta.rareza = document.getElementById("a-rareza").value;
   S.carta.idioma = document.getElementById("a-idioma").value;
   S.carta.cond   = document.getElementById("a-cond").value.trim()  || S.carta.cond;
+  // Si pegan el link sin https://, el botón de verificar no abriría nada
+  let slabLink = document.getElementById("a-slab-link").value.trim();
+  if(slabLink && !/^https?:\/\//i.test(slabLink)) slabLink = "https://" + slabLink;
   S.carta.slab = {
     compania: document.getElementById("a-slab-comp").value.trim(),
     grado:    document.getElementById("a-slab-grado").value.trim(),
     cert:     document.getElementById("a-slab-cert").value.trim(),
-    link:     document.getElementById("a-slab-link").value.trim(),
+    link:     slabLink,
   };
   const base = parseInt(document.getElementById("a-base").value);
   const inc  = parseInt(document.getElementById("a-inc").value);
@@ -5218,7 +5317,8 @@ function adminReset(){
   msg += `• ${nVis} participante${nVis!==1?"s":""} registrado${nVis!==1?"s":""}\n`;
   if(nMkt > 0) msg += `• ${nMkt} correo${nMkt!==1?"s":""} que aceptaron marketing\n`;
   msg += "• El ganador y sus datos de contacto\n";
-  msg += "\n(Se conservan: la carta, sus fotos y la lista de bloqueados)\n\n¿Continuar?";
+  msg += "• Los contactos de respaldo del 2° y 3° lugar\n";
+  msg += "\n(Se conservan: la carta, sus fotos, los bloqueados y la agenda de strikes)\n\n¿Continuar?";
 
   if(!confirm(msg)) return;
   if(nMkt > 0 && !confirm(`Vas a perder ${nMkt} correo${nMkt!==1?"s":""} de marketing.\n\n¿Los exportaste ya?`)) return;
@@ -5243,8 +5343,15 @@ function adminReset(){
       if(v && v.uid) await set(ref(db, `${PRIVADO_REF}/visitantes/${v.uid}`), null).catch(()=>{});
     }
     await set(ref(db, `${PRIVADO_REF}/ganadorConfirmado`), null).catch(()=>{});
+    // Respaldo 2°/3° de ESTA subasta: se borra hijo por hijo (así lo permiten
+    // las reglas). La agenda de strikes NO se toca: es permanente.
+    for(const c of (P.contactoTop23||[])){
+      if(c && c.uid) await set(ref(db, `${PRIVADO_REF}/contactoTop23/${c.uid}`), null).catch(()=>{});
+    }
   })();
-  P = { visitantes: [], ganadorConfirmado: null };
+  // Resetear solo lo de esta subasta. strikes se CONSERVA en memoria:
+  // antes se borraba aquí y la agenda se veía vacía hasta recargar la página.
+  P = { visitantes: [], ganadorConfirmado: null, contactoTop23: [], strikes: P.strikes || {} };
   document.getElementById("winner-wrap").style.display="none";
   document.getElementById("timer-val").textContent = "--:--";
   document.getElementById("timer-val").className   = "timer-val stopped";
@@ -6215,9 +6322,16 @@ function datosParaStrike(uid){
   };
 }
 
-// Botón 🚩 en la lista de participantes: suma 1 strike (o crea la ficha)
+// Botón 🚩 en la lista de participantes y en el registro: suma 1 strike (o crea la ficha)
 function sumarStrike(uid){
   if(!admin || !uid) return;
+  // Puja antigua sin uid: la clave viene como Instagram (@usuario). Intentar
+  // resolverlo al uid real para no crear una ficha duplicada de la misma
+  // persona y para que el bloqueo automático sí lo alcance.
+  if(uid.startsWith("@")){
+    const v = (P.visitantes||[]).find(x => x.ig === uid);
+    if(v && v.uid) uid = v.uid;
+  }
   const e = strikesMap()[uid] || { ...datosParaStrike(uid), strikes: 0 };
   if((e.strikes||0) >= 3){ toast("Ya tiene 3 strikes — está bloqueado","warn"); return; }
   guardarStrike(uid, (e.strikes||0) + 1);
@@ -6298,7 +6412,20 @@ function renderStrikes(){
   const lista = document.getElementById("strikes-list");
   if(!lista) return;
   if(!admin){ lista.innerHTML = ""; return; }
+  // Mezclar con los datos FRESCOS del visitante: si la ficha se creó cuando la
+  // persona no estaba registrada en esta subasta (quedó "Desconocido"), se
+  // completa sola en cuanto reingrese. Lo guardado queda de respaldo.
   const entradas = Object.values(strikesMap()).filter(Boolean)
+    .map(e => {
+      const fresh = datosParaStrike(e.uid);
+      return {
+        ...e,
+        nombre:   fresh.nombre !== "Desconocido" ? fresh.nombre : (e.nombre || "Desconocido"),
+        email:    fresh.email    || e.email    || "",
+        ig:       fresh.ig       || e.ig       || "",
+        whatsapp: fresh.whatsapp || e.whatsapp || "",
+      };
+    })
     .sort((a,b) => (b.strikes||0) - (a.strikes||0) || (b.actualizado||0) - (a.actualizado||0));
   const cnt = document.getElementById("strikes-count");
   if(cnt) cnt.textContent = entradas.length ? `· ${entradas.length} en la agenda` : "";
@@ -6939,6 +7066,8 @@ window.volverAlAdmin   = volverAlAdmin;
 window.limpiarWa       = limpiarWa;
 window.cerrarModalTop23 = cerrarModalTop23;
 window.sumarStrike     = sumarStrike;
+window.confirmarRectificacion = confirmarRectificacion;
+window.cerrarRectificacion    = cerrarRectificacion;
 window.setStrike       = setStrike;
 window.quitarDeAgenda  = quitarDeAgenda;
 window.generarHistoriaGanador = generarHistoriaGanador;
