@@ -1807,7 +1807,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v44</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v45</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2414,7 +2414,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v44 — doble chequeo de contacto al registrarse","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v45 — declaro18: todos pasan por el formulario una vez","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -3221,7 +3221,12 @@ function registrarVisitante(marketing){
     whatsapp:  user.whatsapp || "",
     nombre:    user.nombre,
     marketing: !!marketing,
-    mayor18:   true
+    mayor18:   true,
+    // declaro18 es la marca REAL de "pasó por el formulario con doble chequeo".
+    // Es segura: la entrada directa solo ocurre si ya existe, así que la única
+    // manera de tenerla es haber completado el formulario. (mayor18 quedó
+    // "contaminada": las v39-v41 la estampaban solas al reingresar.)
+    declaro18: true
   }).catch(()=>{});
 }
 
@@ -6037,13 +6042,14 @@ onAuthStateChanged(auth, (fbUser) => {
     get(ref(db, `${PERFILES_REF}/${fbUser.uid}`)).then(snap => {
       if(snap.exists()){
         const perfil = snap.val();
-        // Entrada directa SOLO si ya dejó su contacto (ig o whatsapp) Y aceptó
-        // la declaración +18 (mayor18 solo la guarda el formulario nuevo).
-        // Quien tenga un perfil antiguo (sin mayor18) pasa por el formulario
-        // UNA vez — con sus datos pre-rellenados — y de ahí entra directo
-        // siempre. No se borra ni se pierde nada.
-        if((perfil.ig || perfil.whatsapp) && perfil.mayor18){
-          console.log("[Paldea] Entrada directa (perfil completo):", {ig: !!perfil.ig, whatsapp: !!perfil.whatsapp, mayor18: !!perfil.mayor18});
+        // Entrada directa SOLO con declaro18: la marca que prueba que pasó por
+        // el formulario con doble chequeo. NO usar mayor18: las v39-v41 la
+        // estampaban solas al reingresar, sin que la persona viera la casilla.
+        // Como ningún perfil antiguo tiene declaro18, TODOS pasan por el
+        // formulario una vez — con sus datos pre-rellenados — y de ahí entran
+        // directo siempre. No se borra ni se pierde nada.
+        if((perfil.ig || perfil.whatsapp) && perfil.declaro18){
+          console.log("[Paldea] Entrada directa (perfil completo):", {ig: !!perfil.ig, whatsapp: !!perfil.whatsapp, declaro18: !!perfil.declaro18});
           user = { ...googleUser, ig: perfil.ig || "", whatsapp: perfil.whatsapp || "" };
           try{ sessionStorage.setItem("subasta_user", JSON.stringify(user)); }catch(e){}
           // Registrar el ingreso también en este camino: el perfil sobrevive a un
@@ -6054,7 +6060,7 @@ onAuthStateChanged(auth, (fbUser) => {
           document.getElementById("hdr-user").textContent       = user.nombre;
           renderApp();
         } else {
-          console.log("[Paldea] Perfil incompleto → mostrar formulario de contacto:", {ig: !!perfil.ig, whatsapp: !!perfil.whatsapp, mayor18: !!perfil.mayor18});
+          console.log("[Paldea] Perfil incompleto → mostrar formulario de contacto:", {ig: !!perfil.ig, whatsapp: !!perfil.whatsapp, declaro18: !!perfil.declaro18});
           perfilPrevio = perfil;   // pre-rellena lo que haya
           mostrarPasoDatos();
         }
