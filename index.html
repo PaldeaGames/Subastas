@@ -5936,6 +5936,7 @@ onAuthStateChanged(auth, (fbUser) => {
         // UNA vez — con sus datos pre-rellenados — y de ahí entra directo
         // siempre. No se borra ni se pierde nada.
         if((perfil.ig || perfil.whatsapp) && perfil.mayor18){
+          console.log("[Paldea] Entrada directa (perfil completo):", {ig: !!perfil.ig, whatsapp: !!perfil.whatsapp, mayor18: !!perfil.mayor18});
           user = { ...googleUser, ig: perfil.ig || "", whatsapp: perfil.whatsapp || "" };
           try{ sessionStorage.setItem("subasta_user", JSON.stringify(user)); }catch(e){}
           // Registrar el ingreso también en este camino: el perfil sobrevive a un
@@ -5946,10 +5947,12 @@ onAuthStateChanged(auth, (fbUser) => {
           document.getElementById("hdr-user").textContent       = user.nombre;
           renderApp();
         } else {
+          console.log("[Paldea] Perfil incompleto → mostrar formulario de contacto:", {ig: !!perfil.ig, whatsapp: !!perfil.whatsapp, mayor18: !!perfil.mayor18});
           perfilPrevio = perfil;   // pre-rellena lo que haya
           mostrarPasoDatos();
         }
       } else {
+        console.log("[Paldea] Sin perfil previo → mostrar formulario de contacto");
         perfilPrevio = null;
         mostrarPasoDatos();
       }
