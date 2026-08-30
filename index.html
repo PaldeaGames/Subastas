@@ -1494,6 +1494,7 @@ body.express-tema #login-live-panel{
             <div style="font-size:12px;color:var(--muted2);margin-bottom:10px" id="login-card-setes"></div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px" id="login-card-badges"></div>
             <div id="login-card-idioma" style="display:none"></div>
+            <div id="login-card-slab" style="display:none"></div>
           </div>
         </div>
 
@@ -1806,7 +1807,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v40</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v41</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2395,7 +2396,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v40 — contacto al ingresar + strikes + datos slab","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v41 — slab en login + strike desde registro + copiar cert","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -3377,7 +3378,7 @@ function renderApp(){
           ${tituloSlab ? `<span style="font-size:13px;font-weight:800;color:var(--text)">${esc(tituloSlab)}</span>` : ""}
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
-          ${slab.cert ? `<span style="font-size:11px;color:var(--muted2)">Cert. <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text)">${esc(slab.cert)}</span></span>` : ""}
+          ${slab.cert ? `<span style="font-size:11px;color:var(--muted2);display:inline-flex;align-items:center;gap:5px">Cert. <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text)">${esc(slab.cert)}</span><button onclick="copiarContacto('${escJs(slab.cert)}')" title="Copiar N° de certificación" style="background:none;border:1px solid var(--border2);color:var(--muted2);padding:2px 7px;border-radius:5px;font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif" onmouseover="this.style.color='var(--gold)';this.style.borderColor='var(--gold)'" onmouseout="this.style.color='var(--muted2)';this.style.borderColor='var(--border2)'">📋 Copiar N°</button></span>` : ""}
           ${slab.link ? `<a href="${esc(slab.link)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;background:rgba(78,168,255,.12);border:1px solid rgba(78,168,255,.35);color:var(--blue);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;text-decoration:none;letter-spacing:.5px">🔍 Verificar autenticidad</a>` : ""}
         </div>
       </div>`;
@@ -4120,6 +4121,7 @@ function renderLog(){
             : '<span style="color:var(--green)">✓ Verificado</span>'}
           ${admin ? `<span class="log-admin-actions" style="display:inline-flex;gap:10px;margin-left:2px">
             <button class="log-act-btn" onclick="copiarContacto('${escJs(contacto || "")}')" title="Copiar contacto" onmouseover="this.style.color='var(--gold)';this.style.borderColor='var(--gold)'" onmouseout="this.style.color='var(--muted2)';this.style.borderColor='var(--border2)'">📋</button>
+            <button class="log-act-btn" onclick="sumarStrike('${escJs(p.uid || p.ig)}')" title="Agregar strike a la agenda de problemáticos" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted2)';this.style.borderColor='var(--border2)'">🚩</button>
             <button class="log-act-btn" onclick="eliminarPuja(${i})" title="Eliminar puja" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted2)';this.style.borderColor='var(--border2)'">✕</button>
             <button class="log-act-btn" onclick="bloquearUsuario('${escJs(p.uid || p.ig)}','${escJs(p.nombre)}')" title="Bloquear usuario" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted2)';this.style.borderColor='var(--border2)'">⛔</button>
           </span>` : ""}
@@ -6236,7 +6238,13 @@ function guardarStrike(uid, n){
 
   set(ref(db, `${PRIVADO_REF}/strikes/${uid}`), e).catch(err => {
     console.error("No se pudo guardar el strike:", err);
-    toast("No se pudo guardar. Reintenta.","err");
+    const sinPermiso = err && (err.code === "PERMISSION_DENIED" || /permission/i.test(err.message||""));
+    if(sinPermiso){
+      console.error("⛔ Las reglas de Firebase no tienen habilitado el nodo privado/strikes. Agrégalo con los mismos permisos que privado/ganadorConfirmado.");
+      toast("⛔ Firebase rechazó el guardado: falta habilitar privado/strikes en las reglas","err");
+    } else {
+      toast("No se pudo guardar. Reintenta.","err");
+    }
   });
 
   if(e.strikes >= 3){
@@ -6845,6 +6853,28 @@ function renderLoginInfo(){
       </div>`;
     } else {
       idiomaLogin.style.display="none";
+    }
+  }
+
+  // Slab en el login — aviso NOTORIO de carta gradeada, antes de entrar a pujar
+  const slabLogin = document.getElementById("login-card-slab");
+  if(slabLogin){
+    const slab = c.slab || {};
+    if(slab.compania || slab.grado || slab.cert){
+      slabLogin.style.display = "block";
+      const tituloSlab = [slab.compania, slab.grado].filter(Boolean).join(" · ");
+      slabLogin.innerHTML = `<div style="margin-top:10px;background:linear-gradient(135deg,rgba(255,203,66,.16),rgba(255,203,66,.04));border:1.5px solid rgba(255,203,66,.55);border-radius:10px;padding:10px 12px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)">🛡️ Carta gradeada</span>
+          ${tituloSlab ? `<span style="font-size:17px;font-weight:400;color:var(--text);font-family:'Bebas Neue',sans-serif;letter-spacing:1.5px">${esc(tituloSlab)}</span>` : ""}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap">
+          ${slab.cert ? `<span style="font-size:11px;color:var(--muted2);display:inline-flex;align-items:center;gap:5px">Cert. <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text)">${esc(slab.cert)}</span><button onclick="copiarContacto('${escJs(slab.cert)}')" title="Copiar N° de certificación" style="background:none;border:1px solid var(--border2);color:var(--muted2);padding:2px 7px;border-radius:5px;font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif" onmouseover="this.style.color='var(--gold)';this.style.borderColor='var(--gold)'" onmouseout="this.style.color='var(--muted2)';this.style.borderColor='var(--border2)'">📋 Copiar N°</button></span>` : ""}
+          ${slab.link ? `<a href="${esc(slab.link)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;background:rgba(78,168,255,.12);border:1px solid rgba(78,168,255,.35);color:var(--blue);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;text-decoration:none;letter-spacing:.5px">🔍 Verificar autenticidad</a>` : ""}
+        </div>
+      </div>`;
+    } else {
+      slabLogin.style.display = "none";
     }
   }
 }
