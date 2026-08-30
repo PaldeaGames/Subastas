@@ -1532,6 +1532,7 @@ body.express-tema #login-live-panel{
           🚛 <strong style="color:var(--text)">Todos los envíos salen desde Santiago, Providencia</strong> · Starken por pagar<br>
           ⛔ Rechazar el envío o no responder tras ganar → <strong style="color:var(--red)">bloqueo inmediato</strong><br>
           ⚡ Anti-snipe: cada puja en el último minuto suma <span id="login-antisnipe">5</span> min<br>
+          🔞 Solo mayores de 18 años · Al entrar te pedimos tu Instagram o WhatsApp <strong style="color:var(--text)">una sola vez</strong><br>
           🇨🇱 Solo Chile continental
         </div>
       </div>
@@ -1569,10 +1570,40 @@ body.express-tema #login-live-panel{
           <span style="background:rgba(0,230,122,.12);color:var(--green);border:1px solid rgba(0,230,122,.3);font-size:9px;font-weight:700;padding:3px 7px;border-radius:20px;flex-shrink:0">✓ VERIFICADO</span>
         </div>
 
+        <!-- CONTACTO DIRECTO (obligatorio, se pide UNA sola vez) -->
+        <div style="background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.3);border-radius:12px;padding:14px;margin-bottom:14px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">📲 Tu contacto directo (obligatorio)</div>
+          <div style="font-size:11px;color:var(--muted2);line-height:1.6;margin-bottom:12px">
+            Si ganas, te contactamos <strong style="color:var(--text)">al instante</strong> por aquí con los datos de pago. Completa <strong style="color:var(--text)">al menos uno</strong> — te lo pedimos solo esta vez.
+          </div>
+          <div class="field" style="margin-bottom:10px">
+            <label>📷 Instagram</label>
+            <div style="position:relative">
+              <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:16px;font-weight:600;pointer-events:none">@</span>
+              <input id="login-ig" type="text" placeholder="tu_usuario" autocomplete="off" style="padding-left:30px;width:100%;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);padding-top:13px;padding-bottom:13px;padding-right:14px;font-size:15px;font-family:'Outfit',sans-serif;outline:none" oninput="this.value=this.value.replace(/^@+/,'')">
+            </div>
+          </div>
+          <div style="text-align:center;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px">— o —</div>
+          <div class="field" style="margin-bottom:0">
+            <label>💬 WhatsApp</label>
+            <div style="position:relative">
+              <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:15px;font-weight:700;pointer-events:none;font-family:'JetBrains Mono',monospace">+56</span>
+              <input id="login-wa" type="tel" inputmode="numeric" placeholder="9 8765 4321" autocomplete="off" style="padding-left:62px;width:100%;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);padding-top:13px;padding-bottom:13px;padding-right:14px;font-size:15px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;outline:none" oninput="limpiarWa(this)">
+            </div>
+          </div>
+        </div>
+
         <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;margin-top:4px">
           <input type="checkbox" id="chk-chile" style="width:18px;height:18px;margin-top:2px;cursor:pointer;flex-shrink:0;accent-color:var(--gold)">
           <label for="chk-chile" style="font-size:12px;color:var(--muted2);cursor:pointer;line-height:1.6">
             Estoy en <strong style="color:var(--text)">Chile continental</strong>, leí el reglamento y acepto que mi correo se use para <strong style="color:var(--text)">identificar mis pujas</strong>.
+          </label>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
+          <input type="checkbox" id="chk-mayor18" style="width:18px;height:18px;margin-top:2px;cursor:pointer;flex-shrink:0;accent-color:var(--gold)">
+          <label for="chk-mayor18" style="font-size:12px;color:var(--muted2);cursor:pointer;line-height:1.6">
+            Declaro que soy <strong style="color:var(--text)">mayor de 18 años</strong>. Solo adultos pueden participar en las subastas.
           </label>
         </div>
 
@@ -1585,7 +1616,7 @@ body.express-tema #login-live-panel{
 
         <button class="btn-primary" onclick="doLogin()">ENTRAR A LA SUBASTA</button>
         <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5">
-          📩 Si ganas, te pediremos tu Instagram para coordinar la entrega.
+          📩 Si ganas, te escribimos de inmediato al contacto que registraste. Tienes 1 hora para coordinar el pago.
         </div>
         <button onclick="cancelarGoogle()" style="width:100%;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;margin-top:10px;text-decoration:underline;font-family:'Outfit',sans-serif">Usar otra cuenta</button>
       </div>
@@ -1710,6 +1741,7 @@ body.express-tema #login-live-panel{
             <div id="card-set-es" style="font-size:12px;color:var(--muted2);margin-top:2px;display:none"></div>
             <div id="card-rareza" style="display:none;margin-top:4px"></div>
             <div id="card-idioma" style="display:none;margin-top:6px"></div>
+            <div id="card-slab" style="display:none"></div>
           </div>
           <div class="condition-badge" id="card-cond">NM</div>
         </div>
@@ -1774,7 +1806,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v38</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v40</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -1885,6 +1917,27 @@ body.express-tema #login-live-panel{
           <option style="background:var(--s2)">Jumbo / Oversized</option>
           <option style="background:var(--s2)">Otra</option>
         </select>
+      </div>
+
+      <!-- SLAB / CARTA GRADEADA -->
+      <div class="sep"></div>
+      <div class="section-label">🛡️ Carta gradeada (slab) <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">· opcional</span></div>
+      <div style="font-size:10px;color:var(--muted2);margin-bottom:8px;line-height:1.5">Si la carta está encapsulada, completa estos datos y se mostrarán en la descripción con botón de verificación. Déjalos vacíos si es una carta suelta (raw) y no se mostrará nada.</div>
+      <div class="admin-grid2">
+        <input class="a-input" id="a-slab-comp" list="slab-companias" placeholder="Compañía (ej: PSA)" autocomplete="off" />
+        <datalist id="slab-companias">
+          <option value="PSA"></option>
+          <option value="CGC"></option>
+          <option value="BGS (Beckett)"></option>
+          <option value="SGC"></option>
+          <option value="TAG"></option>
+          <option value="ARS"></option>
+        </datalist>
+        <input class="a-input" id="a-slab-grado" placeholder="Grado (ej: 10 · 9.5 · Gem Mint 10)" autocomplete="off" />
+      </div>
+      <div class="admin-grid2">
+        <input class="a-input" id="a-slab-cert" placeholder="N° de certificación" inputmode="numeric" autocomplete="off" />
+        <input class="a-input" id="a-slab-link" type="url" placeholder="Link de verificación (https://...)" autocomplete="off" />
       </div>
 
       <div class="sep"></div>
@@ -2016,6 +2069,14 @@ body.express-tema #login-live-panel{
         <div class="section-label" style="margin-bottom:8px">⛔ Usuarios bloqueados</div>
         <div id="bloqueados-list"></div>
       </div>
+
+      <!-- AGENDA DE STRIKES (permanente: no se borra al resetear) -->
+      <div class="sep"></div>
+      <div class="section-label" style="margin-bottom:6px">🚩 Agenda de pujadores problemáticos <span id="strikes-count" style="color:var(--muted);font-weight:400;letter-spacing:0"></span></div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        Marca un strike por cada problema (no pagó a tiempo, no respondió, sospecha de menor de edad — solo mayores de 18). Al llegar al <strong style="color:var(--red)">3er strike se bloquea automáticamente</strong>. Se guarda en tu Firebase: <strong style="color:var(--gold)">permanece para siempre y NO se borra al resetear</strong> la subasta.
+      </div>
+      <div id="strikes-list"></div>
 
       <div class="sep"></div>
       <button class="a-btn" style="width:100%" onclick="openTV()">📺 Abrir vista TV (nueva pestaña)</button>
@@ -2178,7 +2239,7 @@ body.express-tema #login-live-panel{
   </div>
 </div>
 
-<!-- MODAL GANADOR (solo lo ve quien ganó) -->
+<!-- MODAL GANADOR (solo lo ve quien ganó) — solo informativo, el contacto ya se pidió al entrar -->
 <div class="modal-overlay" id="modal-ganador">
   <div class="modal-box" style="max-width:420px">
     <div style="font-size:52px;margin-bottom:8px;animation:float 2s ease-in-out infinite">🏆</div>
@@ -2186,44 +2247,21 @@ body.express-tema #login-live-panel{
     <div class="modal-amount" id="modal-ganador-monto">$0</div>
     <div class="modal-sub" style="margin-bottom:18px" id="modal-ganador-carta">—</div>
 
-    <div style="background:rgba(255,59,92,.08);border:1px solid rgba(255,59,92,.25);border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:var(--muted2);line-height:1.6;text-align:left">
-      ⏰ Tienes <strong style="color:var(--red)">1 hora</strong> para coordinar el pago. Déjanos un contacto y te escribimos de inmediato.
+    <div style="background:rgba(255,59,92,.08);border:1px solid rgba(255,59,92,.25);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);line-height:1.6;text-align:left">
+      ⏰ Tienes <strong style="color:var(--red)">1 hora</strong> para coordinar el pago. Te contactaremos de inmediato con los datos de transferencia.
     </div>
 
-    <!-- Selector de canal -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
-      <button id="tab-ig" class="tab-canal activo" onclick="canalGanador('ig')">📷 Instagram</button>
-      <button id="tab-wa" class="tab-canal" onclick="canalGanador('wa')">💬 WhatsApp</button>
+    <div style="background:var(--s2);border:1.5px solid var(--gold);border-radius:11px;padding:13px;text-align:center">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px">Te escribiremos a tu contacto registrado</div>
+      <div id="modal-ganador-contacto" style="font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:800;color:var(--gold);word-break:break-all">—</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5">Revisa tus mensajes con frecuencia durante la próxima hora.</div>
     </div>
 
-    <!-- Instagram -->
-    <div id="campo-ig" class="field" style="text-align:left">
-      <label>Confirma tu Instagram</label>
-      <div style="position:relative">
-        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:16px;font-weight:600;pointer-events:none">@</span>
-        <input id="ganador-ig" type="text" placeholder="tu_usuario" autocomplete="off" style="padding-left:30px;width:100%;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);padding-top:13px;padding-bottom:13px;padding-right:14px;font-size:15px;font-family:'Outfit',sans-serif;outline:none" oninput="this.value=this.value.replace(/^@+/,'');resetConfirmGanador()">
-      </div>
-    </div>
-
-    <!-- WhatsApp -->
-    <div id="campo-wa" class="field" style="text-align:left;display:none">
-      <label>Tu número de WhatsApp</label>
-      <div style="position:relative">
-        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:15px;font-weight:700;pointer-events:none;font-family:'JetBrains Mono',monospace">+56</span>
-        <input id="ganador-wa" type="tel" inputmode="numeric" placeholder="9 8765 4321" autocomplete="off" style="padding-left:62px;width:100%;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);padding-top:13px;padding-bottom:13px;padding-right:14px;font-size:15px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;outline:none" oninput="limpiarWa(this);resetConfirmGanador()">
-      </div>
-    </div>
-
-    <div id="ganador-revision" style="display:none;background:var(--s2);border:1.5px solid var(--gold);border-radius:11px;padding:13px;margin-top:12px;text-align:center"></div>
-
-    <button class="btn-primary" style="margin-top:14px" onclick="confirmarGanador()">CONFIRMAR MIS DATOS</button>
-    <div id="nota-canal" style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5">
-      Te escribiremos por Instagram apenas confirmes.
-    </div>
+    <button class="btn-primary" style="margin-top:14px" onclick="cerrarModalGanador()">ENTENDIDO</button>
   </div>
 </div>
 
-<!-- Modal para 2° y 3° lugar: pide contacto por si el 1° no paga -->
+<!-- Modal para 2° y 3° lugar: solo avisa que estén atentos por si el 1° no paga -->
 <div class="modal-overlay" id="modal-top23">
   <div class="modal-box" style="max-width:420px">
     <div style="font-size:48px;margin-bottom:8px" id="t23-emoji">🥈</div>
@@ -2231,33 +2269,16 @@ body.express-tema #login-live-panel{
     <div class="modal-amount" id="t23-monto" style="font-size:26px">$0</div>
     <div class="modal-sub" style="margin-bottom:16px" id="t23-carta">—</div>
 
-    <div style="background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.25);border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:var(--muted2);line-height:1.6;text-align:left" id="t23-explica">
-      Te contactaríamos solo si el 1° lugar no concreta el pago dentro de 1 hora. Déjanos un contacto para poder avisarte.
+    <div style="background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.25);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted2);line-height:1.6;text-align:left" id="t23-explica">
+      Te contactaríamos solo si el 1° lugar no concreta el pago dentro de 1 hora. Mantente atento.
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
-      <button id="t23-tab-ig" class="tab-canal activo" onclick="canalTop23('ig')">📷 Instagram</button>
-      <button id="t23-tab-wa" class="tab-canal" onclick="canalTop23('wa')">💬 WhatsApp</button>
+    <div style="background:var(--s2);border:1.5px solid var(--border2);border-radius:11px;padding:13px;text-align:center">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px">Te avisaríamos a tu contacto registrado</div>
+      <div id="t23-contacto" style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;color:var(--text);word-break:break-all">—</div>
     </div>
 
-    <div id="t23-campo-ig" class="field" style="text-align:left">
-      <label>Confirma tu Instagram</label>
-      <div style="position:relative">
-        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:16px;font-weight:600;pointer-events:none">@</span>
-        <input id="t23-ig" type="text" placeholder="tu_usuario" autocomplete="off" style="padding-left:30px;width:100%;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);padding-top:13px;padding-bottom:13px;padding-right:14px;font-size:15px;font-family:'Outfit',sans-serif;outline:none" oninput="this.value=this.value.replace(/^@+/,'')">
-      </div>
-    </div>
-
-    <div id="t23-campo-wa" class="field" style="text-align:left;display:none">
-      <label>Tu número de WhatsApp</label>
-      <div style="position:relative">
-        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:15px;font-weight:700;pointer-events:none;font-family:'JetBrains Mono',monospace">+56</span>
-        <input id="t23-wa" type="tel" inputmode="numeric" placeholder="9 8765 4321" autocomplete="off" style="padding-left:62px;width:100%;background:var(--s2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);padding-top:13px;padding-bottom:13px;padding-right:14px;font-size:15px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;outline:none" oninput="limpiarWa(this)">
-      </div>
-    </div>
-
-    <button class="btn-primary" style="margin-top:14px" onclick="confirmarTop23()">DEJAR MI CONTACTO</button>
-    <button onclick="cerrarModalTop23()" style="display:block;width:100%;margin-top:10px;background:none;border:none;color:var(--muted2);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:underline">Ahora no</button>
+    <button class="btn-primary" style="margin-top:14px" onclick="cerrarModalTop23()">ENTENDIDO, ESTARÉ ATENTO</button>
   </div>
 </div>
 
@@ -2374,7 +2395,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v38 — 27 jul 2026","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v40 — contacto al ingresar + strikes + datos slab","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -2490,6 +2511,7 @@ const defaultState = {
     rareza: "",
     idioma: "",
     cond:   "NM",
+    slab: { compania: "", grado: "", cert: "", link: "" },
     imgs:   [],
   },
   subasta: {
@@ -2516,7 +2538,7 @@ const defaultState = {
 
 let S = deepCopy(defaultState);
 // Datos sensibles. Solo el admin logra leerlos (lo impide la regla de Firebase).
-let P = { visitantes: [], ganadorConfirmado: null, contactoTop23: [] };
+let P = { visitantes: [], ganadorConfirmado: null, contactoTop23: [], strikes: {} };
 
 function deepCopy(o){ return JSON.parse(JSON.stringify(o)); }
 
@@ -2638,6 +2660,14 @@ function initPrivadoListener(){
     if(admin) renderApp();
   }, (err) => {
     if(admin) console.error("No se pudo leer contactoTop23:", err.code || err);
+  });
+
+  // Agenda de strikes: permanente, NO se toca al resetear la subasta.
+  onValue(ref(db, `${PRIVADO_REF}/strikes`), (snap) => {
+    P.strikes = snap.val() || {};
+    if(admin) renderApp();
+  }, (err) => {
+    if(admin) console.error("No se pudo leer strikes:", err.code || err);
   });
 }
 
@@ -3108,6 +3138,10 @@ async function loginGoogle(){
   }
 }
 
+// Perfil previo del usuario (si ya entró antes): sirve para pre-rellenar el
+// contacto si alguna vez entró sin dejarlo (cuentas antiguas).
+let perfilPrevio = null;
+
 function mostrarPasoDatos(){
   if(!googleUser) return;
   document.getElementById("paso-google").style.display = "none";
@@ -3118,6 +3152,13 @@ function mostrarPasoDatos(){
   if(googleUser.foto){ av.src = googleUser.foto; }
   else { av.style.display="none"; }
 
+  // Pre-rellenar el contacto si ya lo teníamos guardado de antes
+  const elIg = document.getElementById("login-ig");
+  const elWa = document.getElementById("login-wa");
+  if(perfilPrevio){
+    if(elIg && perfilPrevio.ig) elIg.value = String(perfilPrevio.ig).replace(/^@+/,"");
+    if(elWa && perfilPrevio.whatsapp) elWa.value = String(perfilPrevio.whatsapp).replace("+56","");
+  }
 }
 
 async function cancelarGoogle(){
@@ -3137,6 +3178,7 @@ function registrarVisitante(marketing){
     nombre:    user.nombre,
     email:     user.email || "",
     ig:        user.ig || "",
+    whatsapp:  user.whatsapp || "",
     marketing: !!marketing,
     entrada:   fmtTime(new Date()),
     timestamp: Date.now()
@@ -3145,11 +3187,15 @@ function registrarVisitante(marketing){
   set(ref(db, `${PRIVADO_REF}/visitantes/${user.uid}`), registro)
     .catch(err => console.warn("No se pudo registrar el ingreso:", err));
 
-  // Su propio perfil: recupera su Instagram y su preferencia la próxima vez
+  // Su propio perfil: recupera su contacto y su preferencia la próxima vez.
+  // Como el contacto se pide UNA vez al ingresar, aquí queda guardado para
+  // siempre: si vuelve a participar, entra directo sin volver a pedírselo.
   set(ref(db, `${PERFILES_REF}/${user.uid}`), {
     ig:        user.ig || "",
+    whatsapp:  user.whatsapp || "",
     nombre:    user.nombre,
-    marketing: !!marketing
+    marketing: !!marketing,
+    mayor18:   true
   }).catch(()=>{});
 }
 
@@ -3158,26 +3204,61 @@ async function doLogin(){
 
   const chkChile = document.getElementById("chk-chile");
   const chkMkt   = document.getElementById("chk-marketing");
+  const chk18    = document.getElementById("chk-mayor18");
 
   if(!chkChile.checked){
     toast("Acepta las condiciones para continuar","err");
     return;
   }
+  if(!chk18 || !chk18.checked){
+    toast("Debes declarar que eres mayor de 18 años","err");
+    return;
+  }
 
-  // Recupera el Instagram desde SU PROPIO perfil.
-  // Antes se leía la lista completa de visitantes, que ahora es privada.
-  let igPrevio = "";
-  try{
-    const snap = await get(ref(db, `${PERFILES_REF}/${googleUser.uid}`));
-    if(snap.exists()) igPrevio = snap.val().ig || "";
-  }catch(e){ /* primera vez: sin perfil aún */ }
+  // ── Contacto directo OBLIGATORIO: Instagram o WhatsApp (al menos uno) ──
+  // Se pide aquí, al ingresar, para contactar al ganador sin esperar a que
+  // confirme después. Se guarda en su perfil y NO se vuelve a pedir.
+  const elIg = document.getElementById("login-ig");
+  const elWa = document.getElementById("login-wa");
+  let igFinal = "", waFinal = "";
+
+  const igRaw = (elIg.value || "").trim().replace(/^@+/,"");
+  if(igRaw){
+    if(!/^[A-Za-z0-9._]+$/.test(igRaw)){
+      elIg.style.borderColor = "var(--red)";
+      toast("El usuario de Instagram solo lleva letras, números, punto y _","err");
+      return;
+    }
+    elIg.style.borderColor = "";
+    igFinal = "@" + igRaw;
+  }
+
+  let waRaw = (elWa.value || "").replace(/[^0-9]/g,"");
+  if(waRaw){
+    if(waRaw.length >= 10 && waRaw.startsWith("56")) waRaw = waRaw.slice(2);
+    if(waRaw.length !== 9 || !waRaw.startsWith("9")){
+      elWa.style.borderColor = "var(--red)";
+      toast("WhatsApp inválido: son 9 dígitos y empieza con 9","err");
+      return;
+    }
+    elWa.style.borderColor = "";
+    waFinal = "+56" + waRaw;
+  }
+
+  if(!igFinal && !waFinal){
+    elIg.style.borderColor = "var(--red)";
+    elWa.style.borderColor = "var(--red)";
+    toast("Necesitamos al menos un contacto: Instagram o WhatsApp","err");
+    return;
+  }
 
   user = {
-    uid:    googleUser.uid,
-    nombre: googleUser.nombre,
-    email:  googleUser.email,
-    foto:   googleUser.foto,
-    ig:     igPrevio
+    uid:      googleUser.uid,
+    nombre:   googleUser.nombre,
+    email:    googleUser.email,
+    foto:     googleUser.foto,
+    ig:       igFinal,
+    whatsapp: waFinal
   };
 
   try{ sessionStorage.setItem("subasta_user", JSON.stringify(user)); }catch(e){}
@@ -3192,7 +3273,7 @@ async function doLogin(){
 
 async function doLogout(){
   try{ await signOut(auth); }catch(e){}
-  user=null; admin=false; googleUser=null;
+  user=null; admin=false; googleUser=null; perfilPrevio=null;
   try{ sessionStorage.removeItem("subasta_user"); }catch(e){}
   document.getElementById("screen-app").style.display="none";
   document.getElementById("screen-login").style.display="flex";
@@ -3281,6 +3362,28 @@ function renderApp(){
   } else {
     idiomaEl.innerHTML = `<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,59,92,.12);border:1px solid rgba(255,59,92,.4);color:var(--red);font-size:11px;font-weight:700;padding:6px 12px;border-radius:8px">⚠️ Falta definir el idioma</div>`;
     idiomaEl.style.display="block";
+  }
+
+  // Slab (carta gradeada): compañía, grado, certificación y link de verificación
+  const slabEl = document.getElementById("card-slab");
+  if(slabEl){
+    const slab = c.slab || {};
+    if(slab.compania || slab.grado || slab.cert){
+      slabEl.style.display = "block";
+      const tituloSlab = [slab.compania, slab.grado].filter(Boolean).join(" · ");
+      slabEl.innerHTML = `<div style="margin-top:8px;background:linear-gradient(135deg,rgba(255,203,66,.08),rgba(78,168,255,.05));border:1px solid rgba(255,203,66,.3);border-radius:10px;padding:9px 12px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)">🛡️ Carta gradeada</span>
+          ${tituloSlab ? `<span style="font-size:13px;font-weight:800;color:var(--text)">${esc(tituloSlab)}</span>` : ""}
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap">
+          ${slab.cert ? `<span style="font-size:11px;color:var(--muted2)">Cert. <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text)">${esc(slab.cert)}</span></span>` : ""}
+          ${slab.link ? `<a href="${esc(slab.link)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;background:rgba(78,168,255,.12);border:1px solid rgba(78,168,255,.35);color:var(--blue);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;text-decoration:none;letter-spacing:.5px">🔍 Verificar autenticidad</a>` : ""}
+        </div>
+      </div>`;
+    } else {
+      slabEl.style.display = "none";
+    }
   }
   renderGallery();
 
@@ -3420,13 +3523,14 @@ function renderApp(){
                 <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.email || "")}</span>
                 ${v.email ? `<button onclick="copiarContacto('${escJs(v.email)}')" title="Copiar correo" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;padding:0;line-height:1;flex-shrink:0" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted)'">📋</button>` : ""}
               </div>
-              <div style="font-size:11px;color:var(--muted)">${v.ig ? esc(v.ig)+" · " : ""}${v.entrada}</div>
+              <div style="font-size:11px;color:var(--muted)">${v.ig ? "📷 "+esc(v.ig)+" · " : ""}${v.whatsapp ? "💬 "+esc(v.whatsapp)+" · " : ""}${v.entrada}</div>
             </div>
-            <div style="text-align:right;flex-shrink:0">
+            <div style="text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px">
               ${esPujador
                 ? `<span style="background:rgba(0,230,122,.1);color:var(--green);border:1px solid rgba(0,230,122,.25);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">${nPujas} puja${nPujas!==1?"s":""}</span>`
                 : `<span style="background:var(--s3);color:var(--muted2);font-size:10px;padding:3px 8px;border-radius:20px">Solo miró</span>`
               }
+              ${v.uid ? `<button onclick="sumarStrike('${escJs(v.uid)}')" title="Agregar strike a la agenda de problemáticos" style="background:none;border:1px solid var(--border);color:var(--muted2);padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted2)';this.style.borderColor='var(--border)'">🚩 Strike</button>` : ""}
             </div>
           </div>`;
         }).join("");
@@ -3450,6 +3554,9 @@ function renderApp(){
       blSection.style.display = "none";
     }
   } // por si está en otra pestaña
+
+  // Agenda de strikes (solo admin) — permanente, no se borra al resetear
+  renderStrikes();
 
   // Winner
   const ww = document.getElementById("winner-wrap");
@@ -3487,7 +3594,7 @@ function renderApp(){
         `;
         if(soyElGanador && !S.ganadorAvisado){
           wmsg.innerHTML +=
-            `<button class="btn-primary" style="margin-top:12px" onclick="reabrirModalGanador()">📩 DEJAR MI CONTACTO</button>`;
+            `<button class="btn-primary" style="margin-top:12px" onclick="reabrirModalGanador()">🏆 VER INSTRUCCIONES DE PAGO</button>`;
         }
       }
     } else {
@@ -3541,7 +3648,10 @@ function renderAdminGanador(){
   // WhatsApp/correo de un ganador anterior quedaba pegado sobre el ganador nuevo.
   const gRaw = P.ganadorConfirmado;
   const g = (gRaw && gRaw.uid && S.lider.uid && gRaw.uid === S.lider.uid) ? gRaw : null;
-  const ig  = (g && g.ig) || S.lider.ig || "";
+  // El contacto ahora se registra AL INGRESAR (obligatorio): se lee del
+  // visitante. El ganadorConfirmado queda solo como respaldo de datos antiguos.
+  const infoLider0 = contactoDe(S.lider.uid);
+  const ig  = (infoLider0 && infoLider0.ig) || (g && g.ig) || S.lider.ig || "";
 
   // Mensaje unificado, coherente con ESTA subasta. Solo se rellena si el
   // admin no lo ha editado a mano (para no pisarle sus cambios).
@@ -3558,7 +3668,7 @@ function renderAdminGanador(){
   const agHora = document.getElementById("ag-hora");
   if(agHora) agHora.textContent = S.lider.hora ? `🕐 Puja: ${admin && S.lider.horaMs ? S.lider.horaMs : S.lider.hora}` : "";
 
-  const wa  = (g && g.whatsapp) || "";
+  const wa  = (infoLider0 && infoLider0.whatsapp) || (g && g.whatsapp) || "";
   const esWa = !!wa;
   const contacto = esWa ? wa : ig;
 
@@ -3574,23 +3684,23 @@ function renderAdminGanador(){
 
   const est  = document.getElementById("ag-estado");
   const nota = document.getElementById("ag-nota");
-  // Confirmó si dejó CUALQUIER canal de contacto
-  const yaConfirmo = !!(g && (g.ig || g.whatsapp));
+  // Con el contacto obligatorio al ingresar, el ganador YA dejó su dato.
+  const tieneContacto = !!(ig || wa);
 
-  if(yaConfirmo){
-    est.textContent = "✓ CONFIRMADO";
+  if(tieneContacto){
+    est.textContent = "✓ CONTACTO LISTO";
     est.style.background = "rgba(0,230,122,.15)";
     est.style.color = "var(--green)";
     est.style.border = "1px solid rgba(0,230,122,.3)";
     nota.textContent = esWa
-      ? `Eligió WhatsApp · Confirmó a las ${g.hora}. Escríbele con el botón ↗`
-      : `Confirmó su Instagram a las ${g.hora}. Ya puedes escribirle.`;
+      ? "Lo registró al ingresar (eligió WhatsApp). Escríbele directo con el botón ↗"
+      : "Lo registró al ingresar (Instagram). Ya puedes escribirle sin esperar confirmación.";
   } else {
-    est.textContent = "⏳ ESPERANDO";
+    est.textContent = "⚠ SIN CONTACTO";
     est.style.background = "rgba(245,200,66,.15)";
     est.style.color = "var(--gold)";
     est.style.border = "1px solid rgba(245,200,66,.3)";
-    nota.textContent = "Aún no abre la página para dejar su contacto. Su correo está arriba si necesitas escribirle antes.";
+    nota.textContent = "Entró antes de este cambio y no dejó contacto. Su correo está arriba si necesitas escribirle.";
   }
 
   // ── Contactos de respaldo: 2° y 3° lugar ──
@@ -3606,9 +3716,9 @@ function renderAdminGanador(){
       const info = contactoDe(puja.uid);
       const pos = i + 1;
       const medalla = pos === 2 ? "🥈" : "🥉";
-      const contacto = (c && (c.whatsapp || c.ig)) || puja.ig || "";
-      const email = (c && c.email) || (info && info.email) || "";
-      const confirmado = !!(c && (c.ig || c.whatsapp));
+      const contacto = (info && (info.whatsapp || info.ig)) || (c && (c.whatsapp || c.ig)) || puja.ig || "";
+      const email = (info && info.email) || (c && c.email) || "";
+      const confirmado = !!contacto;
       const valorCopiar = contacto || email || "";
       filas.push(`<div style="background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:9px 11px;margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
@@ -3676,21 +3786,34 @@ function checkModalGanador(){
   const m = document.getElementById("modal-ganador");
   if(m && m.classList.contains("open")) return;
   // modalGanadorMostrado solo evita reabrirlo en el MISMO render.
-  // Antes bloqueaba para siempre: si lo cerraba sin confirmar, nunca volvía
-  // a verlo y el admin se quedaba sin su contacto.
   modalGanadorMostrado = true;
   document.getElementById("modal-ganador-monto").textContent = fmtCLP(S.lider.monto);
   document.getElementById("modal-ganador-carta").textContent = S.carta.titulo || "";
-  const gi = document.getElementById("ganador-ig");
-  if(gi && user.ig) gi.value = user.ig.replace("@","");
+  // El contacto ya se pidió al ingresar: aquí solo se le recuerda por dónde
+  // lo contactaremos. Ya no se le pide nada.
+  const cont = document.getElementById("modal-ganador-contacto");
+  if(cont){
+    const wa = user.whatsapp || "";
+    const ig = user.ig || "";
+    cont.textContent = wa && ig ? `💬 ${wa} · 📷 ${ig}`
+                     : wa ? `💬 ${wa}`
+                     : ig ? `📷 ${ig}`
+                     : "—";
+  }
   document.getElementById("modal-ganador").classList.add("open");
+}
+
+// El ganador leyó el aviso: marcar para no volver a mostrarlo.
+function cerrarModalGanador(){
+  const m = document.getElementById("modal-ganador");
+  if(m) m.classList.remove("open");
+  set(ref(db, `${SUBASTA_REF}/ganadorAvisado`), true).catch(()=>{});
 }
 
 // ── Modal para 2° y 3° lugar ──
 // Aparece al finalizar la subasta a quien quedó 2° o 3°, para tener su
 // contacto por si el 1° no paga. Guarda en rama privada (no toca la subasta).
 let top23Mostrado = false;
-let top23Canal = "ig";
 let miPosicionTop23 = 0;
 
 function checkModalTop23(){
@@ -3733,105 +3856,39 @@ function abrirModalTop23(pos, miPuja){
   if(carta) carta.textContent = S.carta.titulo || "";
   if(explica){
     explica.textContent = pos === 2
-      ? "Te contactaríamos solo si el 1° lugar no concreta el pago dentro de 1 hora. Déjanos un contacto para poder avisarte."
-      : "Te contactaríamos solo si ni el 1° ni el 2° lugar concretan el pago. Déjanos un contacto para poder avisarte.";
+      ? "Mantente atento: si el 1° lugar no concreta el pago dentro de 1 hora, la carta podría ser tuya y te contactaremos de inmediato."
+      : "Mantente atento: si ni el 1° ni el 2° lugar concretan el pago, la carta podría ser tuya y te contactaremos de inmediato.";
   }
-  const gi = document.getElementById("t23-ig");
-  if(gi && user.ig) gi.value = user.ig.replace("@","");
+  // El contacto ya se pidió al ingresar: solo se le muestra por dónde avisaremos.
+  const cont = document.getElementById("t23-contacto");
+  if(cont){
+    const wa = user.whatsapp || "";
+    const ig = user.ig || "";
+    cont.textContent = wa && ig ? `💬 ${wa} · 📷 ${ig}`
+                     : wa ? `💬 ${wa}`
+                     : ig ? `📷 ${ig}`
+                     : "—";
+  }
   const m = document.getElementById("modal-top23");
   if(m) m.classList.add("open");
-}
-
-function canalTop23(canal){
-  top23Canal = canal;
-  const esIg = canal === "ig";
-  document.getElementById("t23-tab-ig").classList.toggle("activo", esIg);
-  document.getElementById("t23-tab-wa").classList.toggle("activo", !esIg);
-  document.getElementById("t23-campo-ig").style.display = esIg ? "block" : "none";
-  document.getElementById("t23-campo-wa").style.display = esIg ? "none" : "block";
-  setTimeout(()=>{ const f=document.getElementById(esIg?"t23-ig":"t23-wa"); if(f) f.focus(); },60);
-}
-
-function confirmarTop23(){
-  let igFinal = "", waFinal = "";
-  if(top23Canal === "ig"){
-    const el = document.getElementById("t23-ig");
-    const ig = el.value.trim().replace(/^@+/,"");
-    if(!ig){ el.style.borderColor="var(--red)"; toast("Necesitamos tu Instagram","err"); return; }
-    if(!/^[A-Za-z0-9._]+$/.test(ig)){ el.style.borderColor="var(--red)"; toast("Usuario de Instagram inválido","err"); return; }
-    el.style.borderColor=""; igFinal = "@" + ig;
-  } else {
-    const el = document.getElementById("t23-wa");
-    let wa = el.value.replace(/[^0-9]/g,"");
-    if(wa.length >= 10 && wa.startsWith("56")) wa = wa.slice(2);
-    if(wa.length !== 9 || !wa.startsWith("9")){ el.style.borderColor="var(--red)"; toast("Número inválido: 9 dígitos, empieza con 9","err"); return; }
-    el.style.borderColor=""; waFinal = "+56" + wa;
-  }
-
-  const top = topPujadores(3);
-  const datos = {
-    uid:      user.uid || "",
-    nombre:   user.nombre,
-    email:    user.email || "",
-    ig:       igFinal,
-    whatsapp: waFinal,
-    canal:    top23Canal,
-    posicion: miPosicionTop23,
-    monto:    (top[miPosicionTop23-1] && top[miPosicionTop23-1].monto) || 0,
-    carta:    S.carta.titulo || "",
-    hora:     fmtTime(new Date())
-  };
-
-  if(igFinal) user.ig = igFinal;
-  try{ sessionStorage.setItem("subasta_user", JSON.stringify(user)); }catch(e){}
-
-  const btn = document.querySelector("#modal-top23 .btn-primary");
-  if(btn){ btn.disabled = true; btn.textContent = "GUARDANDO…"; }
-
-  set(ref(db, `${PRIVADO_REF}/contactoTop23/${user.uid}`), datos)
-    .then(()=>{
-      const miClave = user.uid || user.ig;
-      const claveSub = `paldea_top23_${S.carta.titulo||"?"}_${top[0].hora||""}_${miClave}`;
-      try{ localStorage.setItem(claveSub, "1"); }catch(e){}
-      cerrarModalTop23();
-      const gc = document.getElementById("gracias-canal");
-      if(gc) gc.textContent = top23Canal === "wa" ? "WhatsApp" : "Instagram";
-      const mg = document.getElementById("modal-gracias");
-      if(mg) mg.classList.add("open");
-      set(ref(db, `${PERFILES_REF}/${datos.uid}`), { ig: igFinal||"", whatsapp: waFinal||"", nombre: user.nombre }).catch(()=>{});
-    })
-    .catch(err=>{
-      console.error("Error top23:", err);
-      if(btn){ btn.disabled=false; btn.textContent="DEJAR MI CONTACTO"; }
-      toast("No se pudo guardar. Reintenta.","err");
-    });
 }
 
 function cerrarModalTop23(){
   const m = document.getElementById("modal-top23");
   if(m) m.classList.remove("open");
-  const btn = document.querySelector("#modal-top23 .btn-primary");
-  if(btn){ btn.disabled=false; btn.textContent="DEJAR MI CONTACTO"; }
+  // Marcar como visto para no repetir el aviso en esta subasta
+  try{
+    const top = topPujadores(3);
+    if(user && top.length > 0){
+      const miClave = user.uid || user.ig;
+      const claveSub = `paldea_top23_${S.carta.titulo||"?"}_${top[0].hora||""}_${miClave}`;
+      localStorage.setItem(claveSub, "1");
+    }
+  }catch(e){}
 }
 
-let canalElegido = "ig";
-
-function canalGanador(canal){
-  canalElegido = canal;
-  resetConfirmGanador();   // cambiar de canal exige revisar de nuevo
-  const esIg = canal === "ig";
-  document.getElementById("tab-ig").classList.toggle("activo", esIg);
-  document.getElementById("tab-wa").classList.toggle("activo", !esIg);
-  document.getElementById("campo-ig").style.display = esIg ? "block" : "none";
-  document.getElementById("campo-wa").style.display = esIg ? "none" : "block";
-  document.getElementById("nota-canal").textContent = esIg
-    ? "Te escribiremos por Instagram apenas confirmes."
-    : "Te escribiremos por WhatsApp Business apenas confirmes.";
-  setTimeout(()=>{
-    const f = document.getElementById(esIg ? "ganador-ig" : "ganador-wa");
-    if(f) f.focus();
-  }, 60);
-}
+// (El selector de canal del ganador se eliminó: el contacto ahora se pide
+//  una sola vez al ingresar con Google, no al ganar.)
 
 // Mensaje base para contactar al ganador, armado con los datos reales:
 // nombre, carta subastada y monto final. El admin lo puede editar antes de copiar.
@@ -4002,150 +4059,8 @@ function limpiarWa(el){
   el.style.borderColor = "";
 }
 
-// Doble paso (como las pujas): el primer clic valida y muestra el dato
-// formateado para que el ganador lo revise; el segundo clic recién envía.
-// Así una letra mal en el Instagram o un dígito de más en el número no pasan
-// sin que la persona lo confirme viéndolo grande.
-let ganadorPendiente = null;
-
-function confirmarGanador(){
-  let igFinal = "", waFinal = "";
-
-  if(canalElegido === "ig"){
-    const el = document.getElementById("ganador-ig");
-    const ig = el.value.trim().replace(/^@+/,"");
-    // Validación de forma: Instagram permite letras, números, punto y guion bajo
-    if(!ig){
-      el.style.borderColor = "var(--red)";
-      el.placeholder = "⚠ Necesitamos tu Instagram";
-      resetConfirmGanador();
-      return;
-    }
-    if(!/^[A-Za-z0-9._]+$/.test(ig)){
-      el.style.borderColor = "var(--red)";
-      toast("El usuario de Instagram solo lleva letras, números, punto y _","err");
-      resetConfirmGanador();
-      return;
-    }
-    el.style.borderColor = "";
-    igFinal = "@" + ig;
-  } else {
-    const el = document.getElementById("ganador-wa");
-    let wa = el.value.replace(/[^0-9]/g,"");
-    if(wa.length >= 10 && wa.startsWith("56")) wa = wa.slice(2);
-    if(wa.length !== 9){
-      el.style.borderColor = "var(--red)";
-      toast(wa.length < 9
-        ? `Faltan ${9-wa.length} dígito(s). Son 9, empezando con 9.`
-        : "Son 9 dígitos exactos. Borra los que sobran.","err");
-      resetConfirmGanador();
-      return;
-    }
-    if(!wa.startsWith("9")){
-      el.style.borderColor = "var(--red)";
-      toast("Los celulares en Chile empiezan con 9","err");
-      resetConfirmGanador();
-      return;
-    }
-    el.style.borderColor = "";
-    waFinal = "+56" + wa;
-  }
-
-  // ── PRIMER PASO: mostrar para revisar ──
-  const valorMostrado = canalElegido === "ig"
-    ? igFinal
-    : `+56 ${waFinal.slice(3,4)} ${waFinal.slice(4,8)} ${waFinal.slice(8)}`;
-
-  if(!ganadorPendiente || ganadorPendiente.ig !== igFinal || ganadorPendiente.whatsapp !== waFinal){
-    // Aún no confirmado (o cambió el dato): pedir revisión y NO enviar todavía
-    ganadorPendiente = { ig: igFinal, whatsapp: waFinal };
-    mostrarRevisionGanador(valorMostrado, canalElegido);
-    return;
-  }
-
-  // ── SEGUNDO PASO: ya revisado, enviar ──
-  enviarGanador(igFinal, waFinal);
-}
-
-function mostrarRevisionGanador(valor, canal){
-  const rev = document.getElementById("ganador-revision");
-  const btn = document.querySelector("#modal-ganador .btn-primary");
-  if(rev){
-    rev.style.display = "block";
-    rev.innerHTML = `
-      <div style="font-size:11px;color:var(--muted2);margin-bottom:6px">Revisa que esté correcto — te contactaremos aquí:</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;color:var(--gold);word-break:break-all">${esc(valor)}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px">${canal==="ig"?"Si tu usuario tiene un error, no podremos ubicarte.":"Si falta o sobra un dígito, no podremos escribirte."}</div>`;
-  }
-  if(btn) btn.textContent = "✓ SÍ, ES CORRECTO — ENVIAR";
-  toast("Revisa tu dato y confirma","warn");
-}
-
-function resetConfirmGanador(){
-  if(!ganadorPendiente) return;   // nada que resetear: no toca el botón al escribir
-  ganadorPendiente = null;
-  const rev = document.getElementById("ganador-revision");
-  if(rev) rev.style.display = "none";
-  const btn = document.querySelector("#modal-ganador .btn-primary");
-  if(btn) btn.textContent = "CONFIRMAR MIS DATOS";
-}
-
-function enviarGanador(igFinal, waFinal){
-  const datos = {
-    uid:    user.uid || "",
-    nombre: user.nombre,
-    email:  user.email || "",
-    ig:     igFinal,
-    whatsapp: waFinal,
-    canal:  canalElegido,
-    hora:   fmtTime(new Date())
-  };
-
-  if(igFinal) user.ig = igFinal;
-  try{ sessionStorage.setItem("subasta_user", JSON.stringify(user)); }catch(e){}
-
-  const btnG = document.querySelector("#modal-ganador .btn-primary");
-  if(btnG){ btnG.disabled = true; btnG.textContent = "GUARDANDO…"; }
-
-  const restaurarBtn = () => {
-    if(btnG){ btnG.disabled = false; btnG.textContent = "CONFIRMAR MIS DATOS"; }
-  };
-
-  // Lo esencial primero: el contacto del ganador
-  set(ref(db, `${PRIVADO_REF}/ganadorConfirmado`), datos)
-    .then(() => {
-      ganadorPendiente = null;
-      const rev = document.getElementById("ganador-revision");
-      if(rev) rev.style.display = "none";
-      document.getElementById("modal-ganador").classList.remove("open");
-      restaurarBtn();
-
-      const gc = document.getElementById("gracias-canal");
-      if(gc) gc.textContent = canalElegido === "wa" ? "WhatsApp" : "Instagram";
-      const mg = document.getElementById("modal-gracias");
-      if(mg) mg.classList.add("open");
-
-      set(ref(db, `${PERFILES_REF}/${datos.uid}`), {
-        ig: igFinal || "",
-        whatsapp: waFinal || "",
-        nombre: user.nombre
-      }).catch(()=>{});
-
-      set(ref(db, `${PRIVADO_REF}/visitantes/${datos.uid}/ig`), igFinal || "").catch(()=>{});
-      if(waFinal){
-        set(ref(db, `${PRIVADO_REF}/visitantes/${datos.uid}/whatsapp`), waFinal).catch(()=>{});
-      }
-
-      set(ref(db, `${SUBASTA_REF}/ganadorAvisado`), true).catch(()=>{});
-
-      try{ guardarGanadorEnHistorial(datos); }catch(e){}
-    })
-    .catch(err => {
-      console.error("Error al confirmar:", err);
-      restaurarBtn();
-      toast("No se pudo guardar. Revisa tu conexión y reintenta.","err");
-    });
-}
+// (Las funciones de confirmación de contacto del ganador se eliminaron:
+//  el contacto ahora se pide una sola vez al ingresar con Google.)
 
 function renderQuickBids(){
   const activa = S.subasta.estado==="activa";
@@ -5004,6 +4919,11 @@ function fillAdminFields(){
   condSel.value = (S.carta.cond||"NM").toUpperCase();
   if(!condSel.value) condSel.value = "NM";   // valor viejo no reconocido → NM
   document.getElementById("a-idioma").value   = S.carta.idioma||"";
+  const slabF = S.carta.slab || {};
+  document.getElementById("a-slab-comp").value  = slabF.compania||"";
+  document.getElementById("a-slab-grado").value = slabF.grado||"";
+  document.getElementById("a-slab-cert").value  = slabF.cert||"";
+  document.getElementById("a-slab-link").value  = slabF.link||"";
   document.getElementById("a-base").value     = S.subasta.base;
   document.getElementById("a-inc").value      = S.subasta.inc;
   const expEl = document.getElementById("a-express");
@@ -5101,6 +5021,12 @@ function leerFormulario(){
   S.carta.rareza = document.getElementById("a-rareza").value;
   S.carta.idioma = document.getElementById("a-idioma").value;
   S.carta.cond   = document.getElementById("a-cond").value.trim()  || S.carta.cond;
+  S.carta.slab = {
+    compania: document.getElementById("a-slab-comp").value.trim(),
+    grado:    document.getElementById("a-slab-grado").value.trim(),
+    cert:     document.getElementById("a-slab-cert").value.trim(),
+    link:     document.getElementById("a-slab-link").value.trim(),
+  };
   const base = parseInt(document.getElementById("a-base").value);
   const inc  = parseInt(document.getElementById("a-inc").value);
   if(base>0) S.subasta.base = base;
@@ -6002,19 +5928,27 @@ onAuthStateChanged(auth, (fbUser) => {
     get(ref(db, `${PERFILES_REF}/${fbUser.uid}`)).then(snap => {
       if(snap.exists()){
         const perfil = snap.val();
-        user = { ...googleUser, ig: perfil.ig || "" };
-        try{ sessionStorage.setItem("subasta_user", JSON.stringify(user)); }catch(e){}
-        // Registrar el ingreso también en este camino: el perfil sobrevive a un
-        // reset, así que sin esto entraban directo y no quedaban en la lista.
-        registrarVisitante(!!perfil.marketing);
-        document.getElementById("screen-login").style.display = "none";
-        document.getElementById("screen-app").style.display   = "block";
-        document.getElementById("hdr-user").textContent       = user.nombre;
-        renderApp();
+        // Entrada directa SOLO si ya dejó su contacto (ig o whatsapp).
+        // Quien aún no lo tiene pasa por el formulario una vez y listo.
+        if(perfil.ig || perfil.whatsapp){
+          user = { ...googleUser, ig: perfil.ig || "", whatsapp: perfil.whatsapp || "" };
+          try{ sessionStorage.setItem("subasta_user", JSON.stringify(user)); }catch(e){}
+          // Registrar el ingreso también en este camino: el perfil sobrevive a un
+          // reset, así que sin esto entraban directo y no quedaban en la lista.
+          registrarVisitante(!!perfil.marketing);
+          document.getElementById("screen-login").style.display = "none";
+          document.getElementById("screen-app").style.display   = "block";
+          document.getElementById("hdr-user").textContent       = user.nombre;
+          renderApp();
+        } else {
+          perfilPrevio = perfil;   // pre-rellena lo que haya
+          mostrarPasoDatos();
+        }
       } else {
+        perfilPrevio = null;
         mostrarPasoDatos();
       }
-    }).catch(()=> mostrarPasoDatos());
+    }).catch(()=>{ perfilPrevio = null; mostrarPasoDatos(); });
   } else {
     user = null; googleUser = null; admin = false;
     // Al cerrar sesión: esconder cualquier rastro del panel admin
@@ -6119,8 +6053,8 @@ function guardarGanadorEnHistorial(extra){
     carta:    carta || (S.carta.titulo || "—"),
     nombre:   S.lider.nombre || "—",
     email:    (ok && ok.email) || (info && info.email) || "",
-    ig:       (ok && ok.ig) || S.lider.ig || "",
-    whatsapp: (ok && ok.whatsapp) || "",
+    ig:       (ok && ok.ig) || (info && info.ig) || S.lider.ig || "",
+    whatsapp: (ok && ok.whatsapp) || (info && info.whatsapp) || "",
     monto:    S.lider.monto
   });
   try{ localStorage.setItem(HIST_GANADORES_KEY, JSON.stringify(hist)); }catch(e){}
@@ -6251,6 +6185,140 @@ function bloquearUsuario(clave, nombre){
     console.error("Error al bloquear:", err);
     toast("No se pudo bloquear. Reintenta.","err");
   });
+}
+
+// ══════════════════════════════════════
+//  AGENDA DE STRIKES (pujadores problemáticos)
+//  Vive en privado/strikes: PERMANENTE, no se borra al resetear la subasta
+//  y se ve en cualquier dispositivo del admin. Al 3er strike se bloquea
+//  automáticamente (y se eliminan sus pujas de la subasta actual).
+// ══════════════════════════════════════
+
+function strikesMap(){ if(!P.strikes) P.strikes = {}; return P.strikes; }
+
+function datosParaStrike(uid){
+  const v = (P.visitantes||[]).find(x => x.uid === uid);
+  return {
+    uid,
+    nombre:   (v && v.nombre)   || "Desconocido",
+    email:    (v && v.email)    || "",
+    ig:       (v && v.ig)       || "",
+    whatsapp: (v && v.whatsapp) || ""
+  };
+}
+
+// Botón 🚩 en la lista de participantes: suma 1 strike (o crea la ficha)
+function sumarStrike(uid){
+  if(!admin || !uid) return;
+  const e = strikesMap()[uid] || { ...datosParaStrike(uid), strikes: 0 };
+  if((e.strikes||0) >= 3){ toast("Ya tiene 3 strikes — está bloqueado","warn"); return; }
+  guardarStrike(uid, (e.strikes||0) + 1);
+}
+
+// Cajitas de chequeo: marcar la N significa "tiene N strikes";
+// desmarcarla lo deja en N-1.
+function setStrike(uid, n, marcado){
+  if(!admin || !uid) return;
+  guardarStrike(uid, marcado ? n : n - 1);
+}
+
+function guardarStrike(uid, n){
+  const e = strikesMap()[uid] || { ...datosParaStrike(uid), strikes: 0 };
+  // Refrescar los datos de contacto por si cambiaron desde la última vez
+  const datos = datosParaStrike(uid);
+  e.nombre   = datos.nombre !== "Desconocido" ? datos.nombre : (e.nombre || "Desconocido");
+  e.email    = datos.email    || e.email    || "";
+  e.ig       = datos.ig       || e.ig       || "";
+  e.whatsapp = datos.whatsapp || e.whatsapp || "";
+  e.strikes = Math.max(0, Math.min(3, n));
+  e.bloqueado = e.strikes >= 3;
+  e.actualizado = Date.now();
+
+  set(ref(db, `${PRIVADO_REF}/strikes/${uid}`), e).catch(err => {
+    console.error("No se pudo guardar el strike:", err);
+    toast("No se pudo guardar. Reintenta.","err");
+  });
+
+  if(e.strikes >= 3){
+    bloquearPorStrike(uid, e.nombre);
+  } else {
+    toast(`🚩 ${e.nombre}: ${e.strikes} strike${e.strikes!==1?"s":""}`, e.strikes>0?"warn":"ok");
+  }
+}
+
+function bloquearPorStrike(uid, nombre){
+  // Misma mecánica que bloquearUsuario, pero automática al llegar al 3er strike.
+  runTransaction(ref(db, SUBASTA_REF), (actual) => {
+    if(!actual) return actual;
+    const bloq = normalizarLista(actual.bloqueados);
+    if(!bloq.includes(uid)) bloq.push(uid);
+    actual.bloqueados = bloq;
+    const lista = normalizarPujas(actual.pujas).filter(q => (q.uid || q.ig) !== uid);
+    actual.pujas = pujasAObjeto(lista);
+    if(lista.length > 0){
+      actual.lider = lista[0];
+      actual.subasta.precioAct = lista[0].monto;
+    } else {
+      actual.lider = null;
+      actual.subasta.precioAct = 0;
+    }
+    return actual;
+  }).then(() => {
+    toast(`⛔ ${nombre} llegó a 3 strikes: BLOQUEADO automáticamente`, "err");
+  }).catch(err => {
+    console.error("Error al bloquear por strikes:", err);
+    toast("Strike guardado, pero no se pudo bloquear. Hazlo manual con ⛔","err");
+  });
+}
+
+function quitarDeAgenda(uid){
+  const e = strikesMap()[uid];
+  if(!e) return;
+  if(!confirm(`¿Quitar a ${e.nombre} de la agenda de strikes?\n\nSi estaba bloqueado por strikes, recuerda también desbloquearlo en "Usuarios bloqueados".`)) return;
+  set(ref(db, `${PRIVADO_REF}/strikes/${uid}`), null)
+    .then(()=> toast("Quitado de la agenda","ok"))
+    .catch(()=> toast("No se pudo quitar. Reintenta.","err"));
+}
+
+function renderStrikes(){
+  const lista = document.getElementById("strikes-list");
+  if(!lista) return;
+  if(!admin){ lista.innerHTML = ""; return; }
+  const entradas = Object.values(strikesMap()).filter(Boolean)
+    .sort((a,b) => (b.strikes||0) - (a.strikes||0) || (b.actualizado||0) - (a.actualizado||0));
+  const cnt = document.getElementById("strikes-count");
+  if(cnt) cnt.textContent = entradas.length ? `· ${entradas.length} en la agenda` : "";
+  if(entradas.length === 0){
+    lista.innerHTML = '<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted2)">Nadie en la agenda 🎉</div>';
+    return;
+  }
+  const titulos = ["1° strike (ej: no pagó a tiempo)","2° strike (ej: no respondió)","3° strike → bloqueo automático"];
+  lista.innerHTML = entradas.map(e => {
+    const n = e.strikes || 0;
+    const bloq = n >= 3;
+    const contacto = [e.whatsapp ? "💬 "+e.whatsapp : "", e.ig ? "📷 "+e.ig : ""].filter(Boolean).join(" · ");
+    const cajas = [1,2,3].map(k =>
+      `<input type="checkbox" ${n>=k?"checked":""} onclick="setStrike('${escJs(e.uid)}',${k},this.checked)" title="${titulos[k-1]}" style="width:20px;height:20px;cursor:pointer;accent-color:${k===3?"var(--red)":"var(--gold)"}">`
+    ).join("");
+    return `<div style="background:var(--s2);border:1px solid ${bloq?"rgba(255,59,92,.5)":"var(--border2)"};border-radius:10px;padding:10px 12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px">
+            ${esc(e.nombre)}
+            ${bloq ? '<span style="background:rgba(255,59,92,.15);color:var(--red);border:1px solid rgba(255,59,92,.4);font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px">⛔ BLOQUEADO</span>' : ""}
+          </div>
+          <div style="font-size:11px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.email||"—")}</div>
+          <div style="font-size:11px;color:var(--muted)">${esc(contacto||"sin contacto registrado")}</div>
+        </div>
+        <button onclick="quitarDeAgenda('${escJs(e.uid)}')" title="Quitar de la agenda" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;flex-shrink:0">✕</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <span style="font-size:10px;color:var(--muted2);letter-spacing:.5px">STRIKES:</span>
+        ${cajas}
+        <span style="font-size:11px;font-weight:800;color:${bloq?"var(--red)":n===2?"var(--gold)":"var(--muted2)"};margin-left:2px">${n}/3</span>
+      </div>
+    </div>`;
+  }).join("");
 }
 
 // ══════════════════════════════════════
@@ -6513,12 +6581,12 @@ function copiarNombreCorreo(){
   let texto = "";
   if(siMkt.length > 0){
     texto += `═══ ACEPTAN MARKETING (${siMkt.length}) ═══\n`;
-    texto += siMkt.map(v => `${v.nombre || ""} | ${v.email || "—"}`).join("\n");
+    texto += siMkt.map(v => `${v.nombre || ""} | ${v.email || "—"} | ${v.whatsapp || v.ig || "sin contacto"}`).join("\n");
   }
   if(noMkt.length > 0){
     if(texto) texto += "\n\n";
     texto += `═══ NO ACEPTAN MARKETING (${noMkt.length}) ═══\n`;
-    texto += noMkt.map(v => `${v.nombre || ""} | ${v.email || "—"}`).join("\n");
+    texto += noMkt.map(v => `${v.nombre || ""} | ${v.email || "—"} | ${v.whatsapp || v.ig || "sin contacto"}`).join("\n");
   }
 
   navigator.clipboard.writeText(texto).then(()=>{
@@ -6830,14 +6898,13 @@ window.abrirEnChrome = abrirEnChrome;
 window.eliminarGanadorHist = eliminarGanadorHist;
 window.cancelarGoogle  = cancelarGoogle;
 window.cerrarModalPuja = cerrarModalPuja;
-window.confirmarGanador= confirmarGanador;
+window.cerrarModalGanador = cerrarModalGanador;
 window.volverAlAdmin   = volverAlAdmin;
 window.limpiarWa       = limpiarWa;
-window.resetConfirmGanador = resetConfirmGanador;
-window.canalGanador    = canalGanador;
-window.canalTop23      = canalTop23;
-window.confirmarTop23  = confirmarTop23;
 window.cerrarModalTop23 = cerrarModalTop23;
+window.sumarStrike     = sumarStrike;
+window.setStrike       = setStrike;
+window.quitarDeAgenda  = quitarDeAgenda;
 window.generarHistoriaGanador = generarHistoriaGanador;
 window.reabrirModalGanador = reabrirModalGanador;
 window.cerrarGracias   = cerrarGracias;
