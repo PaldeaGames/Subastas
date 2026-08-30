@@ -1807,7 +1807,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v41</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v42</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2396,7 +2396,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v41 — slab en login + strike desde registro + copiar cert","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v42 — contacto +18 obligatorio una vez para todos","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -5930,9 +5930,12 @@ onAuthStateChanged(auth, (fbUser) => {
     get(ref(db, `${PERFILES_REF}/${fbUser.uid}`)).then(snap => {
       if(snap.exists()){
         const perfil = snap.val();
-        // Entrada directa SOLO si ya dejó su contacto (ig o whatsapp).
-        // Quien aún no lo tiene pasa por el formulario una vez y listo.
-        if(perfil.ig || perfil.whatsapp){
+        // Entrada directa SOLO si ya dejó su contacto (ig o whatsapp) Y aceptó
+        // la declaración +18 (mayor18 solo la guarda el formulario nuevo).
+        // Quien tenga un perfil antiguo (sin mayor18) pasa por el formulario
+        // UNA vez — con sus datos pre-rellenados — y de ahí entra directo
+        // siempre. No se borra ni se pierde nada.
+        if((perfil.ig || perfil.whatsapp) && perfil.mayor18){
           user = { ...googleUser, ig: perfil.ig || "", whatsapp: perfil.whatsapp || "" };
           try{ sessionStorage.setItem("subasta_user", JSON.stringify(user)); }catch(e){}
           // Registrar el ingreso también en este camino: el perfil sobrevive a un
