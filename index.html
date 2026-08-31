@@ -1807,7 +1807,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v45</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v46</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -1934,7 +1934,23 @@ body.express-tema #login-live-panel{
           <option value="TAG"></option>
           <option value="ARS"></option>
         </datalist>
-        <input class="a-input" id="a-slab-grado" placeholder="Grado (ej: 10 · 9.5 · Gem Mint 10)" autocomplete="off" />
+        <select class="a-input" id="a-slab-grado" style="cursor:pointer;color:var(--text)">
+          <option value="" style="background:var(--s2)">— Grado —</option>
+          <option style="background:var(--s2)">GEM MINT 10 (GEM MT)</option>
+          <option style="background:var(--s2)">PRISTINE 10 / BLACK LABEL</option>
+          <option style="background:var(--s2)">GEM MINT 9.5</option>
+          <option style="background:var(--s2)">MINT 9</option>
+          <option style="background:var(--s2)">NM-MINT+ 8.5</option>
+          <option style="background:var(--s2)">NM-MINT 8</option>
+          <option style="background:var(--s2)">NEAR MINT 7</option>
+          <option style="background:var(--s2)">EX-NM 6</option>
+          <option style="background:var(--s2)">EXCELLENT 5</option>
+          <option style="background:var(--s2)">VG-EX 4</option>
+          <option style="background:var(--s2)">VG 3</option>
+          <option style="background:var(--s2)">GOOD 2</option>
+          <option style="background:var(--s2)">FAIR 1.5</option>
+          <option style="background:var(--s2)">POOR 1</option>
+        </select>
       </div>
       <div class="admin-grid2">
         <input class="a-input" id="a-slab-cert" placeholder="N° de certificación" inputmode="numeric" autocomplete="off" />
@@ -2414,7 +2430,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v45 — declaro18: todos pasan por el formulario una vez","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v46 — declaro18: todos pasan por el formulario una vez","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -5024,7 +5040,17 @@ function fillAdminFields(){
   document.getElementById("a-idioma").value   = S.carta.idioma||"";
   const slabF = S.carta.slab || {};
   document.getElementById("a-slab-comp").value  = slabF.compania||"";
-  document.getElementById("a-slab-grado").value = slabF.grado||"";
+  const gradoSel = document.getElementById("a-slab-grado");
+  gradoSel.value = slabF.grado||"";
+  if(slabF.grado && !gradoSel.value){
+    // grado guardado a mano en una versión anterior → conservarlo como opción
+    const optG = document.createElement("option");
+    optG.value = slabF.grado;
+    optG.textContent = slabF.grado + " (guardado)";
+    optG.style.background = "var(--s2)";
+    gradoSel.appendChild(optG);
+    gradoSel.value = slabF.grado;
+  }
   document.getElementById("a-slab-cert").value  = slabF.cert||"";
   document.getElementById("a-slab-link").value  = slabF.link||"";
   document.getElementById("a-base").value     = S.subasta.base;
