@@ -1807,7 +1807,7 @@ body.express-tema #login-live-panel{
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v46</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v47</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -1838,6 +1838,7 @@ body.express-tema #login-live-panel{
           <option value="MP"  style="background:var(--s2)">MP · Moderately Played</option>
           <option value="HP"  style="background:var(--s2)">HP · Heavily Played</option>
           <option value="DMG" style="background:var(--s2)">DMG · Damaged (dañada)</option>
+          <option value="NONE" style="background:var(--s2)">🚫 Ninguna · sin badge (para slab)</option>
         </select>
       </div>
       <div class="admin-grid2">
@@ -2430,7 +2431,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v46 — declaro18: todos pasan por el formulario una vez","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v47 — declaro18: todos pasan por el formulario una vez","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -3427,8 +3428,13 @@ function renderApp(){
   document.getElementById("card-title").textContent = c.titulo;
   document.getElementById("card-set").textContent   = c.set;
   const condEl = document.getElementById("card-cond");
-  condEl.textContent = nombreEstado(c.cond);
-  condEl.title = "Estado de la carta";
+  if((c.cond||"").toUpperCase() === "NONE"){
+    condEl.style.display = "none";   // slab: el grado lo muestra el bloque de gradeada
+  } else {
+    condEl.style.display = "";
+    condEl.textContent = nombreEstado(c.cond);
+    condEl.title = "Estado de la carta";
+  }
 
   // Set en español
   const setEsEl = document.getElementById("card-set-es");
