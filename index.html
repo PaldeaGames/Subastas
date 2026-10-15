@@ -463,6 +463,76 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .tv-log-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
 /* ════════════════════════════
+   RESUMEN PARALELO EN LOGIN (ambas subastas a la vista, sin scroll)
+════════════════════════════ */
+.lr-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; width:100%; }
+.lr-card{
+  background:var(--s1); border:1px solid var(--border2); border-radius:14px;
+  padding:13px 12px; display:flex; flex-direction:column; gap:8px; min-width:0;
+  position:relative; overflow:hidden;
+}
+.lr-card.express{ border-color:rgba(255,59,92,.55); box-shadow:0 0 18px rgba(255,59,92,.12); }
+.lr-tag{ font-size:9px; font-weight:800; letter-spacing:2px; color:var(--blue);
+  background:rgba(78,168,255,.1); border:1px solid rgba(78,168,255,.3);
+  padding:2px 8px; border-radius:20px; align-self:flex-start; }
+.lr-estado{ position:absolute; top:10px; right:10px; font-size:9px; font-weight:800;
+  letter-spacing:1px; padding:3px 9px; border-radius:20px; }
+.lr-estado.activa{ background:rgba(0,230,122,.15); color:var(--green); border:1px solid rgba(0,230,122,.4); }
+.lr-estado.programada{ background:rgba(245,200,66,.12); color:var(--gold); border:1px solid rgba(245,200,66,.4); }
+.lr-estado.otra{ background:var(--s3); color:var(--muted2); border:1px solid var(--border2); }
+.lr-fila{ display:flex; gap:10px; align-items:flex-start; min-width:0; }
+.lr-thumb{ flex-shrink:0; width:52px; height:73px; border-radius:6px; overflow:hidden;
+  background:linear-gradient(135deg,var(--s3),var(--s2)); border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center; cursor:zoom-in; }
+.lr-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+.lr-thumb .lr-ph{ font-size:20px; opacity:.35; }
+.lr-titulo{ font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:.5px;
+  line-height:1.1; word-break:break-word; }
+.lr-badges{ display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
+.lr-badges span{ font-size:8.5px; font-weight:700; padding:2px 6px; border-radius:12px;
+  background:var(--s3); border:1px solid var(--border2); color:var(--muted2); }
+.lr-badges span.lr-cond{ color:var(--gold); border-color:rgba(245,200,66,.4); background:rgba(245,200,66,.08); }
+.lr-nums{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:auto; }
+.lr-num{ background:var(--s2); border:1px solid var(--border); border-radius:8px; padding:6px 8px; }
+.lr-num .l{ font-size:8px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted2); }
+.lr-num .v{ font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; color:var(--gold); margin-top:1px; }
+.lr-num .v.tiempo{ color:var(--green); }
+.lr-num .v.tiempo.ending{ color:var(--red); }
+.lr-pujas{ font-size:9px; color:var(--muted2); }
+@media(max-width:400px){
+  .lr-grid{ gap:8px; }
+  .lr-card{ padding:10px 9px; }
+  .lr-thumb{ width:42px; height:59px; }
+  .lr-num .v{ font-size:12px; }
+}
+
+/* ════════════════════════════
+   NAVEGACIÓN ENTRE SUBASTAS (modo paralelo, móvil)
+════════════════════════════ */
+#dual-nav{ display:none; }
+body.dual-on #dual-nav{
+  display:flex; gap:8px; position:fixed; left:10px; right:10px; bottom:10px; z-index:70;
+}
+body.dual-on #dual-nav .dn-tab{
+  flex:1; display:flex; align-items:center; gap:8px; min-width:0;
+  background:rgba(16,16,26,.92); backdrop-filter:blur(8px);
+  border:1.5px solid var(--border2); border-radius:14px; padding:8px 10px;
+  color:var(--text); cursor:pointer; font-family:'Outfit',sans-serif; text-align:left;
+}
+body.dual-on #dual-nav .dn-tab:active{ transform:scale(.97); }
+body.dual-on #dual-nav .dn-tab .dn-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; background:var(--muted2); }
+body.dual-on #dual-nav .dn-tab .dn-dot.viva{ background:var(--green); box-shadow:0 0 8px var(--green); }
+body.dual-on #dual-nav .dn-tab .dn-tag{ font-size:8px; font-weight:800; letter-spacing:1.5px; color:var(--blue); }
+body.dual-on #dual-nav .dn-tab .dn-tit{ font-size:11px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+body.dual-on #dual-nav .dn-tab .dn-price{ font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--gold); margin-left:auto; flex-shrink:0; }
+/* En pantallas anchas ambas subastas ya se ven: la barra no hace falta */
+@media (min-width: 961px){ body.dual-on #dual-nav{ display:none; } }
+/* Espacio para que la barra no tape el contenido al final */
+body.dual-on #screen-app{ padding-bottom:150px !important; }
+/* Al saltar con la barra, el panel no queda tapado por el header fijo */
+.dx-panel{ scroll-margin-top:74px; }
+
+/* ════════════════════════════
    TOAST
 ════════════════════════════ */
 .toast{
@@ -1305,6 +1375,306 @@ body.express-tema #login-live-panel{
   .tv-topbar .tv-who{ font-size:9px; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   #tv-fin{ font-size:9px !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   MODO DUAL — DOS SUBASTAS EN PARALELO
+   Cuando body.dual-on está activo, la vista de UNA subasta se
+   esconde y se muestran los paneles de Subasta 1 y Subasta 2.
+══════════════════════════════════════════════════════════════ */
+body.dual-on #screen-app .gallery-section,
+body.dual-on #screen-app .live-bar,
+body.dual-on #screen-app #fin-bar,
+body.dual-on #screen-app .bid-card,
+body.dual-on #screen-app > .wrap > .log-card,
+body.dual-on #screen-app .aviso-reingreso,
+body.dual-on #express-cinta,
+body.dual-on #final-zona{ display:none !important; }
+body.dual-on .wrap{ max-width:1240px; display:block; }
+/* El aviso fijo de último minuto de la vista simple no debe tapar la dual */
+body.dual-on #screen-app.ultimo-minuto-app,
+body.dual-on #screen-app.urgente-30,
+body.dual-on #screen-app.ultimos-10{ animation:none !important; }
+body.dual-on #screen-app.ultimo-minuto-app::after{ content:none !important; display:none !important; }
+
+/* Zona de ganadores: dos columnas (Subasta 1 | Subasta 2) */
+#dual-zonas{ display:none; }
+body.dual-on #dual-zonas{
+  display:grid; grid-template-columns:minmax(0,1fr);
+  gap:12px; align-items:start; margin-bottom:14px;
+}
+@media(min-width:900px){
+  body.dual-on #dual-zonas{ grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
+}
+#dual-zonas .winner-wrap{ margin-bottom:10px; }
+#dual-zonas #admin-ganador-box{ margin-bottom:0 !important; }
+.dz-etiqueta{
+  font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase;
+  color:var(--blue); margin-bottom:8px;
+}
+
+/* ── Vista del PUJADOR en modo dual ── */
+#dual-app{ display:none; }
+body.dual-on #dual-app{
+  display:grid; grid-template-columns:minmax(0,1fr); gap:14px; margin-bottom:14px;
+}
+@media(min-width:900px){
+  body.dual-on #dual-app{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+}
+.dx-panel{
+  position:relative; min-width:0;
+  background:var(--s1); border:1px solid var(--border); border-radius:16px; padding:14px;
+}
+.dx-panel.dx-express{ border-color:rgba(255,106,26,.5); box-shadow:0 0 22px rgba(255,90,20,.12); }
+.dx-cinta{
+  display:none; text-align:center;
+  background:linear-gradient(90deg,#ff6a1a,#ff3b5c,#ff6a1a); background-size:200% 100%;
+  color:#fff; font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px;
+  padding:4px; margin-bottom:10px; border-radius:8px;
+  animation:cinta-brilla 3s linear infinite;
+}
+.dx-panel.dx-express .dx-cinta{ display:block; }
+.dx-head{ margin-bottom:10px; }
+.dx-tag{
+  display:inline-block; font-size:9px; font-weight:800; letter-spacing:2px;
+  color:var(--blue); background:rgba(78,168,255,.1); border:1px solid rgba(78,168,255,.3);
+  padding:2px 8px; border-radius:20px; margin-bottom:6px;
+}
+.dx-title{ font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1px; line-height:1.1; }
+.dx-set{ font-size:12px; color:var(--muted2); margin-top:2px; }
+.dx-badges{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.dx-imgbox{
+  position:relative; background:radial-gradient(ellipse at center, var(--s3), var(--s2));
+  border:1px solid var(--border2); border-radius:12px;
+  height:240px; display:flex; align-items:center; justify-content:center;
+  overflow:hidden; margin-bottom:10px;
+}
+.dx-img{ max-width:100%; max-height:100%; object-fit:contain; cursor:zoom-in; }
+.dx-noimg{ color:var(--muted2); font-size:12px; }
+.dx-nav{
+  position:absolute; top:50%; transform:translateY(-50%); z-index:3;
+  width:30px; height:30px; border-radius:50%;
+  background:rgba(7,7,13,.65); border:1px solid var(--border2); color:var(--text);
+  font-size:15px; cursor:pointer; display:none; align-items:center; justify-content:center;
+}
+.dx-nav.dx-prev{ left:8px; } .dx-nav.dx-next{ right:8px; }
+.dx-counter{
+  position:absolute; bottom:6px; right:10px; z-index:3;
+  font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted2);
+  background:rgba(7,7,13,.6); padding:2px 7px; border-radius:10px; display:none;
+}
+.dx-livebar{ display:grid; grid-template-columns:1.2fr 1fr; gap:10px; margin-bottom:10px; }
+.dx-pricebox, .dx-timerbox{
+  background:var(--s2); border:1px solid var(--border2); border-radius:10px;
+  padding:10px 12px; min-width:0;
+}
+.dx-lbl{ font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted2); margin-bottom:3px; }
+.dx-price{ font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:800; color:var(--gold); line-height:1.1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dx-who{ font-size:11px; color:var(--muted2); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dx-timer{ font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:700; color:var(--green); line-height:1.1; }
+.dx-timer.ending{ color:var(--red); animation:blink .6s infinite; }
+.dx-timer.stopped{ color:var(--muted); }
+.dx-fin{ font-size:10px; color:var(--muted2); margin-top:3px; }
+.dx-miestado{
+  display:none; border-radius:9px; padding:8px 12px; margin-bottom:10px;
+  font-size:12px; font-weight:600; text-align:center;
+}
+.dx-panel .quick-grid{ margin-bottom:8px; }
+.dx-hint{ font-size:11px; color:var(--muted2); margin-top:8px; text-align:center; }
+.dx-baseinc{
+  display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;
+  margin-top:8px; padding-top:8px; border-top:1px solid var(--border);
+  font-size:11px; color:var(--muted2);
+}
+.dx-win{
+  display:none; margin-top:12px; background:linear-gradient(135deg,#1a1200,#0d0a00);
+  border:1.5px solid var(--gold); border-radius:12px; padding:10px 13px;
+  font-size:12px; color:var(--muted2); line-height:1.5;
+}
+.dx-win .dx-win-name{ font-size:14px; font-weight:700; color:var(--text); }
+.dx-win .dx-win-monto{ font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--gold); }
+.dx-panel .log-card{ margin-top:12px; margin-bottom:0; }
+.dx-panel .log-list{ max-height:240px; }
+/* Último minuto por panel (app): borde rojo pulsante solo en esa subasta */
+.dx-panel.ultimo-minuto{ border-color:rgba(255,59,92,.65); animation:marco-pulso 1.2s ease-in-out infinite; }
+.dx-panel.ultimos-10{ animation:marco-pulso-rapido .55s ease-in-out infinite; }
+.dx-panel.ultimo-minuto .dx-imgbox{ height:130px; transition:height .6s ease; }
+.dx-panel.ultimo-minuto .dx-price, .dx-panel.ultimo-minuto .dx-lbl{ color:var(--red); }
+.dx-panel.ultimo-minuto .dx-pricebox{ border-color:rgba(255,59,92,.6); animation:bar-pulso-rojo 1.1s ease-in-out infinite; }
+.dx-panel.ultimo-minuto .dx-timerbox{ border-color:rgba(255,59,92,.6); animation:bar-pulso-rojo 1.1s ease-in-out infinite; }
+.dx-panel.ultimos-10 .btn-bid:not(:disabled){
+  background:linear-gradient(135deg,#ff3b5c,#ff6a1a) !important; color:#fff !important;
+  animation:btn-pulso-rojo .7s ease-in-out infinite;
+}
+
+/* ── TV en modo dual: dos paneles ── */
+#dual-tv{ display:none; }
+#screen-tv.dual-on #dual-tv{
+  display:flex; flex-direction:column; flex:1 1 auto; min-height:0;
+  width:100%; max-width:1900px; margin:0 auto;
+}
+#screen-tv.dual-on #tv-topbar,
+#screen-tv.dual-on #tv-layout,
+#screen-tv.dual-on #tv-nueva-puja,
+#screen-tv.dual-on #tv-vendido{ display:none !important; }
+.dx-panels{ display:grid; grid-template-columns:minmax(0,1fr); grid-auto-rows:minmax(0,1fr); gap:14px; flex:1 1 auto; min-height:0; }
+/* Televisión horizontal: columna izquierda y columna derecha */
+@media (min-aspect-ratio: 1/1){ .dx-panels{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); grid-auto-rows:auto; } }
+.dt-panel{
+  position:relative; display:flex; flex-direction:column; min-height:0; min-width:0;
+  background:var(--s1); border:1px solid var(--border2); border-radius:16px; overflow:hidden;
+}
+.dt-panel.dx-express{ border-color:rgba(255,106,26,.55); box-shadow:0 0 26px rgba(255,90,20,.15); }
+.dt-head{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 14px; border-bottom:1px solid var(--border); flex-shrink:0;
+}
+.dt-tag{
+  font-size:9px; font-weight:800; letter-spacing:2px; color:var(--blue);
+  background:rgba(78,168,255,.1); border:1px solid rgba(78,168,255,.3);
+  padding:2px 8px; border-radius:20px; margin-right:8px;
+}
+.dt-title{
+  font-family:'Bebas Neue',sans-serif; font-size:clamp(15px,2vw,22px); letter-spacing:1px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.dt-top{ display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px 10px; flex-shrink:0; }
+.dt-box{
+  background:linear-gradient(135deg, var(--s2), var(--s3));
+  border:1px solid var(--border2); border-radius:12px;
+  padding:8px 12px; text-align:center; min-width:0; overflow:hidden;
+}
+.dt-plbl{ font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted2); margin-bottom:3px; }
+.dt-pval{ font-family:'JetBrains Mono',monospace; font-size:clamp(20px,2.6vw,40px); font-weight:800; color:var(--gold); line-height:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dt-tval{ font-family:'JetBrains Mono',monospace; font-size:clamp(20px,2.6vw,40px); font-weight:800; color:var(--green); line-height:1; }
+.dt-tval.ending{ color:var(--red); animation:blink 1s infinite; }
+.dt-who{ font-size:11px; color:var(--muted2); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dt-fintxt{ font-size:10px; color:var(--muted2); margin-top:3px; }
+.dt-panel.dx-express .dt-pval{ color:#ff8a3a; }
+.dt-body{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); transition:grid-template-columns .8s cubic-bezier(.4,0,.2,1); }
+.dt-stage{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  min-height:0; min-width:0; padding:10px;
+  background:radial-gradient(ellipse at center, var(--s3), var(--s1));
+  border-right:1px solid var(--border);
+  transition:opacity .6s, transform .8s cubic-bezier(.4,0,.2,1);
+}
+.dt-img{ max-width:100%; max-height:100%; object-fit:contain; border-radius:10px; animation:carta-flota 4.5s ease-in-out infinite; }
+.dt-noimg{ color:var(--muted2); font-size:12px; }
+.dt-ganando{
+  position:absolute; top:10px; left:10px; right:10px; z-index:5;
+  display:none; background:rgba(20,10,0,.75); backdrop-filter:blur(4px);
+  border:1px solid rgba(245,200,66,.5); color:var(--gold);
+  font-weight:800; font-size:clamp(11px,1.6vw,16px); letter-spacing:1px;
+  padding:7px 12px; border-radius:10px; text-align:center;
+}
+.dt-ganando.on{ display:block; animation:ganando-in .4s ease-out 1; }
+.dt-logwrap{ display:flex; flex-direction:column; min-height:0; min-width:0; }
+.dt-log-hdr{
+  padding:9px 12px; border-bottom:1px solid var(--border); flex-shrink:0;
+  font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted2);
+}
+.dt-log{ flex:1 1 auto; overflow-y:auto; min-height:0; }
+.dt-log::-webkit-scrollbar{ width:3px; }
+.dt-log::-webkit-scrollbar-thumb{ background:var(--border2); border-radius:2px; }
+/* Popup NUEVA PUJA centrado en SU panel (no en la pantalla) */
+.dt-np{
+  position:absolute; left:50%; top:50%; z-index:60;
+  transform:translate(-50%,-50%) scale(.3); opacity:0;
+  background:linear-gradient(135deg,#ffd24a,#ffb020 45%,#ff6a1a);
+  color:#1a0a00; font-family:'Bebas Neue',sans-serif;
+  padding:16px 30px; border-radius:18px; max-width:92%;
+  border:3px solid rgba(255,255,255,.4);
+  text-align:center; pointer-events:none; display:none;
+}
+.dt-np.show{ display:block; animation:nueva-puja-pop 3.8s cubic-bezier(.2,1.4,.4,1) 1, nueva-puja-glow 1s ease-in-out infinite; }
+.dt-np .np-lbl{ font-size:clamp(20px,3.4vw,40px); letter-spacing:3px; line-height:1; text-shadow:0 2px 8px rgba(255,255,255,.3); }
+.dt-np .np-monto{ font-family:'JetBrains Mono',monospace; font-size:clamp(28px,5.5vw,64px); font-weight:800; margin-top:4px; line-height:1; }
+.dt-np .np-quien{ font-size:clamp(13px,2.2vw,22px); font-family:'Outfit',sans-serif; font-weight:700; opacity:.8; margin-top:5px; letter-spacing:1px; }
+/* VENDIDO por panel */
+.dt-vendido{
+  display:none; position:absolute; inset:0; z-index:50;
+  background:radial-gradient(ellipse at center, rgba(20,8,40,.97), rgba(7,7,13,.99));
+  flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:4px; padding:16px;
+}
+.dt-vendido.on{ display:flex; }
+.dt-vendido .vendido-stamp{
+  font-family:'Bebas Neue',sans-serif; font-size:clamp(34px,6.5vw,80px); line-height:.9;
+  color:var(--red); letter-spacing:3px;
+  border:5px solid var(--red); border-radius:12px; padding:5px 20px;
+  transform:rotate(-8deg); animation:vendido-stamp .7s cubic-bezier(.2,1.3,.4,1) 1;
+  text-shadow:0 0 24px rgba(255,59,92,.5); position:relative; z-index:1;
+}
+.dt-vendido .vendido-ganador{
+  font-family:'Bebas Neue',sans-serif; font-size:clamp(18px,3.4vw,34px); color:var(--gold); letter-spacing:2px; margin-top:14px;
+  animation:ganador-entra .6s cubic-bezier(.2,1.3,.4,1) 1, ganador-brilla 1.8s ease-in-out .6s infinite;
+  position:relative; z-index:1;
+}
+.dt-vendido .vendido-monto{ font-family:'JetBrains Mono',monospace; font-size:clamp(20px,4.5vw,44px); font-weight:800; color:#fff; position:relative; z-index:1; }
+.dt-vendido .vendido-carta{ font-size:clamp(11px,2vw,16px); color:var(--muted2); margin-top:3px; position:relative; z-index:1; }
+.dt-vendido.sin-ganador .vendido-stamp{ color:var(--muted2); border-color:var(--muted); text-shadow:none; }
+.dt-vendido.sin-ganador .vendido-stamp-wrap .destello{ display:none; }
+.dt-vendido.sin-ganador .confeti-cae{ display:none !important; }
+.dt-vendido.sin-ganador .vendido-ganador{ color:var(--muted); }
+.dt-vendido .confeti-cae{ position:absolute; top:0; width:9px; height:13px; z-index:0; animation:confeti-caer linear infinite; }
+/* Último minuto por panel (TV): la carta cede y las pujas toman protagonismo */
+.dt-panel.ultimo-minuto .dt-box{ animation:topbox-pulso 1s ease-in-out infinite; }
+.dt-panel.ultimo-minuto .dt-body{ grid-template-columns:minmax(0,.62fr) minmax(0,1.38fr); }
+.dt-panel.ultimo-minuto .dt-stage{ transform:scale(.92); opacity:.82; }
+.dt-panel.ultimo-minuto .dt-logwrap{ box-shadow:inset 0 0 30px rgba(255,90,20,.15); }
+.dt-panel.ultimo-minuto .dt-log .log-item:nth-child(1),
+.dt-panel.ultimo-minuto .dt-log .log-item:nth-child(2){
+  transform:scale(1.03); padding-top:12px !important; padding-bottom:12px !important; margin-bottom:6px; z-index:2;
+}
+.dt-panel.ultimo-minuto .dt-log .log-item:nth-child(1) .log-amt{ font-size:clamp(16px,2vw,24px) !important; white-space:nowrap; }
+.dt-panel.ultimo-minuto .dt-log .log-item:nth-child(2) .log-amt{ font-size:clamp(14px,1.8vw,19px) !important; white-space:nowrap; }
+.dt-panel.ultimo-minuto .dt-log .log-item:nth-child(n+3){ opacity:.5; transform:scale(.96); }
+/* Paneles apilados (TV vertical): cada uno con su mitad del alto */
+@media (max-aspect-ratio: 1/1){
+  .dx-panels{ gap:10px; }
+  .dt-head{ padding:7px 10px; }
+  .dt-top{ padding:6px 8px; gap:6px; }
+  .dt-box{ padding:6px 8px; border-radius:10px; }
+  .dt-pval, .dt-tval{ font-size:clamp(16px,5.4vw,26px); }
+  .dt-plbl{ font-size:8px; letter-spacing:1px; }
+  .dt-who, .dt-fintxt{ font-size:9px; }
+  .dt-np{ padding:12px 18px; border-radius:14px; }
+}
+/* Celular acostado: paneles uno al lado del otro, compactos */
+@media (max-height:500px) and (orientation:landscape){
+  .dx-panels{ gap:8px; }
+  .dt-head{ padding:5px 10px; }
+  .dt-title{ font-size:13px; }
+  .dt-top{ padding:5px 8px; gap:6px; }
+  .dt-box{ padding:4px 8px; border-radius:8px; }
+  .dt-pval, .dt-tval{ font-size:clamp(14px,6.5vh,22px); }
+  .dt-plbl{ font-size:8px; margin-bottom:1px; }
+  .dt-who, .dt-fintxt{ font-size:8px; margin-top:1px; }
+  .dt-np{ padding:10px 16px; border-radius:12px; }
+  .dt-np .np-lbl{ font-size:clamp(15px,4vw,24px); }
+  .dt-np .np-monto{ font-size:clamp(20px,9vh,36px); }
+  .dt-np .np-quien{ font-size:clamp(11px,2vw,15px); }
+  .dt-vendido .vendido-stamp{ font-size:clamp(24px,12vh,44px); padding:4px 14px; border-width:3px; }
+  .dt-vendido .vendido-ganador{ font-size:clamp(14px,6vh,22px); margin-top:8px; }
+  .dt-vendido .vendido-monto{ font-size:clamp(16px,8vh,28px); }
+}
+
+/* ── Podio 1°-3° en los registros de pujas ── */
+.log-item.row-plata{ background:linear-gradient(90deg,rgba(192,192,220,.07) 0%,transparent 100%); border-left:2px solid #c0c0dc; }
+.log-item.row-bronce{ background:linear-gradient(90deg,rgba(205,127,50,.08) 0%,transparent 100%); border-left:2px solid #cd7f32; }
+.log-item.row-plata .log-rank, .log-item.row-bronce .log-rank{ font-size:15px; }
+.log-item.row-plata .log-amt{ color:#d5d5ee; }
+.log-item.row-bronce .log-amt{ color:#e0a56a; }
+
+/* ── Admin: sección Subasta 2 ── */
+#admin-b-box{ display:none; }
+body.dual-on #admin-b-box{ display:block; }
+#admin-b-box .admin-b-cab{
+  background:linear-gradient(100deg,rgba(78,168,255,.12),rgba(120,80,255,.05));
+  border:1px solid rgba(78,168,255,.35); border-radius:11px;
+  padding:10px 13px; margin-bottom:12px;
+}
+#admin-b-box .b-estado-line{ font-size:11px; color:var(--muted2); margin-top:4px; }
+#admin-b-box .b-estado-line strong{ color:var(--text); }
 </style>
 </head>
 <body>
@@ -1513,6 +1883,9 @@ body.express-tema #login-live-panel{
     <!-- IZQUIERDA -->
     <div class="login-left">
 
+      <!-- RESUMEN PARALELO: ambas subastas lado a lado (solo modo dual; lo rellena el JS) -->
+      <div id="login-dual-resumen" style="display:none"></div>
+
       <!-- Panel EN VIVO destacado: solo visible con subasta activa -->
       <div id="login-live-panel" style="display:none;background:linear-gradient(135deg,rgba(0,230,122,.12),rgba(0,230,122,.02));border:2px solid var(--green);border-radius:16px;padding:18px;margin-bottom:16px;text-align:center;box-shadow:0 0 30px rgba(0,230,122,.12)">
         <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(0,230,122,.18);border-radius:20px;padding:4px 13px;margin-bottom:14px">
@@ -1534,8 +1907,11 @@ body.express-tema #login-live-panel{
         
       </div>
 
+      <!-- Aviso compacto de la Subasta 2 (solo modo paralelo; lo rellena el JS) -->
+      <div id="login-dual-b" style="display:none"></div>
+
       <!-- Carta en subasta -->
-      <div class="login-box">
+      <div class="login-box" id="login-box-carta">
         <div class="login-box-label">🃏 En subasta</div>
 
         <div class="login-card-row">
@@ -1691,6 +2067,7 @@ body.express-tema #login-live-panel{
     <div class="hdr-logo" id="hdr-logo-wrap">Paldea Games</div>
     <div class="hdr-right">
       <button id="hdr-tv-btn" onclick="openTV()" title="Abrir vista TV" style="display:none;background:var(--s3);color:var(--text);border:1px solid var(--border2);border-radius:9px;width:38px;height:34px;font-size:17px;cursor:pointer;align-items:center;justify-content:center;padding:0">📺</button>
+      <button onclick="abrirReglas()" title="Reglamento de la subasta — léeme" style="background:var(--s3);color:var(--text);border:1px solid var(--border2);border-radius:9px;width:38px;height:34px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">📜</button>
       <div class="pill pill-wait" id="status-pill"><div class="dot-pulse"></div><span id="status-txt">En espera</span></div>
       <div class="hdr-user" id="hdr-user">—</div>
       <button class="btn-ghost" onclick="confirmLogout()">Salir</button>
@@ -1776,6 +2153,10 @@ body.express-tema #login-live-panel{
         </div>
       </div>
     </div>
+
+    <!-- ZONA GANADORES EN MODO DUAL (el JS mueve aquí las cajas de la Subasta 1
+         y crea las de la Subasta 2) -->
+    <div id="dual-zonas"></div>
 
     <!-- AVISO REINGRESO -->
     <div class="aviso-reingreso" style="background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);border-radius:10px;padding:9px 14px;margin-bottom:12px;font-size:11px;color:var(--muted2);line-height:1.6;text-align:center">
@@ -1867,14 +2248,29 @@ body.express-tema #login-live-panel{
       </div>
     </div>
 
+    <!-- MODO DUAL: paneles de las dos subastas (lo construye el JS) -->
+    <div id="dual-app"></div>
+
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v47</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v48</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
-      <div class="section-label">Carta</div>
+      <!-- MODO PARALELO: dos subastas simultáneas -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(100deg,rgba(78,168,255,.12),rgba(120,80,255,.06));border:1px solid rgba(78,168,255,.35);border-radius:11px;padding:11px 14px;margin-bottom:14px">
+        <div style="min-width:0">
+          <div style="font-size:13px;font-weight:800;color:var(--blue);letter-spacing:.5px">🃏🃏 MODO PARALELO · 2 SUBASTAS</div>
+          <div style="font-size:10px;color:var(--muted2);margin-top:2px;line-height:1.5">Muestra la <strong style="color:var(--text)">Subasta 1</strong> y la <strong style="color:var(--text)">Subasta 2</strong> al mismo tiempo (dos cartas, dos slabs o carta + slab). Cada una con su propia express, tiempos y precios. Al activarlo aparece abajo la sección <strong style="color:var(--text)">Subasta 2</strong>.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="a-modo-dual" onchange="cambiarModoDual(this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <div class="section-label">Carta <span id="a-etiqueta-1a" style="display:none;color:var(--blue)">· SUBASTA 1</span></div>
 
       <!-- PEGAR TEXTO RÁPIDO -->
       <div class="admin-grid1" style="margin-bottom:10px">
@@ -2044,7 +2440,23 @@ body.express-tema #login-live-panel{
           <span style="color:var(--muted)">o también</span> <code style="color:var(--green);font-size:9px;word-break:break-all">raw.githubusercontent.com/...</code>
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6">
-          💡 Si las nombras <strong style="color:var(--muted2)">1.jpg, 2.jpg, 3.jpg</strong>… copias la primera URL y solo cambias el número para el resto.
+          💡 Nómbralas con <strong style="color:var(--muted2)">prefijo por ítem</strong>: <strong style="color:var(--muted2)">c1-01.jpg…</strong> (carta 1), <strong style="color:var(--muted2)">c2-01.jpg…</strong> (carta 2), <strong style="color:var(--muted2)">s1-01.jpg…</strong> (slab). Con el generador de abajo pegas solo la primera URL.
+        </div>
+      </div>
+
+      <!-- GENERADOR RÁPIDO DE URLs DE FOTOS -->
+      <div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:11px 13px;margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:7px">⚡ Generador rápido de URLs</div>
+        <div style="font-size:10px;color:var(--muted2);line-height:1.5;margin-bottom:8px">
+          Pega la URL de la <strong style="color:var(--text)">primera foto</strong> (ej: <code style="background:var(--s3);padding:1px 4px;border-radius:4px;font-size:9px">…/c1-01.jpg</code>), indica cuántas fotos son y se generan todas solas: c1-01, c1-02, c1-03…
+        </div>
+        <div class="admin-grid1" style="margin-bottom:6px">
+          <input class="a-input" id="a-gen-url" placeholder="URL de la primera foto (https://raw.githubusercontent.com/.../c1-01.jpg)" style="font-size:12px" />
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <input class="a-input" id="a-gen-n" type="number" placeholder="N° fotos" value="12" style="width:86px;flex-shrink:0" />
+          <button class="a-btn-sm" onclick="generarUrlsFotos(false)" style="flex:1;min-width:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070d;font-weight:700;border-color:transparent">⚡ Generar y agregar</button>
+          <button class="a-btn-sm" onclick="generarUrlsFotos(true)" title="Borra la lista actual y la reemplaza con las fotos generadas" style="color:var(--muted2)">⇄ Reemplazar</button>
         </div>
       </div>
 
@@ -2058,7 +2470,7 @@ body.express-tema #login-live-panel{
       <div class="img-list" id="img-list"></div>
 
       <div class="sep"></div>
-      <div class="section-label">Subasta</div>
+      <div class="section-label">Subasta <span id="a-etiqueta-1b" style="display:none;color:var(--blue)">· N° 1</span></div>
 
       <!-- Toggle SUBASTA EXPRESS -->
       <div id="express-toggle-box" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(100deg,rgba(255,90,20,.1),rgba(255,59,92,.05));border:1px solid rgba(255,90,20,.3);border-radius:11px;padding:11px 14px;margin-bottom:10px">
@@ -2072,7 +2484,7 @@ body.express-tema #login-live-panel{
         </label>
       </div>
       <!-- Botones de tiempo rápido (solo visibles con Express ON) -->
-      <div id="express-tiempos" style="display:none;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+      <div id="a-express-tiempos" style="display:none;gap:6px;margin-bottom:10px;flex-wrap:wrap">
         <button class="chip-btn" onclick="setExpressDur(10)">10 min</button>
         <button class="chip-btn" onclick="setExpressDur(15)">15 min</button>
         <button class="chip-btn" onclick="setExpressDur(20)">20 min</button>
@@ -2128,7 +2540,7 @@ body.express-tema #login-live-panel{
           <button class="chip-btn" onclick="setFinDesdeAhora(15)">+15 min</button>
           <button class="chip-btn" onclick="setFinDesdeAhora(60)">+1 hora</button>
         </div>
-        <div id="dur-auto-hint" style="display:none;font-size:11px;margin-top:6px;color:var(--gold)"></div>
+        <div id="a-dur-auto-hint" style="display:none;font-size:11px;margin-top:6px;color:var(--gold)"></div>
       </div>
       <div class="admin-grid2">
         <input class="a-input" type="number" id="a-antisnipe-add" placeholder="⚡ Anti-snipe: agrega (min)" value="5" />
@@ -2141,6 +2553,9 @@ body.express-tema #login-live-panel{
         <button class="a-btn" onclick="adminUpdate()">💾 Guardar</button>
         <button class="a-btn danger" onclick="adminReset()">🗑 Resetear</button>
       </div>
+
+      <!-- SUBASTA 2 (modo paralelo): la construye el JS -->
+      <div id="admin-b-box"></div>
 
       <div id="bloqueados-section" style="display:none;margin-top:10px">
         <div class="sep"></div>
@@ -2221,6 +2636,9 @@ body.express-tema #login-live-panel{
 
     <div class="admin-link" id="admin-link" style="display:none"><button onclick="toggleAdmin()">⚙️ Mostrar / ocultar panel</button></div>
   </div>
+
+  <!-- Navegación entre subastas (solo modo paralelo, móvil; la rellena el JS) -->
+  <div id="dual-nav"></div>
 </div>
 
 <!-- ═══════════ TV MODE ═══════════ -->
@@ -2285,6 +2703,30 @@ body.express-tema #login-live-panel{
     <div class="vendido-monto" id="tv-vendido-monto">$0</div>
     <div class="vendido-carta" id="tv-vendido-carta">—</div>
   </div>
+
+  <!-- MODO DUAL EN TV: dos paneles (lo construye el JS) -->
+  <div id="dual-tv"></div>
+</div>
+
+<!-- MODAL REGLAMENTO (botón 📜 "Léeme" — disponible dentro de la app) -->
+<div class="modal-overlay" id="modal-reglas">
+  <div class="modal-box" style="max-width:440px;text-align:left">
+    <div style="text-align:center">
+      <div style="font-size:44px;margin-bottom:4px">📜</div>
+      <div class="modal-title" style="color:var(--gold);font-size:24px">Reglamento</div>
+      <div class="modal-sub" style="margin-bottom:14px">Léeme antes de pujar — recordatorio rápido</div>
+    </div>
+    <div style="font-size:13px;color:var(--muted2);line-height:2.1;background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px">
+      ⏰ Quien gane tiene <strong style="color:var(--text)">1 hora</strong> para coordinar el pago con <strong style="color:var(--gold)">@paldea.games</strong> en Instagram<br>
+      👀 Sin pago en 1 hora → se consulta al 2° y 3° lugar. Sin respuesta, se anula la subasta<br>
+      🚛 <strong style="color:var(--text)">Todos los envíos salen desde Santiago, Providencia</strong> · Starken por pagar<br>
+      ⛔ Rechazar el envío o no responder tras ganar → <strong style="color:var(--red)">bloqueo inmediato</strong><br>
+      ⚡ Anti-snipe: cada puja en el último minuto suma <span id="reglas-antisnipe">5</span> min<br>
+      🔞 Solo mayores de 18 años · Al entrar te pedimos tu Instagram o WhatsApp <strong style="color:var(--text)">una sola vez</strong><br>
+      🇨🇱 Solo Chile continental
+    </div>
+    <button class="btn-primary" style="margin-top:14px;width:100%" onclick="cerrarReglas()">ENTENDIDO</button>
+  </div>
 </div>
 
 <!-- LIGHTBOX -->
@@ -2301,6 +2743,7 @@ body.express-tema #login-live-panel{
 <div class="modal-overlay" id="modal-puja">
   <div class="modal-box">
     <div class="modal-title">Confirmar puja</div>
+    <div id="modal-puja-tag" style="display:none;margin-bottom:4px"><span style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--blue);background:rgba(78,168,255,.1);border:1px solid rgba(78,168,255,.3);padding:3px 10px;border-radius:20px">SUBASTA 1</span></div>
     <div class="modal-sub">Esta acción quedará registrada con tu nombre y hora exacta.</div>
 
     <div id="modal-timer-box" style="display:none;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:8px 14px;margin-bottom:4px">
@@ -2321,6 +2764,7 @@ body.express-tema #login-live-panel{
 <div class="modal-overlay" id="modal-ganador">
   <div class="modal-box" style="max-width:420px">
     <div style="font-size:52px;margin-bottom:8px;animation:float 2s ease-in-out infinite">🏆</div>
+    <div id="modal-ganador-tag" style="display:none;margin-bottom:6px"><span style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--blue);background:rgba(78,168,255,.1);border:1px solid rgba(78,168,255,.3);padding:3px 10px;border-radius:20px">SUBASTA 1</span></div>
     <div class="modal-title" style="color:var(--gold);font-size:26px">¡GANASTE LA SUBASTA!</div>
     <div class="modal-amount" id="modal-ganador-monto">$0</div>
     <div class="modal-sub" style="margin-bottom:18px" id="modal-ganador-carta">—</div>
@@ -2343,6 +2787,7 @@ body.express-tema #login-live-panel{
 <div class="modal-overlay" id="modal-top23">
   <div class="modal-box" style="max-width:420px">
     <div style="font-size:48px;margin-bottom:8px" id="t23-emoji">🥈</div>
+    <div id="t23-tag" style="display:none;margin-bottom:6px"><span style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--blue);background:rgba(78,168,255,.1);border:1px solid rgba(78,168,255,.3);padding:3px 10px;border-radius:20px">SUBASTA 1</span></div>
     <div class="modal-title" style="color:var(--gold);font-size:24px" id="t23-titulo">¡Quedaste en 2° lugar!</div>
     <div class="modal-amount" id="t23-monto" style="font-size:26px">$0</div>
     <div class="modal-sub" style="margin-bottom:16px" id="t23-carta">—</div>
@@ -2636,6 +3081,15 @@ let S = deepCopy(defaultState);
 // Datos sensibles. Solo el admin logra leerlos (lo impide la regla de Firebase).
 let P = { visitantes: [], ganadorConfirmado: null, contactoTop23: [], strikes: {} };
 
+// ── Subastas en paralelo (Subasta 2) ──
+// CFG llega del nodo config_app; SB es el estado completo de la Subasta 2,
+// con exactamente la misma forma que S. Con modoDual apagado (o sin los nodos
+// en Firebase) la app se comporta idéntico a la versión de una sola subasta.
+const SUBASTA_REF_B = "subasta_activa_b";  // público: carta, pujas, precios (Subasta 2)
+const CONFIG_REF    = "config_app";        // público: { modoDual: bool }
+let CFG = { modoDual: false };
+let SB  = deepCopy(defaultState);
+
 function deepCopy(o){ return JSON.parse(JSON.stringify(o)); }
 
 // ── Normalización de datos que vienen de Firebase ──
@@ -2815,10 +3269,13 @@ function initFirebaseListener(){
     // muerta ni romper las actualizaciones en vivo de las demás.
     try{ aplicarTemaExpress(); }catch(e){ console.error("express:", e); }
     try{ if(!isTVMode) renderLoginInfo(); }catch(e){ console.error("renderLoginInfo:", e); }
+    try{ if(!isTVMode && CFG.modoDual){ renderLoginDualB(); renderLoginResumenDual(); } }catch(e){}
     try{
       if(isTVMode) renderTV();
       else if(user) renderApp();
     }catch(e){ console.error("render:", e); }
+    // En modo paralelo la Subasta 1 también se dibuja dentro de su panel dual
+    try{ if(CFG.modoDual && (isTVMode || user)) renderDualTodo(); }catch(e){ console.error("dual:", e); }
   });
 }
 
@@ -2827,7 +3284,12 @@ let expressSplashMostrado = false;
 function aplicarTemaExpress(){
   const esExpress = !!(S.subasta && S.subasta.express);
   const activa = S.subasta.estado === "activa" || S.subasta.estado === "programada";
-  document.body.classList.toggle("express-tema", esExpress && activa);
+  // En modo paralelo el sello express va dentro de cada panel (dx-cinta),
+  // no como tema de toda la página ni splash a pantalla completa.
+  // CFG._listo evita una carrera al cargar: si los datos de la subasta llegan
+  // antes que config_app, el splash/badge global podría mostrarse en modo paralelo.
+  const global = esExpress && activa && !CFG.modoDual && CFG._listo === true;
+  document.body.classList.toggle("express-tema", global);
 
   // Etiqueta ⚡EXPRESS junto al logo (app) y al título (TV)
   const marca = (id) => {
@@ -2838,7 +3300,7 @@ function aplicarTemaExpress(){
     // que causaba cortes visuales en móvil.
     let badge = cont.nextElementSibling;
     if(badge && !badge.classList.contains("express-badge")) badge = null;
-    if(esExpress && activa){
+    if(global){
       if(!badge){
         badge = document.createElement("span");
         badge.className = "express-badge";
@@ -2851,7 +3313,7 @@ function aplicarTemaExpress(){
   marca("tv-brand-wrap");
 
   // Sello de entrada, una sola vez por sesión, cuando la subasta express está en vivo
-  if(esExpress && S.subasta.estado === "activa" && !expressSplashMostrado){
+  if(global && S.subasta.estado === "activa" && !expressSplashMostrado){
     expressSplashMostrado = true;
     const sp = document.getElementById("express-splash");
     if(sp){
@@ -3940,6 +4402,8 @@ function abrirIgGanador(){
 // Rellena el contenido del modal del ganador (monto, carta y su contacto).
 // Lo usan tanto la apertura automática como el botón manual del banner.
 function llenarModalGanador(){
+  const tag = document.getElementById("modal-ganador-tag");
+  if(tag) tag.style.display = "none";   // modo individual: sin etiqueta de subasta
   document.getElementById("modal-ganador-monto").textContent = fmtCLP(S.lider.monto);
   document.getElementById("modal-ganador-carta").textContent = S.carta.titulo || "";
   // El contacto ya se pidió al ingresar: aquí solo se le recuerda por dónde
@@ -3959,6 +4423,7 @@ function llenarModalGanador(){
 let modalGanadorMostrado = false;
 function checkModalGanador(){
   if(isTVMode) return;                  // la TV nunca muestra modales
+  if(CFG.modoDual) return;              // en modo dual lo maneja checkModalGanadorDual
   if(!user || !S.lider) return;
   if(admin) return;                     // el admin no lo ve
   // Comparar por uid de Google (verificado). Fallback a ig por compatibilidad.
@@ -3980,7 +4445,14 @@ function checkModalGanador(){
 function cerrarModalGanador(){
   const m = document.getElementById("modal-ganador");
   if(m) m.classList.remove("open");
-  set(ref(db, `${SUBASTA_REF}/ganadorAvisado`), true).catch(()=>{});
+  // En modo paralelo el aviso puede ser de la Subasta 2: se marca en SU nodo.
+  const nodo = (CFG.modoDual && modalGanadorCual === "b") ? SUBASTA_REF_B : SUBASTA_REF;
+  set(ref(db, `${nodo}/ganadorAvisado`), true).catch(()=>{});
+  if(CFG.modoDual){
+    modalGanadorCual = null;
+    // Si la otra subasta también tiene modal pendiente para este usuario, mostrarlo
+    setTimeout(()=>{ try{ checkModalGanadorDual(); }catch(e){} }, 350);
+  }
 }
 
 // ── Modal para 2° y 3° lugar ──
@@ -3991,6 +4463,7 @@ let miPosicionTop23 = 0;
 
 function checkModalTop23(){
   if(isTVMode || admin) return;
+  if(CFG.modoDual) return;              // en modo dual lo maneja checkModalTop23Dual
   if(!user) return;
   if(S.subasta.estado !== "finalizada"){ top23Mostrado = false; return; }
 
@@ -4018,6 +4491,8 @@ function checkModalTop23(){
 }
 
 function abrirModalTop23(pos, miPuja){
+  const tag = document.getElementById("t23-tag");
+  if(tag) tag.style.display = "none";   // modo individual: sin etiqueta de subasta
   const emoji = document.getElementById("t23-emoji");
   const titulo = document.getElementById("t23-titulo");
   const monto = document.getElementById("t23-monto");
@@ -4051,11 +4526,17 @@ function cerrarModalTop23(){
   if(m) m.classList.remove("open");
   // Marcar como visto para no repetir el aviso en esta subasta
   try{
-    const top = topPujadores(3);
+    const cual = (CFG.modoDual && modalTop23Cual) ? modalTop23Cual : "a";
+    const st = ST(cual);
+    const top = topPujadoresDe(cual, 3);
     if(user && top.length > 0){
       const miClave = user.uid || user.ig;
-      const claveSub = `paldea_top23_${S.carta.titulo||"?"}_${top[0].hora||""}_${miClave}`;
+      const claveSub = `paldea_top23_${cual}_${st.carta.titulo||"?"}_${top[0].hora||""}_${miClave}`;
       localStorage.setItem(claveSub, "1");
+    }
+    if(CFG.modoDual){
+      modalTop23Cual = null;
+      setTimeout(()=>{ try{ checkModalTop23Dual(); }catch(e){} }, 350);
     }
   }catch(e){}
 }
@@ -4093,6 +4574,7 @@ function copiarMensajeGanador(){
 function reabrirModalGanador(){
   // Apertura MANUAL desde el banner: funciona siempre, incluso después de
   // haber tocado "Entendido" (ganadorAvisado solo apaga la auto-apertura).
+  if(CFG.modoDual){ reabrirModalGanadorDual("a"); return; }  // en paralelo el banner de la 1 usa la vía dual
   if(!user || !S.lider) return;
   const soyGanador = S.lider.uid
     ? (S.lider.uid === user.uid)
@@ -4151,6 +4633,11 @@ function renderQuickBids(){
   `).join("");
 }
 
+// Medalla de podio para los tres primeros lugares del registro de pujas.
+function rangoMedalla(i){
+  return i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : "#"+(i+1);
+}
+
 function renderLog(){
   const list = document.getElementById("log-list");
   if(!list) return;
@@ -4169,8 +4656,8 @@ function renderLog(){
       : (esMio && user.ig ? user.ig : "");
     const nombreVisible = verNombre ? esc(p.nombre) : anonimizar(p);
     return `
-    <div class="log-item ${i===0?"winner-row":""}">
-      <div class="log-rank">${i===0?"★":"#"+(i+1)}</div>
+    <div class="log-item ${i===0?"winner-row":""}${i===1?" row-plata":""}${i===2?" row-bronce":""}">
+      <div class="log-rank">${rangoMedalla(i)}</div>
       <div class="log-body">
         <div class="log-name">${nombreVisible}${esMio && !admin ? ' <span style="font-size:9px;font-weight:700;color:var(--gold);background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.3);padding:1px 5px;border-radius:20px;margin-left:4px">TÚ</span>' : ''}</div>
         <div class="log-ig" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
@@ -4254,6 +4741,8 @@ let modalTimerInt = null;
 
 function abrirModalPuja(val){
   const m = document.getElementById("modal-puja");
+  const tag = document.getElementById("modal-puja-tag");
+  if(tag) tag.style.display = "none";   // modo individual: sin etiqueta de subasta
   document.getElementById("modal-puja-monto").textContent = fmtCLP(val);
   const actual = S.subasta.precioAct > 0 ? S.subasta.precioAct : S.subasta.base;
   const diff = val - actual;
@@ -4591,7 +5080,10 @@ function aDatetimeLocal(d){
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
-let diaElegido = null;  // 0 = hoy, 1 = mañana
+let diaElegido = null;  // 0 = hoy, 1 = mañana (Subasta 1)
+let diaElegidoB = null; // lo mismo para la Subasta 2 (modo paralelo)
+function diaElegidoDe(px){ return px === "b-" ? diaElegidoB : diaElegido; }
+function setDiaElegido(px, v){ if(px === "b-") diaElegidoB = v; else diaElegido = v; }
 
 // Llena el desplegable de horas cada 30 min
 // Cada chip muestra el NOMBRE del día que representa según la fecha de hoy.
@@ -4610,11 +5102,18 @@ function etiquetarChipsDias(){
   set("chip-fin-1", `Mañana · ${nombreDia(1)}`);
   set("chip-fin-2", nombreDia(2));
   set("chip-fin-3", nombreDia(3));
+  // Mismos chips para la Subasta 2 (modo paralelo)
+  set("chip-ini-b-0", `Hoy · ${nombreDia(0)}`);
+  set("chip-ini-b-1", `Mañana · ${nombreDia(1)}`);
+  set("chip-fin-b-0", `Hoy · ${nombreDia(0)}`);
+  set("chip-fin-b-1", `Mañana · ${nombreDia(1)}`);
+  set("chip-fin-b-2", nombreDia(2));
+  set("chip-fin-b-3", nombreDia(3));
 }
 
 function llenarHoras(){
   etiquetarChipsDias();
-  for(const id of ["a-hora-rapida","a-fin-hora"]){
+  for(const id of ["a-hora-rapida","a-fin-hora","b-hora-rapida","b-fin-hora"]){
     const sel = document.getElementById(id);
     if(!sel || sel.dataset.listo) continue;
     sel.dataset.listo = "1";
@@ -4632,11 +5131,13 @@ function llenarHoras(){
 // ── Término programado: la duración se calcula sola ──
 // Ej: inicio viernes 10:00 + término domingo 22:00 → 60 h automáticas.
 // Si el campo de término está vacío, la duración manual manda, como siempre.
-function recalcDuracion(){
-  const finCampo = document.getElementById("a-fin");
-  const hint     = document.getElementById("dur-auto-hint");
-  const durH     = document.getElementById("a-dur");
-  const durM     = document.getElementById("a-durm");
+// px = prefijo de los IDs del formulario: "a-" (Subasta 1) o "b-" (Subasta 2).
+function recalcDuracion(px){
+  px = px || "a-";
+  const finCampo = document.getElementById(px+"fin");
+  const hint     = document.getElementById(px+"dur-auto-hint");
+  const durH     = document.getElementById(px+"dur");
+  const durM     = document.getElementById(px+"durm");
   if(!finCampo || !hint || !durH || !durM) return;
 
   if(!finCampo.value){
@@ -4648,7 +5149,7 @@ function recalcDuracion(){
   }
 
   const finTs = new Date(finCampo.value).getTime();
-  const iniCampo = document.getElementById("a-inicio");
+  const iniCampo = document.getElementById(px+"inicio");
   // Base: el inicio programado si existe; si no, "ahora" (inicio inmediato)
   const baseTs = (iniCampo && iniCampo.value) ? new Date(iniCampo.value).getTime() : Date.now();
 
@@ -4676,19 +5177,21 @@ function recalcDuracion(){
 }
 
 // Término a X minutos desde AHORA (para pruebas rápidas del cierre).
-function setFinDesdeAhora(min){
+function setFinDesdeAhora(min, px){
+  px = px || "a-";
   const d = new Date(Date.now() + min*60000);
-  const campo = document.getElementById("a-fin");
+  const campo = document.getElementById(px+"fin");
   if(campo){ campo.value = aDatetimeLocal(d); }
-  const sel = document.getElementById("a-fin-hora");
+  const sel = document.getElementById(px+"fin-hora");
   if(sel) sel.value = "";
-  recalcDuracion();
+  recalcDuracion(px);
   toast(`🏁 Término en +${min} min (desde ahora)`, "ok");
 }
 
-function setFinDia(offset){
-  const sel   = document.getElementById("a-fin-hora");
-  const campo = document.getElementById("a-fin");
+function setFinDia(offset, px){
+  px = px || "a-";
+  const sel   = document.getElementById(px+"fin-hora");
+  const campo = document.getElementById(px+"fin");
   let h = 20, m = 0;   // por defecto 20:00
   if(sel && sel.value){
     [h, m] = sel.value.split(":").map(Number);
@@ -4700,12 +5203,13 @@ function setFinDia(offset){
   d.setHours(h, m, 0, 0);
   campo.value = aDatetimeLocal(d);
   if(sel) sel.value = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
-  recalcDuracion();
+  recalcDuracion(px);
 }
 
-function aplicarHoraFin(){
-  const sel   = document.getElementById("a-fin-hora");
-  const campo = document.getElementById("a-fin");
+function aplicarHoraFin(px){
+  px = px || "a-";
+  const sel   = document.getElementById(px+"fin-hora");
+  const campo = document.getElementById(px+"fin");
   if(!sel.value) return;
   const [h, m] = sel.value.split(":").map(Number);
   // Conserva el día que ya estuviera elegido; si no hay, hoy
@@ -4713,33 +5217,36 @@ function aplicarHoraFin(){
   if(isNaN(d)) return;
   d.setHours(h, m, 0, 0);
   campo.value = aDatetimeLocal(d);
-  recalcDuracion();
+  recalcDuracion(px);
 }
 
-function limpiarFin(){
-  document.getElementById("a-fin").value = "";
-  const sel = document.getElementById("a-fin-hora");
+function limpiarFin(px){
+  px = px || "a-";
+  document.getElementById(px+"fin").value = "";
+  const sel = document.getElementById(px+"fin-hora");
   if(sel) sel.value = "";
-  recalcDuracion();
+  recalcDuracion(px);
   toast("Término programado quitado — duración manual","ok");
 }
 
-function setInicio(minutosDesdeAhora){
+function setInicio(minutosDesdeAhora, px){
+  px = px || "a-";
   const d = new Date(Date.now() + minutosDesdeAhora*60000);
   d.setSeconds(0,0);
-  document.getElementById("a-inicio").value = aDatetimeLocal(d);
-  diaElegido = null;
-  const sel = document.getElementById("a-hora-rapida");
+  document.getElementById(px+"inicio").value = aDatetimeLocal(d);
+  setDiaElegido(px, null);
+  const sel = document.getElementById(px+"hora-rapida");
   if(sel) sel.value = "";
-  recalcDuracion();
+  recalcDuracion(px);
   toast("Inicio: ahora","ok");
 }
 
 // Elige el día conservando la hora que ya estuviera puesta
-function setDia(offset){
-  diaElegido = offset;
-  const sel   = document.getElementById("a-hora-rapida");
-  const campo = document.getElementById("a-inicio");
+function setDia(offset, px){
+  px = px || "a-";
+  setDiaElegido(px, offset);
+  const sel   = document.getElementById(px+"hora-rapida");
+  const campo = document.getElementById(px+"inicio");
 
   let h = 20, m = 0;   // por defecto 20:00
   if(sel && sel.value){
@@ -4754,7 +5261,7 @@ function setDia(offset){
   campo.value = aDatetimeLocal(d);
   if(sel) sel.value = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
 
-  recalcDuracion();
+  recalcDuracion(px);
   if(offset === 0 && d.getTime() < Date.now()){
     toast("⚠️ Esa hora ya pasó hoy","warn");
   } else {
@@ -4763,25 +5270,27 @@ function setDia(offset){
 }
 
 // Cambia la hora conservando el día ya elegido
-function aplicarHora(){
-  const sel = document.getElementById("a-hora-rapida");
+function aplicarHora(px){
+  px = px || "a-";
+  const sel = document.getElementById(px+"hora-rapida");
   if(!sel || !sel.value) return;
   const [h, m] = sel.value.split(":").map(Number);
-  const campo = document.getElementById("a-inicio");
+  const campo = document.getElementById(px+"inicio");
+  const diaEl = diaElegidoDe(px);
 
   let base;
   if(campo.value){
     base = new Date(campo.value);
     if(isNaN(base)) base = new Date();
-  } else if(diaElegido !== null){
-    base = new Date(Date.now() + diaElegido*86400000);
+  } else if(diaEl !== null){
+    base = new Date(Date.now() + diaEl*86400000);
   } else {
     base = new Date();   // sin día elegido: asume hoy
   }
 
   base.setHours(h, m, 0, 0);
   campo.value = aDatetimeLocal(base);
-  recalcDuracion();
+  recalcDuracion(px);
 
   if(base.getTime() < Date.now()){
     toast("⚠️ Esa hora ya pasó — usa 'Mañana'","warn");
@@ -4790,12 +5299,13 @@ function aplicarHora(){
   }
 }
 
-function limpiarInicio(){
-  document.getElementById("a-inicio").value = "";
-  const sel = document.getElementById("a-hora-rapida");
+function limpiarInicio(px){
+  px = px || "a-";
+  document.getElementById(px+"inicio").value = "";
+  const sel = document.getElementById(px+"hora-rapida");
   if(sel) sel.value = "";
-  diaElegido = null;
-  recalcDuracion();
+  setDiaElegido(px, null);
+  recalcDuracion(px);
   toast("Inicio programado quitado","warn");
 }
 
@@ -4809,11 +5319,15 @@ function toggleAdmin(){
   const p = document.getElementById("admin-panel");
   const visible = p.style.display==="block";
   p.style.display = visible?"none":"block";
-  if(!visible) fillAdminFields();
+  if(!visible){
+    fillAdminFields();
+    try{ if(typeof fillAdminFieldsB === "function") fillAdminFieldsB(); }catch(e){}
+  }
 }
 
-function parsearTextoCarta(){
-  const raw = document.getElementById("a-parse-text").value.trim();
+function parsearTextoCarta(px){
+  px = px || "a-";
+  const raw = document.getElementById(px+"parse-text").value.trim();
   if(!raw){ toast("Pega el texto de la carta primero","warn"); return; }
 
   let limpio = raw
@@ -4827,7 +5341,7 @@ function parsearTextoCarta(){
     lineas = raw.split("|").map(l=>l.trim()).filter(l=>l.length>0);
   }
 
-  const rarezaSelect = document.getElementById("a-rareza");
+  const rarezaSelect = document.getElementById(px+"rareza");
   const rarezas = [];
   for(const opt of rarezaSelect.options){
     if(opt.text && !opt.text.startsWith("—") && opt.text.length > 2 && opt.text !== "Otra"){
@@ -4955,12 +5469,12 @@ function parsearTextoCarta(){
     }
   }
 
-  if(nombre) document.getElementById("a-title").value = nombre;
-  if(idioma) document.getElementById("a-idioma").value = idioma;
-  if(setCod) document.getElementById("a-set").value = setCod;
-  if(setEs)  document.getElementById("a-set-es").value = setEs;
-  if(rareza) document.getElementById("a-rareza").value = rareza;
-  if(cond)   document.getElementById("a-cond").value = cond;
+  if(nombre) document.getElementById(px+"title").value = nombre;
+  if(idioma) document.getElementById(px+"idioma").value = idioma;
+  if(setCod) document.getElementById(px+"set").value = setCod;
+  if(setEs)  document.getElementById(px+"set-es").value = setEs;
+  if(rareza) document.getElementById(px+"rareza").value = rareza;
+  if(cond)   document.getElementById(px+"cond").value = cond;
 
   const detectados = [];
   if(nombre) detectados.push("Nombre");
@@ -5027,6 +5541,30 @@ function renderImgList(){
   `).join("") || "<span style='font-size:12px;color:var(--muted2)'>Sin imágenes aún</span>";
 }
 
+// Genera la lista de URLs de fotos a partir de la URL de la primera foto.
+// Detecta el último grupo numérico del nombre (c1-01.jpg → prefijo "c1-",
+// ancho 2) y genera c1-01 … c1-NN respetando el relleno de ceros.
+// reemplazar=true borra la lista actual; false agrega a lo que ya haya.
+function generarUrlsFotos(reemplazar){
+  const muestra = (document.getElementById("a-gen-url").value || "").trim();
+  const n = parseInt(document.getElementById("a-gen-n").value);
+  if(!muestra){ toast("Pega la URL de la primera foto","err"); return; }
+  if(!n || n < 1 || n > 60){ toast("N° de fotos inválido (1–60)","err"); return; }
+  const m = muestra.match(/^(.*?)(\d+)(\.[a-zA-Z0-9]+(?:\?.*)?)$/);
+  if(!m){ toast("La URL debe terminar en número + extensión (ej: c1-01.jpg)","err"); return; }
+  const base = m[1], ancho = m[2].length, ext = m[3];
+  const urls = [];
+  for(let i = 1; i <= n; i++) urls.push(base + String(i).padStart(ancho, "0") + ext);
+  if(reemplazar){
+    S.carta.imgs = urls.slice();
+    save(); renderImgList(); renderGallery();
+    toast("✅ Lista reemplazada: " + urls.length + " fotos","ok");
+  } else {
+    document.getElementById("a-img-url").value = urls.join("\n");
+    addImg(); // agrega, guarda y muestra las miniaturas
+  }
+}
+
 function addImg(){
   const raw = document.getElementById("a-img-url").value.trim();
   if(!raw){ toast("Ingresa al menos una URL","err"); return; }
@@ -5063,9 +5601,10 @@ function removeImg(i){
 }
 
 // Muestra/oculta los botones de tiempo rápido según el toggle Express.
-function toggleExpressUI(){
-  const on = document.getElementById("a-express")?.checked;
-  const tiempos = document.getElementById("express-tiempos");
+function toggleExpressUI(px){
+  px = px || "a-";
+  const on = document.getElementById(px+"express")?.checked;
+  const tiempos = document.getElementById(px+"express-tiempos");
   if(tiempos) tiempos.style.display = on ? "flex" : "none";
 
   if(on){
@@ -5074,23 +5613,24 @@ function toggleExpressUI(){
     const ini = new Date(ahora); ini.setHours(18,0,0,0);
     const fin = new Date(ahora); fin.setHours(20,0,0,0);
     if(ahora >= ini){ ini.setDate(ini.getDate()+1); fin.setDate(fin.getDate()+1); }
-    const iniInput = document.getElementById("a-inicio");
-    const finInput = document.getElementById("a-fin");
+    const iniInput = document.getElementById(px+"inicio");
+    const finInput = document.getElementById(px+"fin");
     if(iniInput) iniInput.value = aDatetimeLocal(ini);
     if(finInput) finInput.value = aDatetimeLocal(fin);
-    recalcDuracion();
+    recalcDuracion(px);
   }
 }
 
 // Preconfigura una duración rápida (en minutos) para la subasta Express.
-function setExpressDur(min){
+function setExpressDur(min, px){
+  px = px || "a-";
   const h = Math.floor(min/60);
   const m = min%60;
-  document.getElementById("a-dur").value  = h;
-  document.getElementById("a-durm").value = m;
-  const finEl = document.getElementById("a-fin");
+  document.getElementById(px+"dur").value  = h;
+  document.getElementById(px+"durm").value = m;
+  const finEl = document.getElementById(px+"fin");
   if(finEl){ finEl.value = ""; }
-  if(typeof recalcDuracion === "function") recalcDuracion();
+  recalcDuracion(px);
   toast(`⚡ Express: ${min>=60?(min/60)+"h":min+" min"}`, "ok");
 }
 
@@ -5698,6 +6238,8 @@ function renderLogTV(flashId){
     const clases = [
       "log-item",
       i===0 ? "winner-row" : "",
+      i===1 ? "row-plata" : "",
+      i===2 ? "row-bronce" : "",
       fuego ? "en-llamas" : "",
       fuego && i===0 ? "rank1" : "",
       fuego && i===1 ? "rank2" : "",
@@ -5706,7 +6248,7 @@ function renderLogTV(flashId){
     return `
     <div class="${clases}">
       ${fuego ? '<span class="fuego-lado izq">🔥</span>' : ''}
-      <div class="log-rank">${i===0?"★":"#"+(i+1)}</div>
+      <div class="log-rank">${rangoMedalla(i)}</div>
       <div class="log-body">
         <div class="log-name">${anonimizar(p)}</div>
         <div class="log-ig"><span style="color:var(--green)">✓ Verificado</span></div>
@@ -5996,7 +6538,8 @@ onAuthStateChanged(auth, (fbUser) => {
       if(tvb) tvb.style.display = "flex";
       setTimeout(()=>{
         const p = document.getElementById("admin-panel");
-        if(p){ p.style.display="block"; fillAdminFields(); try{ renderHistorialGanadores(); }catch(e){} }
+        if(p){ p.style.display="block"; fillAdminFields(); try{ renderHistorialGanadores(); }catch(e){}
+               try{ if(typeof fillAdminFieldsB === "function") fillAdminFieldsB(); }catch(e){} }
       }, 400);
       renderApp();
       return;
@@ -6379,6 +6922,27 @@ function bloquearPorStrike(uid, nombre){
     console.error("Error al bloquear por strikes:", err);
     toast("Strike guardado, pero no se pudo bloquear. Hazlo manual con ⛔","err");
   });
+
+  // Con subastas en paralelo el bloqueo alcanza también a la Subasta 2:
+  // se le quitan las pujas y queda fuera de ambas.
+  if(CFG.modoDual){
+    runTransaction(ref(db, SUBASTA_REF_B), (actual) => {
+      if(!actual) return actual;
+      const bloq = normalizarLista(actual.bloqueados);
+      if(!bloq.includes(uid)) bloq.push(uid);
+      actual.bloqueados = bloq;
+      const lista = normalizarPujas(actual.pujas).filter(q => (q.uid || q.ig) !== uid);
+      actual.pujas = pujasAObjeto(lista);
+      if(lista.length > 0){
+        actual.lider = lista[0];
+        actual.subasta.precioAct = lista[0].monto;
+      } else {
+        actual.lider = null;
+        actual.subasta.precioAct = 0;
+      }
+      return actual;
+    }).catch(err => console.error("Bloqueo por strike en Subasta 2:", err));
+  }
 }
 
 function quitarDeAgenda(uid){
@@ -6449,8 +7013,12 @@ function renderStrikes(){
 // ══════════════════════════════════════
 let lbScale = 1, lbX = 0, lbY = 0;
 let lbDragging = false, lbStartX = 0, lbStartY = 0, lbOriginX = 0, lbOriginY = 0;
+// Cuando el zoom se abre desde un panel del modo paralelo, el lightbox navega
+// las fotos de ESA subasta (a o b) en vez del carrusel principal.
+let lbDualCtx = null;   // null = normal · { cual:"a"|"b", idx:n } = panel dual
 
 function openLightbox(src){
+  lbDualCtx = null;
   const lb   = document.getElementById("lightbox");
   const img  = document.getElementById("lightbox-img");
   const hint = document.getElementById("lightbox-hint");
@@ -6577,14 +7145,17 @@ document.addEventListener("touchmove", e => {
 document.addEventListener("touchend", () => { lbSwActivo = false; }, {passive:true});
 
 function actualizarContadorLb(){
-  const imgs = S.carta.imgs || [];
+  const imgs = lbDualCtx
+    ? ((lbDualCtx.cual === "b" ? SB : S).carta.imgs || [])
+    : (S.carta.imgs || []);
+  const idxAct = lbDualCtx ? lbDualCtx.idx : galIdx;
   const cnt  = document.getElementById("lb-counter");
   const prev = document.querySelector(".lb-prev");
   const next = document.querySelector(".lb-next");
   const varias = imgs.length > 1;
   if(cnt){
     cnt.style.display = varias ? "block" : "none";
-    cnt.textContent = `${galIdx + 1} / ${imgs.length}`;
+    cnt.textContent = `${idxAct + 1} / ${imgs.length}`;
   }
   if(prev) prev.style.display = varias ? "flex" : "none";
   if(next) next.style.display = varias ? "flex" : "none";
@@ -6592,6 +7163,25 @@ function actualizarContadorLb(){
 
 // Cambiar de foto dentro del lightbox
 function lightboxNav(dir){
+  // ── Zoom abierto desde un panel del modo paralelo ──
+  if(lbDualCtx){
+    const st   = lbDualCtx.cual === "b" ? SB : S;
+    const imgs = st.carta.imgs || [];
+    if(imgs.length < 2) return;
+    lbDualCtx.idx = (lbDualCtx.idx + dir + imgs.length) % imgs.length;
+    const imgB = document.getElementById("lightbox-img");
+    if(imgB){
+      imgB.style.opacity = "0.35";
+      imgB.src = imgs[lbDualCtx.idx];
+      setTimeout(()=> imgB.style.opacity = "1", 90);
+    }
+    lbScale = 1; lbX = 0; lbY = 0;
+    applyLbTransform();
+    // Sincroniza el carrusel del panel que está detrás
+    try{ if(typeof syncDualImg === "function") syncDualImg(lbDualCtx.cual, lbDualCtx.idx); }catch(e){}
+    actualizarContadorLb();
+    return;
+  }
   const imgs = S.carta.imgs;
   if(!imgs || imgs.length < 2) return;
   galIdx = (galIdx + dir + imgs.length) % imgs.length;
@@ -6949,6 +7539,8 @@ function renderLoginInfo(){
   if(i)  i.textContent = fmtCLP(sub.inc||0);
   if(bd){
     let badges = "";
+    if((c.cond||"").toUpperCase() !== "NONE" && c.cond)
+      badges += `<span style="background:rgba(245,200,66,.08);color:var(--gold);border:1px solid rgba(245,200,66,.4);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">🔍 ${esc(nombreEstado(c.cond))}</span>`;
     if(c.rareza) badges += `<span style="background:rgba(78,168,255,.1);color:var(--blue);border:1px solid rgba(78,168,255,.25);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">✦ ${c.rareza}</span>`;
     bd.innerHTML = badges;
   }
@@ -7035,6 +7627,2459 @@ document.addEventListener("keydown", e => {
   }
 });
 
+// ══════════════════════════════════════════════════════════════════
+//  MODO PARALELO — DOS SUBASTAS SIMULTÁNEAS
+// ══════════════════════════════════════════════════════════════════
+// La Subasta 1 vive en "subasta_activa" (S), igual que siempre: con el modo
+// paralelo apagado NADA cambia. La Subasta 2 vive en "subasta_activa_b" (SB)
+// y tiene exactamente la misma forma: carta, subasta, pujas, líder,
+// bloqueados y ganadorAvisado. El interruptor viaja en config_app/modoDual.
+//
+// Todo lo dual se construye por JS al cargar el módulo (construirDualUI) y
+// cada función de render abandona de inmediato si CFG.modoDual está apagado,
+// así la versión de una sola subasta sigue idéntica en producción.
+
+// ── Acceso unificado al estado de cada subasta ──
+function ST(cual){ return cual === "b" ? SB : S; }
+function REFde(cual){ return cual === "b" ? SUBASTA_REF_B : SUBASTA_REF; }
+function NOMde(cual){ return cual === "b" ? "SUBASTA 2" : "SUBASTA 1"; }
+function inicioSubastaDe(cual){
+  const sub = ST(cual).subasta;
+  return sub.inicioProgTs || sub.inicioTs || null;
+}
+function minBidDe(cual){
+  const sub = ST(cual).subasta;
+  return sub.precioAct > 0 ? sub.precioAct + sub.inc : sub.base;
+}
+function miPosicionEn(cual){
+  const st = ST(cual);
+  if(!user || !st.pujas || st.pujas.length === 0) return null;
+  const clave = p => p.uid || p.ig;
+  const mia = user.uid || user.ig;
+  const mejores = {};
+  st.pujas.forEach(p => {
+    const k = clave(p);
+    if(!mejores[k] || p.monto > mejores[k]) mejores[k] = p.monto;
+  });
+  if(mejores[mia] === undefined) return null;
+  const orden = Object.values(mejores).sort((a,b) => b-a);
+  return orden.indexOf(mejores[mia]) + 1;
+}
+function topPujadoresDe(cual, n){
+  const st = ST(cual);
+  if(!st.pujas || st.pujas.length === 0) return [];
+  const porPersona = {};
+  for(const p of st.pujas){
+    const clave = p.uid || p.ig || p.nombre;
+    if(!porPersona[clave]){ porPersona[clave] = p; continue; }
+    const a = porPersona[clave];
+    if(p.monto > a.monto || (p.monto === a.monto && p.timestamp < a.timestamp)) porPersona[clave] = p;
+  }
+  const lista = Object.values(porPersona);
+  lista.sort((a,b) => b.monto - a.monto || a.timestamp - b.timestamp);
+  return lista.slice(0, n || lista.length);
+}
+function recalcularLiderDe(cual){
+  const st = ST(cual);
+  if(!st.pujas || st.pujas.length === 0){
+    st.lider = null;
+    st.subasta.precioAct = 0;
+    return;
+  }
+  let mejor = st.pujas[0];
+  for(const p of st.pujas){
+    if(p.monto > mejor.monto) mejor = p;
+    else if(p.monto === mejor.monto && p.timestamp < mejor.timestamp) mejor = p;
+  }
+  st.lider = mejor;
+  st.subasta.precioAct = mejor.monto;
+}
+
+// ── Estado de interfaz por subasta (fotos, sonidos, popups, modales) ──
+const dxImgIdx = { a: 0, b: 0 };   // foto visible en cada panel de la app
+const dtImgIdx = { a: 0, b: 0 };   // foto visible en cada panel de la TV
+const dualUI = {
+  a: { ultimaPujaId: null, primeraCarga: false, victoriaSonada: false,
+       confeti: false, npCola: [], npActiva: false, fuegoTv: false },
+  b: { ultimaPujaId: null, primeraCarga: false, victoriaSonada: false,
+       confeti: false, npCola: [], npActiva: false, fuegoTv: false },
+};
+let modalGanadorCual = null;              // qué subasta muestra #modal-ganador
+let modalTop23Cual   = null;              // qué subasta muestra #modal-top23
+const modalGanadorVisto = { a: false, b: false };
+const top23VistoDual    = { a: false, b: false };
+let dualTickInt = null;
+let dualUILista = false;   // los paneles ya están construidos en el DOM
+
+// ── Guardar la Subasta 2 (misma política de transacción que save()) ──
+function saveB(opts = {}){
+  if(isTVMode) return;
+  if(!auth.currentUser) return;
+  try{
+    const publico = JSON.parse(JSON.stringify(SB));
+    delete publico.visitantes;
+    delete publico.ganadorConfirmado;
+    publico.pujas = pujasAObjeto(normalizarPujas(publico.pujas));
+    runTransaction(ref(db, SUBASTA_REF_B), (actual) => {
+      if(!actual) return publico;
+      const merged = { ...actual, ...publico };
+      if(!opts.pujas){
+        merged.pujas = actual.pujas || {};
+        merged.lider = actual.lider || null;
+        merged.subasta = { ...publico.subasta };
+        merged.subasta.precioAct = (actual.subasta && actual.subasta.precioAct) || 0;
+        if(!opts.tiempo && actual.subasta){
+          merged.subasta.finTs          = actual.subasta.finTs;
+          merged.subasta.estado         = actual.subasta.estado;
+          merged.subasta.antisnipeUsado = actual.subasta.antisnipeUsado;
+        }
+      }
+      return merged;
+    }).catch(err => console.warn("Firebase saveB error:", err));
+  }catch(e){ console.warn("Firebase saveB error:", e); }
+}
+
+// ── Confeti dentro del panel vendido de cada subasta (TV dual) ──
+function lanzarConfetiDual(cual){
+  const cont = document.getElementById(`dt-vendido-${cual}`);
+  if(!cont || dualUI[cual].confeti) return;
+  dualUI[cual].confeti = true;
+  const colores = ["#f5c842","#ff3b5c","#00e67a","#4af","#ff8a1a","#c77dff","#fff"];
+  let html = "";
+  for(let i=0;i<46;i++){
+    const izq = Math.random()*100;
+    const dur = 2.5 + Math.random()*3;
+    const del = Math.random()*2.5;
+    const col = colores[Math.floor(Math.random()*colores.length)];
+    const rot = Math.random()*360;
+    const forma = Math.random()>0.5 ? "border-radius:50%;" : "";
+    html += `<span class="confeti-cae" style="left:${izq}%;background:${col};${forma}animation-duration:${dur}s;animation-delay:${del}s;transform:rotate(${rot}deg)"></span>`;
+  }
+  cont.querySelectorAll(".confeti-cae").forEach(p=>p.remove());
+  cont.insertAdjacentHTML("afterbegin", html);
+}
+
+// ══════════════════════════════════════
+//  CONSTRUCTORES DE LA INTERFAZ DUAL
+// ══════════════════════════════════════
+// Panel del PUJADOR para una subasta (app, modo paralelo)
+function htmlPanelApp(cual){
+  const n = cual === "b" ? 2 : 1;
+  return `
+  <div class="dx-panel" id="dx-panel-${cual}">
+    <div class="dx-cinta">⚡ SUBASTA EXPRESS · ¡RÁPIDA! ⚡</div>
+    <div class="dx-head">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <span class="dx-tag">SUBASTA ${n}</span>
+        <div class="pill pill-wait" id="dx-pill-${cual}"><div class="dot-pulse"></div><span id="dx-pilltxt-${cual}">En espera</span></div>
+      </div>
+      <div class="dx-title" id="dx-title-${cual}">Carta en Subasta</div>
+      <div class="dx-set" id="dx-set-${cual}"></div>
+      <div class="dx-badges" id="dx-badges-${cual}"></div>
+    </div>
+    <div class="dx-imgbox" id="dx-imgbox-${cual}">
+      <img class="dx-img" id="dx-img-${cual}" style="display:none" alt="" title="Clic para zoom">
+      <div class="dx-noimg" id="dx-noimg-${cual}">⚡ Carta en preparación</div>
+      <button class="dx-nav dx-prev" id="dx-prev-${cual}" onclick="dxImgNav('${cual}',-1)">‹</button>
+      <button class="dx-nav dx-next" id="dx-next-${cual}" onclick="dxImgNav('${cual}',1)">›</button>
+      <div class="dx-counter" id="dx-counter-${cual}"></div>
+    </div>
+    <div class="dx-livebar">
+      <div class="dx-pricebox">
+        <div class="dx-lbl">Oferta más alta</div>
+        <div class="dx-price" id="dx-price-${cual}">—</div>
+        <div class="dx-who" id="dx-who-${cual}">Sé el primero en pujar</div>
+      </div>
+      <div class="dx-timerbox">
+        <div class="dx-lbl">Tiempo</div>
+        <div class="dx-timer stopped" id="dx-timer-${cual}">--:--</div>
+        <div class="dx-fin" id="dx-fin-${cual}"></div>
+      </div>
+    </div>
+    <div class="dx-miestado" id="dx-miestado-${cual}"></div>
+    <div class="quick-grid" id="dx-quick-${cual}"></div>
+    <div class="bid-row">
+      <input type="number" class="bid-input" id="dx-input-${cual}" placeholder="Monto personalizado" onkeydown="if(event.key==='Enter') doBidDual('${cual}')">
+      <button class="btn-bid" id="dx-btn-${cual}" onclick="doBidDual('${cual}')" disabled>PUJAR</button>
+    </div>
+    <div class="dx-hint" id="dx-hint-${cual}">Esperando inicio de subasta</div>
+    <div class="dx-baseinc">
+      <span>💰 Base: <b id="dx-base-${cual}" style="color:var(--text);font-family:'JetBrains Mono',monospace">—</b></span>
+      <span>📈 Incrementos: <b id="dx-inc-${cual}" style="color:var(--text);font-family:'JetBrains Mono',monospace">—</b></span>
+    </div>
+    <div class="dx-win" id="dx-win-${cual}"></div>
+    <div class="log-card">
+      <div class="log-hdr">
+        <div class="section-label" style="margin:0">📋 Registro de pujas</div>
+        <div class="log-total" id="dx-log-total-${cual}">0 pujas</div>
+      </div>
+      <div class="log-list" id="dx-log-${cual}"><div class="log-empty">Aún no hay pujas — ¡sé el primero!</div></div>
+    </div>
+  </div>`;
+}
+
+// Panel de TV para una subasta (modo paralelo)
+function htmlPanelTV(cual){
+  const n = cual === "b" ? 2 : 1;
+  return `
+  <div class="dt-panel" id="dt-panel-${cual}">
+    <div class="dt-head">
+      <div style="display:flex;align-items:center;min-width:0;flex:1">
+        <span class="dt-tag">SUBASTA ${n}</span>
+        <span class="dt-title" id="dt-title-${cual}">—</span>
+      </div>
+      <div class="pill pill-wait" id="dt-pill-${cual}" style="flex-shrink:0"><div class="dot-pulse"></div><span id="dt-pilltxt-${cual}">En espera</span></div>
+    </div>
+    <div class="dt-top">
+      <div class="dt-box">
+        <div class="dt-plbl">Oferta más alta</div>
+        <div class="dt-pval" id="dt-price-${cual}">—</div>
+        <div class="dt-who" id="dt-who-${cual}">Esperando primera puja</div>
+      </div>
+      <div class="dt-box">
+        <div class="dt-plbl">Tiempo restante</div>
+        <div class="dt-tval" id="dt-timer-${cual}">--:--</div>
+        <div class="dt-fintxt" id="dt-fin-${cual}"></div>
+      </div>
+    </div>
+    <div class="dt-body">
+      <div class="dt-stage">
+        <div class="dt-ganando" id="dt-ganando-${cual}"></div>
+        <img class="dt-img" id="dt-img-${cual}" style="display:none" alt="">
+        <div class="dt-noimg" id="dt-noimg-${cual}">Sin imagen</div>
+      </div>
+      <div class="dt-logwrap">
+        <div class="dt-log-hdr">📋 Pujas en vivo · <span id="dt-count-${cual}">0</span></div>
+        <div class="dt-log" id="dt-log-${cual}"><div class="log-empty">Sin pujas aún</div></div>
+      </div>
+    </div>
+    <div class="dt-np" id="dt-np-${cual}">
+      <div class="np-lbl">NUEVA PUJA</div>
+      <div class="np-monto" id="dt-np-monto-${cual}">$0</div>
+      <div class="np-quien" id="dt-np-quien-${cual}">—</div>
+    </div>
+    <div class="dt-vendido" id="dt-vendido-${cual}">
+      <div class="vendido-stamp-wrap"><div class="vendido-stamp" id="dt-stamp-${cual}">¡VENDIDO!</div></div>
+      <div class="vendido-ganador" id="dt-vganador-${cual}">—</div>
+      <div class="vendido-monto" id="dt-vmonto-${cual}">—</div>
+      <div class="vendido-carta" id="dt-vcarta-${cual}">—</div>
+    </div>
+  </div>`;
+}
+
+// Formulario del ADMIN para la Subasta 2 (espejo del de la Subasta 1).
+// Los selects copian sus opciones del formulario 1 para no duplicarlas a mano.
+function htmlAdminB(){
+  const ops = (id) => { const el = document.getElementById(id); return el ? el.innerHTML : ""; };
+  return `
+  <div class="sep"></div>
+  <div class="admin-b-cab">
+    <div style="font-size:14px;font-weight:800;color:var(--blue);letter-spacing:.5px">🃏 SUBASTA 2 · en paralelo</div>
+    <div class="b-estado-line" id="b-estado-line">Estado: <strong>—</strong></div>
+  </div>
+
+  <div class="admin-grid1" style="margin-bottom:10px">
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:6px;line-height:1.5">
+      ⚡ <strong>Pega aquí los datos de la carta 2</strong> y toca <strong>Llenar campos</strong>:
+    </div>
+    <textarea class="a-input" id="b-parse-text" placeholder="Pega aquí el texto de TCGplayer o escribe manualmente..." style="resize:vertical;min-height:64px;font-size:12px;line-height:1.6"></textarea>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button class="a-btn-sm" onclick="parsearTextoCartaB()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070d;font-weight:700;border-color:transparent">⚡ Llenar campos automáticamente</button>
+      <button class="a-btn-sm" onclick="document.getElementById('b-parse-text').value=''" style="color:var(--muted)">🗑 Limpiar</button>
+    </div>
+  </div>
+  <div class="sep" style="margin-bottom:14px"></div>
+
+  <div class="admin-grid2">
+    <input class="a-input" id="b-title" placeholder="Nombre carta 2" />
+    <select class="a-input" id="b-cond" style="cursor:pointer;color:var(--text)">${ops("a-cond")}</select>
+  </div>
+  <div class="admin-grid2">
+    <select class="a-input" id="b-idioma" style="cursor:pointer;color:var(--text)">${ops("a-idioma")}</select>
+    <div style="display:flex;align-items:center;font-size:11px;color:var(--muted2);padding:4px">⚠️ Campo obligatorio — visible en rojo</div>
+  </div>
+  <div class="admin-grid1">
+    <input class="a-input" id="b-set" placeholder="Set · Código (ej: sv2a 092/165)" />
+  </div>
+  <div class="admin-grid2">
+    <input class="a-input" id="b-set-es" placeholder="Set en español (ej: Fuentes Milagrosas)" />
+    <select class="a-input" id="b-rareza" style="cursor:pointer;color:var(--text)">${ops("a-rareza")}</select>
+  </div>
+
+  <div class="sep"></div>
+  <div class="section-label">🛡️ Carta gradeada (slab) <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">· opcional</span></div>
+  <div class="admin-grid2">
+    <input class="a-input" id="b-slab-comp" list="slab-companias" placeholder="Compañía (ej: PSA)" autocomplete="off" />
+    <select class="a-input" id="b-slab-grado" style="cursor:pointer;color:var(--text)">${ops("a-slab-grado")}</select>
+  </div>
+  <div class="admin-grid2">
+    <input class="a-input" id="b-slab-cert" placeholder="N° de certificación" inputmode="numeric" autocomplete="off" />
+    <input class="a-input" id="b-slab-link" type="url" placeholder="Link de verificación (https://...)" autocomplete="off" />
+  </div>
+
+  <div class="sep"></div>
+  <div class="section-label">Fotos (URLs) · Subasta 2</div>
+  <div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:11px 13px;margin-bottom:10px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:7px">⚡ Generador rápido de URLs</div>
+    <div class="admin-grid1" style="margin-bottom:6px">
+      <input class="a-input" id="b-gen-url" placeholder="URL de la primera foto (…/c2-01.jpg)" style="font-size:12px" />
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <input class="a-input" id="b-gen-n" type="number" placeholder="N° fotos" value="12" style="width:86px;flex-shrink:0" />
+      <button class="a-btn-sm" onclick="generarUrlsFotosB(false)" style="flex:1;min-width:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070d;font-weight:700;border-color:transparent">⚡ Generar y agregar</button>
+      <button class="a-btn-sm" onclick="generarUrlsFotosB(true)" title="Borra la lista actual y la reemplaza" style="color:var(--muted2)">⇄ Reemplazar</button>
+    </div>
+  </div>
+  <div style="margin-bottom:8px">
+    <textarea class="a-input" id="b-img-url" placeholder="Pega una o varias URLs, una por línea" style="resize:vertical;min-height:70px;font-size:12px;line-height:1.6"></textarea>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:8px">
+    <button class="a-btn-sm" onclick="addImgB()" style="flex:1">+ Agregar</button>
+    <button class="a-btn-sm" onclick="clearImgsB()" style="color:var(--red);border-color:rgba(255,59,92,.3)">🗑 Limpiar todo</button>
+  </div>
+  <div class="img-list" id="b-img-list"></div>
+
+  <div class="sep"></div>
+  <div class="section-label">Subasta <span style="color:var(--blue)">· N° 2</span></div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(100deg,rgba(255,90,20,.1),rgba(255,59,92,.05));border:1px solid rgba(255,90,20,.3);border-radius:11px;padding:11px 14px;margin-bottom:10px">
+    <div style="min-width:0">
+      <div style="font-size:13px;font-weight:800;color:#ff8a3a;letter-spacing:.5px">⚡ SUBASTA 2 EXPRESS</div>
+      <div style="font-size:10px;color:var(--muted2);margin-top:2px">Independiente de la Subasta 1: cada una con su propio ritmo.</div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="b-express" onchange="toggleExpressUI('b-')">
+      <span class="switch-slider"></span>
+    </label>
+  </div>
+  <div id="b-express-tiempos" style="display:none;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+    <button class="chip-btn" onclick="setExpressDur(10,'b-')">10 min</button>
+    <button class="chip-btn" onclick="setExpressDur(15,'b-')">15 min</button>
+    <button class="chip-btn" onclick="setExpressDur(20,'b-')">20 min</button>
+    <button class="chip-btn" onclick="setExpressDur(30,'b-')">30 min</button>
+    <button class="chip-btn" onclick="setExpressDur(45,'b-')">45 min</button>
+    <button class="chip-btn" onclick="setExpressDur(60,'b-')">1 hora</button>
+    <button class="chip-btn" onclick="setExpressDur(90,'b-')">1h 30</button>
+    <button class="chip-btn" onclick="setExpressDur(120,'b-')">2 horas</button>
+  </div>
+
+  <div class="admin-grid2">
+    <input class="a-input" type="number" id="b-base" placeholder="Precio base $" />
+    <input class="a-input" type="number" id="b-inc" placeholder="Incremento mín $" />
+  </div>
+  <div class="admin-grid2">
+    <input class="a-input" type="number" id="b-dur" placeholder="Duración (horas)" />
+    <input class="a-input" type="number" id="b-durm" placeholder="Duración (+ minutos)" />
+  </div>
+  <div class="admin-grid1" style="margin-bottom:8px">
+    <label style="font-size:11px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">Inicio programado (opcional)</label>
+    <input class="a-input" type="datetime-local" id="b-inicio" style="margin-bottom:6px" onchange="recalcDuracion('b-')" />
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <button class="chip-btn" onclick="setInicio(0,'b-')">⚡ Ahora</button>
+      <button class="chip-btn" id="chip-ini-b-0" onclick="setDia(0,'b-')">Hoy</button>
+      <button class="chip-btn" id="chip-ini-b-1" onclick="setDia(1,'b-')">Mañana</button>
+      <span style="width:1px;height:16px;background:var(--border2);margin:0 2px"></span>
+      <span style="font-size:10px;color:var(--muted2);letter-spacing:.5px">a las</span>
+      <select id="b-hora-rapida" class="chip-select" onchange="aplicarHora('b-')">
+        <option value="">--:--</option>
+      </select>
+      <button class="chip-btn" onclick="limpiarInicio('b-')" style="color:var(--muted)" title="Quitar">✕</button>
+    </div>
+  </div>
+  <div class="admin-grid1" style="margin-bottom:8px">
+    <label style="font-size:11px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">🏁 Término programado (opcional) — calcula la duración solo</label>
+    <input class="a-input" type="datetime-local" id="b-fin" style="margin-bottom:6px" onchange="recalcDuracion('b-')" />
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <button class="chip-btn" id="chip-fin-b-0" onclick="setFinDia(0,'b-')">Hoy</button>
+      <button class="chip-btn" id="chip-fin-b-1" onclick="setFinDia(1,'b-')">Mañana</button>
+      <button class="chip-btn" id="chip-fin-b-2" onclick="setFinDia(2,'b-')">+2 días</button>
+      <button class="chip-btn" id="chip-fin-b-3" onclick="setFinDia(3,'b-')">+3 días</button>
+      <span style="width:1px;height:16px;background:var(--border2);margin:0 2px"></span>
+      <span style="font-size:10px;color:var(--muted2);letter-spacing:.5px">a las</span>
+      <select id="b-fin-hora" class="chip-select" onchange="aplicarHoraFin('b-')">
+        <option value="">--:--</option>
+      </select>
+      <button class="chip-btn" onclick="limpiarFin('b-')" style="color:var(--muted)" title="Quitar">✕</button>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="font-size:10px;color:var(--muted2);letter-spacing:.5px">⏱ Rápido desde ahora:</span>
+      <button class="chip-btn" onclick="setFinDesdeAhora(2,'b-')">+2 min</button>
+      <button class="chip-btn" onclick="setFinDesdeAhora(5,'b-')">+5 min</button>
+      <button class="chip-btn" onclick="setFinDesdeAhora(15,'b-')">+15 min</button>
+      <button class="chip-btn" onclick="setFinDesdeAhora(60,'b-')">+1 hora</button>
+    </div>
+    <div id="b-dur-auto-hint" style="display:none;font-size:11px;margin-top:6px;color:var(--gold)"></div>
+  </div>
+  <div class="admin-grid2">
+    <input class="a-input" type="number" id="b-antisnipe-add" placeholder="⚡ Anti-snipe: agrega (min)" value="5" />
+    <div style="display:flex;align-items:center;font-size:11px;color:var(--muted2);padding:9px 4px;line-height:1.4">Minutos que se suman si alguien puja en el último minuto</div>
+  </div>
+
+  <div class="sep"></div>
+  <div class="admin-btns">
+    <button class="a-btn go" onclick="adminStartB()">▶ INICIAR 2</button>
+    <button class="a-btn" onclick="adminUpdateB()">💾 Guardar 2</button>
+    <button class="a-btn danger" onclick="adminResetB()">🗑 Resetear 2</button>
+  </div>
+
+  <div id="b-bloqueados-section" style="display:none;margin-top:10px">
+    <div class="sep"></div>
+    <div class="section-label" style="margin-bottom:8px">⛔ Bloqueados en Subasta 2</div>
+    <div id="b-bloqueados-list"></div>
+  </div>`;
+}
+
+// Caja compacta de la Subasta 2 para la pantalla de login
+function htmlLoginDualB(){
+  return `
+  <div id="login-live-panel-b" style="display:none;margin-top:10px;background:linear-gradient(135deg,rgba(0,230,122,.12),rgba(0,230,122,.02));border:1.5px solid var(--green);border-radius:12px;padding:12px 14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+      <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--green)" id="llb-head">SUBASTA 2 EN VIVO</div>
+      <span style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--blue);background:rgba(78,168,255,.1);border:1px solid rgba(78,168,255,.3);padding:2px 8px;border-radius:20px">N° 2</span>
+    </div>
+    <div id="llb-titulo" style="font-size:13px;font-weight:700;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px">
+      <div style="min-width:0">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)" id="llb-plbl">Oferta actual</div>
+        <div id="llb-precio" style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;color:var(--gold)">—</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)" id="llb-tlbl">Termina en</div>
+        <div id="llb-timer" style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800;color:var(--green)">--:--</div>
+      </div>
+    </div>
+    <div id="llb-pujas" style="font-size:10px;color:var(--muted2);margin-top:5px">—</div>
+  </div>`;
+}
+
+// Construye todas las piezas del modo paralelo dentro de sus anclas HTML.
+// Se llama UNA vez al cargar el módulo; con el modo apagado quedan ocultas.
+function construirDualUI(){
+  if(dualUILista) return;
+  dualUILista = true;
+
+  // Zona de ganadores: dos columnas (la 1 recibe las cajas ya existentes)
+  const dz = document.getElementById("dual-zonas");
+  if(dz){
+    dz.innerHTML = `
+      <div id="dz-col-a"><div class="dz-etiqueta">🃏 Subasta 1</div></div>
+      <div id="dz-col-b"><div class="dz-etiqueta">🃏 Subasta 2</div>
+        <div class="winner-wrap" id="winner-wrap-b" style="display:none">
+          <div class="winner-head">
+            <div class="winner-trophy">🏆</div>
+            <div class="winner-head-txt">
+              <div class="winner-title">SUBASTA 2 FINALIZADA</div>
+              <div class="winner-ts" id="w-ts-b">—</div>
+            </div>
+            <div class="winner-price" id="w-price-b">$0</div>
+          </div>
+          <div class="winner-body">
+            <img id="w-carta-img-b" src="" alt="" style="display:none">
+            <div class="winner-datos">
+              <div class="winner-name" id="w-name-b">—</div>
+              <div class="winner-ig" id="w-ig-b">—</div>
+            </div>
+          </div>
+          <div class="winner-msg" id="w-msg-b"></div>
+        </div>
+        <div id="admin-ganador-box-b" style="display:none;background:linear-gradient(135deg,rgba(245,200,66,.1),rgba(245,200,66,.02));border:1.5px solid var(--gold);border-radius:14px;padding:14px 16px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+            <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold)">🏆 Contactar al ganador · Subasta 2</div>
+            <div id="ag-estado-b" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+            <div style="min-width:0;flex:1">
+              <div id="ag-nombre-b" style="font-size:15px;font-weight:700">—</div>
+              <div style="display:flex;align-items:center;gap:6px;min-width:0">
+                <div id="ag-email-b" style="font-size:11px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">—</div>
+                <button onclick="copiarContacto(document.getElementById('ag-email-b').textContent.trim())" title="Copiar correo" style="background:none;border:1px solid var(--border);color:var(--muted2);padding:2px 7px;border-radius:5px;font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif;flex-shrink:0">📋</button>
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--gold)" id="ag-monto-b">$0</div>
+              <div id="ag-hora-b" style="font-size:10px;color:var(--muted2);margin-top:2px">—</div>
+            </div>
+          </div>
+          <div id="ag-ig-label-b" style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:5px">Instagram</div>
+          <div style="display:flex;gap:8px">
+            <input id="ag-ig-input-b" type="text" readonly value="—" onclick="this.select()"
+              style="flex:1;min-width:0;background:var(--s2);border:1.5px solid var(--border2);border-radius:9px;color:var(--text);padding:11px 13px;font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;outline:none;cursor:text">
+            <button onclick="copiarIgGanadorB()" title="Copiar" style="background:var(--gold);color:#07070d;border:none;border-radius:9px;padding:0 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">📋 Copiar</button>
+            <button id="ag-abrir-b" onclick="abrirIgGanadorB()" title="Abrir perfil" style="background:var(--s3);color:var(--text);border:1px solid var(--border2);border-radius:9px;padding:0 12px;font-size:14px;cursor:pointer;white-space:nowrap">↗</button>
+          </div>
+          <div id="ag-nota-b" style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5"></div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+              <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">✉️ Mensaje para el ganador</div>
+              <button onclick="copiarMensajeGanadorB()" style="background:var(--gold);color:#07070d;border:none;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">📋 Copiar mensaje</button>
+            </div>
+            <textarea id="ag-mensaje-b" rows="9"
+              style="width:100%;background:var(--s2);border:1.5px solid var(--border2);border-radius:9px;color:var(--text);padding:10px 12px;font-size:12px;line-height:1.55;font-family:'Outfit',sans-serif;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+          </div>
+          <div id="ag-top23-b" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2)">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:8px">🥈 Respaldo si el 1° no paga</div>
+            <div id="ag-top23-lista-b"></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // Paneles del pujador
+  const da = document.getElementById("dual-app");
+  if(da) da.innerHTML = htmlPanelApp("a") + htmlPanelApp("b");
+
+  // Paneles de la TV
+  const dtv = document.getElementById("dual-tv");
+  if(dtv) dtv.innerHTML = `<div class="dx-panels">${htmlPanelTV("a")}${htmlPanelTV("b")}</div>`;
+
+  // Formulario de la Subasta 2 en el admin
+  const ab = document.getElementById("admin-b-box");
+  if(ab) ab.innerHTML = htmlAdminB();
+
+  // Caja compacta de la Subasta 2 en el login
+  const lb = document.getElementById("login-dual-b");
+  if(lb) lb.innerHTML = htmlLoginDualB();
+}
+
+// ══════════════════════════════════════
+//  INTERRUPTOR DEL MODO PARALELO
+// ══════════════════════════════════════
+// Mueve las cajas de ganador/contacto de la Subasta 1 entre su lugar normal
+// (#final-zona) y su columna dual (#dz-col-a). Se MUEVEN, no se duplican:
+// conservan sus IDs y todo el código existente sigue funcionando igual.
+function moverCajasGanador(on){
+  const ww   = document.getElementById("winner-wrap");
+  const agb  = document.getElementById("admin-ganador-box");
+  const colA = document.getElementById("dz-col-a");
+  const fz   = document.getElementById("final-zona");
+  if(!ww || !agb || !colA || !fz) return;
+  if(on){
+    if(ww.parentElement !== colA){ colA.appendChild(ww); colA.appendChild(agb); }
+  } else {
+    if(ww.parentElement !== fz){ fz.appendChild(ww); fz.appendChild(agb); }
+  }
+}
+
+// Enciende/apaga el modo paralelo en ESTE dispositivo (llega por Firebase).
+function aplicarModoDual(){
+  const on = !!CFG.modoDual;
+  document.body.classList.toggle("dual-on", on);
+  const stv = document.getElementById("screen-tv");
+  if(stv) stv.classList.toggle("dual-on", on);
+  const tgl = document.getElementById("a-modo-dual");
+  if(tgl) tgl.checked = on;
+  // Etiquetas "· SUBASTA 1" / "· N° 1" en el formulario de la Subasta 1
+  for(const id of ["a-etiqueta-1a","a-etiqueta-1b"]){
+    const e = document.getElementById(id);
+    if(e) e.style.display = on ? "inline" : "none";
+  }
+  moverCajasGanador(on);
+  // El tema express de página completa no aplica en paralelo (va por panel):
+  // apagar clase, splash y badges que pudieran haber quedado encendidos
+  if(on){
+    document.body.classList.remove("express-tema");
+    const sp = document.getElementById("express-splash");
+    if(sp) sp.classList.remove("show");
+    document.querySelectorAll(".express-badge").forEach(b => b.remove());
+  }
+
+  // Pantalla de login: en paralelo se reemplaza la vista de una sola carta
+  // por el resumen compacto de ambas (visibles sin desplazarse)
+  toggleLoginDualBlocks(on);
+
+  if(on){
+    startDualTick();
+    try{ if(isTVMode) renderDualTV(); else if(user) renderDualTodo(); }catch(e){ console.error("dual:", e); }
+    try{ renderLoginDualB(); }catch(e){}
+    try{ renderLoginResumenDual(); }catch(e){}
+  } else {
+    stopDualTick();
+    // Volver a la vista normal: los renders de siempre retoman el control
+    // y el tema express global vuelve a aplicar si la Subasta 1 es express
+    try{ aplicarTemaExpress(); }catch(e){}
+    try{
+      if(isTVMode) renderTV();
+      else if(user) renderApp();
+      else renderLoginLivePanel();
+    }catch(e){ console.error("volver a modo simple:", e); }
+    const lb = document.getElementById("login-live-panel-b");
+    if(lb) lb.style.display = "none";
+    try{ renderLoginInfo(); }catch(e){}   // repinta la vista individual del login
+  }
+}
+
+// Muestra/oculta los bloques de la pantalla de login según el modo:
+// en paralelo manda el resumen compacto de ambas subastas.
+function toggleLoginDualBlocks(on){
+  for(const id of ["login-live-panel","login-dual-b","login-box-carta"]){
+    const e = document.getElementById(id);
+    if(e) e.style.display = on ? "none" : "";
+  }
+  const r = document.getElementById("login-dual-resumen");
+  if(r) r.style.display = on ? "block" : "none";
+}
+
+// El admin cambia el interruptor: se escribe en Firebase y TODOS los
+// dispositivos (pujadores y TV) cambian solos por el listener de config_app.
+function cambiarModoDual(on){
+  if(!admin){
+    toast("Solo el administrador puede cambiar el modo","err");
+    const t = document.getElementById("a-modo-dual");
+    if(t) t.checked = !!CFG.modoDual;
+    return;
+  }
+  set(ref(db, `${CONFIG_REF}/modoDual`), !!on)
+    .then(()=> toast(on
+      ? "🃏🃏 Modo paralelo ACTIVADO — configura la Subasta 2 más abajo"
+      : "Modo paralelo desactivado — queda solo la Subasta 1",
+      on ? "ok" : "warn"))
+    .catch(err => {
+      console.error("config_app:", err);
+      toast("⛔ Firebase rechazó el cambio: falta el nodo config_app en las reglas","err");
+      const t = document.getElementById("a-modo-dual");
+      if(t) t.checked = !!CFG.modoDual;
+    });
+}
+
+// ── Listeners de Firebase del modo paralelo ──
+// Se suscriben SIEMPRE (incluso con el modo apagado): así, cuando el admin
+// activa el interruptor, todos los dispositivos cambian al instante.
+function initDualListeners(){
+  // Interruptor global
+  onValue(ref(db, CONFIG_REF), (snap) => {
+    const v = snap.val() || {};
+    const antes = CFG.modoDual;
+    const primera = CFG._listo !== true;
+    CFG._listo  = true;              // la config ya llegó: se pueden mostrar efectos globales
+    CFG.modoDual = !!v.modoDual;
+    if(antes !== CFG.modoDual) aplicarModoDual();
+    else {
+      const t = document.getElementById("a-modo-dual");
+      if(t) t.checked = CFG.modoDual;
+      // Primera lectura en modo individual: ahora sí se puede pintar el tema express global
+      if(primera) try{ aplicarTemaExpress(); }catch(e){}
+    }
+  }, (err) => { CFG._listo = true; console.warn("config_app:", err); try{ aplicarTemaExpress(); }catch(e){} });
+
+  // Subasta 2
+  onValue(ref(db, SUBASTA_REF_B), (snapshot) => {
+    const data = snapshot.val();
+    if(!data){
+      SB = deepCopy(defaultState);
+    } else {
+      SB = { ...deepCopy(defaultState), ...data };
+      // Misma frontera que la Subasta 1: normalizar SIEMPRE al entrar
+      SB.pujas      = normalizarPujas(SB.pujas);
+      SB.bloqueados = normalizarLista(SB.bloqueados);
+      if(SB.carta) SB.carta.imgs = normalizarLista(SB.carta.imgs);
+      if(SB.pujas.length > 0) recalcularLiderDe("b");
+    }
+    if(!CFG.modoDual) return;   // modo apagado: no gastar renders
+    try{
+      if(isTVMode) renderDualTV();
+      else if(user) renderDualTodo();
+    }catch(e){ console.error("render dual B:", e); }
+    try{ renderLoginDualB(); }catch(e){}
+    try{ renderLoginResumenDual(); }catch(e){}
+  }, (err) => console.warn("subasta_activa_b:", err));
+}
+
+// ══════════════════════════════════════
+//  ADMINISTRACIÓN DE LA SUBASTA 2
+// ══════════════════════════════════════
+// Espejo de leerFormulario(), pero sobre los campos b- y el estado SB.
+function leerFormularioB(){
+  SB.carta.titulo = document.getElementById("b-title").value.trim() || SB.carta.titulo;
+  SB.carta.set    = document.getElementById("b-set").value.trim()   || SB.carta.set;
+  SB.carta.setEs  = document.getElementById("b-set-es").value.trim();
+  SB.carta.rareza = document.getElementById("b-rareza").value;
+  SB.carta.idioma = document.getElementById("b-idioma").value;
+  SB.carta.cond   = document.getElementById("b-cond").value.trim()  || SB.carta.cond;
+  let slabLink = document.getElementById("b-slab-link").value.trim();
+  if(slabLink && !/^https?:\/\//i.test(slabLink)) slabLink = "https://" + slabLink;
+  SB.carta.slab = {
+    compania: document.getElementById("b-slab-comp").value.trim(),
+    grado:    document.getElementById("b-slab-grado").value.trim(),
+    cert:     document.getElementById("b-slab-cert").value.trim(),
+    link:     slabLink,
+  };
+  const base = parseInt(document.getElementById("b-base").value);
+  const inc  = parseInt(document.getElementById("b-inc").value);
+  if(base>0) SB.subasta.base = base;
+  if(inc>0)  SB.subasta.inc  = inc;
+  const asa = parseInt(document.getElementById("b-antisnipe-add").value);
+  if(asa>0) SB.subasta.antisnipeAgrega = asa;
+  SB.subasta.antisnipeVentana = 1;
+  const expEl = document.getElementById("b-express");
+  SB.subasta.express = !!(expEl && expEl.checked);
+  const inicioVal = document.getElementById("b-inicio").value;
+  if(inicioVal) SB.subasta.inicioProgTs = new Date(inicioVal).getTime();
+  else SB.subasta.inicioProgTs = null;
+}
+
+// Rellena el formulario b- con lo que hay en SB (al abrir el panel admin).
+function fillAdminFieldsB(){
+  if(!document.getElementById("b-title")) return;
+  llenarHoras();
+  document.getElementById("b-title").value    = SB.carta.titulo === defaultState.carta.titulo ? "" : SB.carta.titulo;
+  document.getElementById("b-set").value      = SB.carta.set === defaultState.carta.set ? "" : SB.carta.set;
+  document.getElementById("b-set-es").value   = SB.carta.setEs||"";
+  document.getElementById("b-rareza").value   = SB.carta.rareza||"";
+  const condSel = document.getElementById("b-cond");
+  condSel.value = (SB.carta.cond||"NM").toUpperCase();
+  if(!condSel.value) condSel.value = "NM";
+  document.getElementById("b-idioma").value   = SB.carta.idioma||"";
+  const slabF = SB.carta.slab || {};
+  document.getElementById("b-slab-comp").value  = slabF.compania||"";
+  const gradoSel = document.getElementById("b-slab-grado");
+  gradoSel.value = slabF.grado||"";
+  if(slabF.grado && !gradoSel.value){
+    const optG = document.createElement("option");
+    optG.value = slabF.grado;
+    optG.textContent = slabF.grado + " (guardado)";
+    optG.style.background = "var(--s2)";
+    gradoSel.appendChild(optG);
+    gradoSel.value = slabF.grado;
+  }
+  document.getElementById("b-slab-cert").value  = slabF.cert||"";
+  document.getElementById("b-slab-link").value  = slabF.link||"";
+  document.getElementById("b-base").value     = SB.subasta.base;
+  document.getElementById("b-inc").value      = SB.subasta.inc;
+  const expEl = document.getElementById("b-express");
+  if(expEl){ expEl.checked = !!SB.subasta.express; toggleExpressUI("b-"); }
+  document.getElementById("b-antisnipe-add").value = SB.subasta.antisnipeAgrega||5;
+  const iniProg = SB.subasta.inicioProgTs || SB.subasta.inicioTs;
+  if(iniProg && SB.subasta.estado === "programada"){
+    document.getElementById("b-inicio").value = aDatetimeLocal(new Date(iniProg));
+  } else {
+    document.getElementById("b-inicio").value = "";
+  }
+  renderImgListB();
+  renderEstadoLineB();
+}
+
+// Línea de estado de la Subasta 2 dentro del admin
+function renderEstadoLineB(){
+  const el = document.getElementById("b-estado-line");
+  if(!el) return;
+  const sub = SB.subasta;
+  const mapa = { espera:"⏳ En espera", programada:"📅 Programada", activa:"🟢 En vivo", finalizada:"🏁 Finalizada" };
+  let txt = `Estado: <strong>${mapa[sub.estado]||sub.estado}</strong> · ${SB.pujas.length} puja${SB.pujas.length!==1?"s":""}`;
+  if(sub.estado === "activa" && sub.finTs) txt += ` · cierra ${fechaLegible(sub.finTs)}`;
+  if(sub.estado === "programada" && inicioSubastaDe("b")) txt += ` · inicia ${fechaLegible(inicioSubastaDe("b"))}`;
+  if(sub.estado === "finalizada" && SB.lider) txt += ` · ganó ${esc(SB.lider.nombre)} con ${fmtCLP(SB.lider.monto)}`;
+  el.innerHTML = txt;
+}
+
+// GUARDAR 2: toca solo carta y configuración de la Subasta 2.
+function adminUpdateB(){
+  leerFormularioB();
+  const carta = deepCopy(SB.carta);
+  const cfg = {
+    base: SB.subasta.base,
+    inc: SB.subasta.inc,
+    express: SB.subasta.express,
+    antisnipeAgrega: SB.subasta.antisnipeAgrega,
+    antisnipeVentana: 1,
+    inicioProgTs: SB.subasta.inicioProgTs
+  };
+  runTransaction(ref(db, SUBASTA_REF_B), (actual) => {
+    if(!actual) return;
+    actual.carta = carta;
+    actual.subasta = { ...actual.subasta, ...cfg };
+    return actual;
+  }).then(()=>{
+    renderDualTodo();
+    renderEstadoLineB();
+    toast("✅ Subasta 2 guardada","ok");
+  }).catch(err=>{
+    console.error("Error al guardar B:", err);
+    toast("No se pudo guardar. Reintenta.","err");
+  });
+}
+
+// INICIAR 2: mismo flujo que adminStart() pero sobre SB / subasta_activa_b.
+function adminStartB(){
+  leerFormularioB();
+  recalcDuracion("b-");
+  const finCampo = document.getElementById("b-fin");
+  if(finCampo && finCampo.value){
+    const finTs  = new Date(finCampo.value).getTime();
+    const iniC   = document.getElementById("b-inicio");
+    const baseTs = (iniC && iniC.value) ? new Date(iniC.value).getTime() : Date.now();
+    if(isNaN(finTs) || finTs <= baseTs){
+      toast("⚠️ Subasta 2: el término programado debe ser después del inicio","err");
+      return;
+    }
+  }
+  const durH = parseFloat(document.getElementById("b-dur").value)  || 0;
+  const durM = parseFloat(document.getElementById("b-durm").value) || 0;
+  const totalMs = (durH*60 + durM) * 60 * 1000;
+  if(totalMs<=0){ toast("Subasta 2: define duración (horas o minutos)","err"); return; }
+
+  const nPujas = (SB.pujas||[]).length;
+  if(nPujas > 0){
+    if(!confirm(`⚠️ La Subasta 2 ya tiene ${nPujas} puja${nPujas!==1?"s":""}.\n\nIniciarla de nuevo las eliminará.\n\n¿Continuar?`)) return;
+  }
+
+  const inicioProgTs = SB.subasta.inicioProgTs;
+  const ahora = ahoraSrv();
+  modalGanadorVisto.b = false;
+  top23VistoDual.b    = false;
+
+  if(inicioProgTs && inicioProgTs > ahora){
+    SB.subasta.estado    = "programada";
+    SB.subasta.precioAct = 0;
+    SB.subasta.finTs     = inicioProgTs + totalMs;
+    SB.subasta.inicioTs  = inicioProgTs;
+    SB.subasta.antisnipeActivo = false;
+    SB.subasta.antisnipeUsado  = false;
+    SB.pujas             = [];
+    SB.lider             = null;
+    SB.ganadorAvisado    = false;
+    saveB({pujas:true, tiempo:true});
+    renderDualTodo();
+    const fecha = new Date(inicioProgTs).toLocaleString("es-CL");
+    toast(`📅 Subasta 2 programada para ${fecha}`, "ok");
+  } else {
+    SB.subasta.estado    = "activa";
+    SB.subasta.precioAct = 0;
+    SB.subasta.finTs     = ahora + totalMs;
+    SB.subasta.inicioTs  = ahora;
+    SB.subasta.inicioProgTs = null;
+    SB.subasta.antisnipeActivo = false;
+    SB.subasta.antisnipeUsado  = false;
+    SB.pujas             = [];
+    SB.lider             = null;
+    SB.ganadorAvisado    = false;
+    saveB({pujas:true, tiempo:true});
+    renderDualTodo();
+    toast(`🟢 ¡Subasta 2 iniciada! ${durH>0?durH+"h ":""}${durM>0?durM+"min":""}`, "ok");
+  }
+  renderEstadoLineB();
+}
+
+// Arranque automático de la Subasta 2 anclado a la hora PROGRAMADA.
+// Transacción idempotente: la escribe el primer dispositivo que llegue.
+function activarSubastaB(){
+  if(SB.subasta.estado !== "programada") return;
+  const ini = inicioSubastaDe("b");
+  const finReal = SB.subasta.finTs;
+  if(!ini || !finReal) return;
+
+  if(finReal <= ahoraSrv()){
+    // Se pasó completa mientras nadie miraba
+    SB.subasta.estado = "finalizada";
+    if(!isTVMode && auth.currentUser){
+      runTransaction(ref(db, SUBASTA_REF_B), (actual) => {
+        if(!actual) return actual;
+        if(!actual.subasta || actual.subasta.estado !== "programada") return;
+        actual.subasta.estado = "finalizada";
+        return actual;
+      }).catch(()=>{});
+    }
+    renderDualTodo();
+    return;
+  }
+
+  SB.subasta.estado   = "activa";
+  SB.subasta.inicioTs = ini;
+  if(!isTVMode && auth.currentUser){
+    runTransaction(ref(db, SUBASTA_REF_B), (actual) => {
+      if(!actual) return actual;
+      const sub = actual.subasta;
+      if(!sub || sub.estado !== "programada") return;
+      actual.subasta.estado   = "activa";
+      actual.subasta.inicioTs = ini;
+      return actual;
+    }).catch(err => console.warn("No se pudo activar la Subasta 2:", err));
+  }
+  renderDualTodo();
+  toast("🟢 ¡Subasta 2 iniciada!", "ok");
+}
+
+// Cierra la Subasta 2 en el servidor. Idempotente: aborta si otro ya la cerró.
+function cerrarSubastaEnServidorB(){
+  if(isTVMode) return;
+  if(!auth.currentUser) return;
+  runTransaction(ref(db, SUBASTA_REF_B), (actual) => {
+    if(!actual) return actual;
+    const sub = actual.subasta;
+    if(!sub || sub.estado !== "activa") return;
+    if(!sub.finTs || ahoraSrv() < sub.finTs) return;
+    actual.subasta.estado = "finalizada";
+    return actual;
+  }).catch(err => console.warn("No se pudo cerrar la Subasta 2:", err));
+}
+
+// RESETEAR 2: borra pujas y ganador de la Subasta 2. Los bloqueados de la
+// Subasta 2 se conservan (igual que en la 1). NO toca la zona privada:
+// visitantes y agenda de strikes son compartidos por ambas subastas.
+function adminResetB(){
+  const nPujas = (SB.pujas||[]).length;
+  let msg = "⚠️ RESETEAR LA SUBASTA 2\n\nSe eliminarán:\n";
+  msg += `• ${nPujas} puja${nPujas!==1?"s":""} de la Subasta 2\n`;
+  msg += "• El ganador de la Subasta 2\n";
+  msg += "\n(Se conservan: la carta 2, sus fotos y sus bloqueados.\nLa Subasta 1 y los participantes NO se tocan)\n\n¿Continuar?";
+  if(!confirm(msg)) return;
+
+  SB.subasta.estado        = "espera";
+  SB.subasta.precioAct     = 0;
+  SB.subasta.finTs         = null;
+  SB.subasta.inicioTs      = null;
+  SB.subasta.inicioProgTs  = null;
+  SB.subasta.antisnipeActivo = false;
+  SB.subasta.antisnipeUsado  = false;
+  SB.pujas             = [];
+  SB.lider             = null;
+  SB.ganadorAvisado    = false;
+  modalGanadorVisto.b  = false;
+  top23VistoDual.b     = false;
+  dualUI.b.ultimaPujaId = null;
+  dualUI.b.victoriaSonada = false;
+  dualUI.b.confeti = false;
+  saveB({pujas:true, tiempo:true});
+  renderDualTodo();
+  renderEstadoLineB();
+  toast("🗑 Subasta 2 reseteada","warn");
+}
+
+// ── Fotos de la Subasta 2 ──
+function renderImgListB(){
+  const el = document.getElementById("b-img-list");
+  if(!el) return;
+  el.innerHTML = (SB.carta.imgs||[]).map((url,i)=>`
+    <img class="img-preview" src="${esc(url)}" title="Click para eliminar" onclick="removeImgB(${i})" onerror="this.style.opacity=.3" />
+  `).join("") || "<span style='font-size:12px;color:var(--muted2)'>Sin imágenes aún</span>";
+}
+
+function generarUrlsFotosB(reemplazar){
+  const muestra = (document.getElementById("b-gen-url").value || "").trim();
+  const n = parseInt(document.getElementById("b-gen-n").value);
+  if(!muestra){ toast("Pega la URL de la primera foto","err"); return; }
+  if(!n || n < 1 || n > 60){ toast("N° de fotos inválido (1–60)","err"); return; }
+  const m = muestra.match(/^(.*?)(\d+)(\.[a-zA-Z0-9]+(?:\?.*)?)$/);
+  if(!m){ toast("La URL debe terminar en número + extensión (ej: c2-01.jpg)","err"); return; }
+  const base = m[1], ancho = m[2].length, ext = m[3];
+  const urls = [];
+  for(let i = 1; i <= n; i++) urls.push(base + String(i).padStart(ancho, "0") + ext);
+  if(reemplazar){
+    SB.carta.imgs = urls.slice();
+    saveB(); renderImgListB(); renderDualTodo();
+    toast("✅ Subasta 2: lista reemplazada: " + urls.length + " fotos","ok");
+  } else {
+    document.getElementById("b-img-url").value = urls.join("\n");
+    addImgB();
+  }
+}
+
+function addImgB(){
+  const raw = document.getElementById("b-img-url").value.trim();
+  if(!raw){ toast("Ingresa al menos una URL","err"); return; }
+  if(!SB.carta.imgs) SB.carta.imgs=[];
+  const urls = raw.split(/\r?\n/).map(u=>u.trim()).filter(u=>u.length>0);
+  urls.forEach(url => {
+    if(!SB.carta.imgs.includes(url)) SB.carta.imgs.push(url);
+  });
+  document.getElementById("b-img-url").value="";
+  saveB();
+  renderImgListB();
+  renderDualTodo();
+  toast(urls.length + " imagen" + (urls.length>1?"es":"") + " agregada" + (urls.length>1?"s":"") + " a la Subasta 2","ok");
+}
+
+function clearImgsB(){
+  if(!confirm("¿Eliminar todas las imágenes de la Subasta 2?")) return;
+  SB.carta.imgs=[];
+  saveB();
+  renderImgListB();
+  renderDualTodo();
+  toast("Imágenes de la Subasta 2 eliminadas","warn");
+}
+
+function removeImgB(i){
+  if(!confirm("¿Eliminar esta imagen?")) return;
+  SB.carta.imgs.splice(i,1);
+  saveB();
+  renderImgListB();
+  renderDualTodo();
+  toast("Imagen eliminada","warn");
+}
+
+// Pegar texto rápido de la Subasta 2 (usa el mismo parser, prefijo b-)
+function parsearTextoCartaB(){ parsearTextoCarta("b-"); }
+
+// ── Moderación de la Subasta 2: eliminar puja, bloquear, desbloquear ──
+function eliminarPujaB(idx){
+  if(!SB.pujas || !SB.pujas[idx]){ toast("Esa puja ya no existe","warn"); renderDualTodo(); return; }
+  const p = SB.pujas[idx];
+  if(!confirm(`¿Eliminar la puja de ${p.nombre} por ${fmtCLP(p.monto)} en la Subasta 2?`)) return;
+  const idBorrar = p.id;
+  const tsBorrar = p.timestamp;
+  runTransaction(ref(db, SUBASTA_REF_B), (actual) => {
+    if(!actual) return actual;
+    const lista = normalizarPujas(actual.pujas)
+      .filter(q => idBorrar ? q.id !== idBorrar : q.timestamp !== tsBorrar);
+    actual.pujas = pujasAObjeto(lista);
+    if(lista.length > 0){
+      actual.lider = lista[0];
+      actual.subasta.precioAct = lista[0].monto;
+    } else {
+      actual.lider = null;
+      actual.subasta.precioAct = 0;
+    }
+    return actual;
+  }).then(() => {
+    toast("Puja eliminada de la Subasta 2","warn");
+  }).catch(err => {
+    console.error("Error al eliminar puja B:", err);
+    toast("No se pudo eliminar. Reintenta.","err");
+  });
+}
+
+function bloquearUsuarioB(clave, nombre){
+  if(!confirm(`¿Bloquear a ${nombre} en la Subasta 2? No podrá seguir pujando ahí.`)) return;
+  runTransaction(ref(db, SUBASTA_REF_B), (actual) => {
+    if(!actual) return actual;
+    const bloq = normalizarLista(actual.bloqueados);
+    if(!bloq.includes(clave)) bloq.push(clave);
+    actual.bloqueados = bloq;
+    const lista = normalizarPujas(actual.pujas).filter(q => (q.uid || q.ig) !== clave);
+    actual.pujas = pujasAObjeto(lista);
+    if(lista.length > 0){
+      actual.lider = lista[0];
+      actual.subasta.precioAct = lista[0].monto;
+    } else {
+      actual.lider = null;
+      actual.subasta.precioAct = 0;
+    }
+    return actual;
+  }).then(() => {
+    toast(`⛔ ${nombre} bloqueado en la Subasta 2`, "err");
+  }).catch(err => {
+    console.error("Error al bloquear en B:", err);
+    toast("No se pudo bloquear. Reintenta.","err");
+  });
+}
+
+function desbloquearB(clave){
+  SB.bloqueados = (SB.bloqueados||[]).filter(b => b !== clave);
+  saveB();
+  renderDualTodo();
+  toast(`✅ ${clave} desbloqueado en la Subasta 2`,"ok");
+}
+
+// ══════════════════════════════════════
+//  PUJAR EN MODO PARALELO
+// ══════════════════════════════════════
+// Mismo flujo de siempre (validar → modal → transacción anti-snipe en el
+// servidor), pero dirigido al nodo de la subasta correspondiente.
+let modalPujaCual = "a";   // a qué subasta pertenece el modal abierto
+
+function doBidDual(cual, monto){
+  const st  = ST(cual);
+  const sub = st.subasta;
+  if(sub.estado!=="activa"){ toast(`La ${NOMde(cual).toLowerCase()} no está activa`,"warn"); return; }
+  if(sub.finTs && ahoraSrv() >= sub.finTs){
+    toast("⏰ Esa subasta acaba de terminar","warn"); return;
+  }
+  if(!user){ toast("Debes estar logueado","err"); return; }
+  if(st.bloqueados && estaBloqueado(st.bloqueados, user)){
+    toast("⛔ Tu cuenta ha sido bloqueada de esta subasta","err"); return;
+  }
+
+  const val = monto!==undefined ? monto : parseInt(document.getElementById(`dx-input-${cual}`).value);
+  if(!val||isNaN(val)){ toast("Ingresa un monto válido","err"); return; }
+
+  const min = minBidDe(cual);
+  if(val<min){ toast(`Mínimo: ${fmtCLP(min)}`,"err"); return; }
+
+  // Múltiplo del incremento, medido desde el precio actual (o la base)
+  const inc = sub.inc || 1000;
+  const refBase = sub.precioAct > 0 ? sub.precioAct : (sub.base || 0);
+  const diferencia = val - refBase;
+  if(diferencia > 0 && diferencia % inc !== 0){
+    const sugerido = refBase + Math.ceil(diferencia / inc) * inc;
+    toast(`⚠️ Debe subir de a ${fmtCLP(inc)} — prueba con ${fmtCLP(sugerido)}`,"err");
+    return;
+  }
+
+  abrirModalPujaDual(cual, val);
+}
+
+function abrirModalPujaDual(cual, val){
+  const st = ST(cual);
+  modalPujaCual = cual;
+  // Etiqueta de qué subasta se está confirmando
+  const tag = document.getElementById("modal-puja-tag");
+  if(tag){
+    tag.style.display = "block";
+    tag.querySelector("span").textContent = NOMde(cual);
+  }
+  const m = document.getElementById("modal-puja");
+  document.getElementById("modal-puja-monto").textContent = fmtCLP(val);
+  const actual = st.subasta.precioAct > 0 ? st.subasta.precioAct : st.subasta.base;
+  const diff = val - actual;
+  document.getElementById("modal-puja-info").innerHTML =
+    diff > 0
+      ? `${fmtCLP(diff)} sobre la oferta actual · Pujas como <strong style="color:var(--text)">${esc(user.nombre)}</strong>`
+      : `Pujas como <strong style="color:var(--text)">${esc(user.nombre)}</strong>`;
+  const btn = document.getElementById("modal-puja-ok");
+  btn.onclick = () => { cerrarModalPuja(); ejecutarPujaDual(cual, val); };
+  m.classList.add("open");
+  iniciarTimerModalDual(cual);
+}
+
+// Cuenta regresiva dentro del modal, de la subasta que se está confirmando
+function iniciarTimerModalDual(cual){
+  const box = document.getElementById("modal-timer-box");
+  const el  = document.getElementById("modal-timer-val");
+  if(!box || !el) return;
+
+  const sub = ST(cual).subasta;
+  if(sub.estado !== "activa" || !sub.finTs){
+    box.style.display = "none";
+    return;
+  }
+  box.style.display = "block";
+
+  const pintar = () => {
+    const subNow = ST(cual).subasta;
+    const resto = subNow.finTs - ahoraSrv();
+    if(resto <= 0){
+      el.textContent = "00:00";
+      el.style.color = "var(--red)";
+      if(modalTimerInt){ clearInterval(modalTimerInt); modalTimerInt = null; }
+      return;
+    }
+    const h = Math.floor(resto/3600000);
+    const m = Math.floor((resto%3600000)/60000);
+    const s = Math.floor((resto%60000)/1000);
+    el.textContent = h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+    if(resto < 60000){
+      el.style.color = "var(--red)";
+      el.style.animation = "blink .8s infinite";
+    } else {
+      el.style.color = "var(--green)";
+      el.style.animation = "";
+    }
+  };
+
+  pintar();
+  if(modalTimerInt) clearInterval(modalTimerInt);
+  modalTimerInt = setInterval(pintar, 200);
+}
+
+// Ejecuta la puja confirmada contra el nodo de ESA subasta.
+// Misma transacción validada en el servidor que ejecutarPuja().
+async function ejecutarPujaDual(cual, val){
+  if(pujaEnCurso) return;
+  const st  = ST(cual);
+  const sub = st.subasta;
+  if(sub.estado!=="activa"){ toast("Esa subasta ya terminó","warn"); return; }
+  if(sub.finTs && ahoraSrv() >= sub.finTs){
+    toast("⏰ La subasta terminó mientras confirmabas","warn");
+    renderDualTodo(); return;
+  }
+  if(st.bloqueados && estaBloqueado(st.bloqueados, user)){
+    toast("⛔ Tu cuenta ha sido bloqueada","err"); return;
+  }
+
+  pujaEnCurso = true;
+  const btn = document.getElementById(`dx-btn-${cual}`);
+  if(btn) btn.disabled = true;
+
+  const ahora = new Date();
+  const pujaId = `${user.uid || "anon"}_${ahora.getTime()}_${Math.random().toString(36).slice(2,8)}`;
+
+  let res;
+  try{
+    res = await runTransaction(ref(db, REFde(cual)), (actual) => {
+      if(!actual) return actual;
+
+      const subS = actual.subasta || {};
+      if(subS.estado !== "activa") return;
+      if(subS.finTs && ahoraSrv() >= subS.finTs) return;
+
+      const bloq = normalizarLista(actual.bloqueados);
+      if(estaBloqueado(bloq, user)) return;
+
+      const inc = subS.inc || 1000;
+      const minServidor = (subS.precioAct > 0) ? subS.precioAct + inc : (subS.base || 0);
+      if(val < minServidor) return;
+
+      // Anti-snipe medido contra el finTs del servidor
+      const resto = subS.finTs ? subS.finTs - ahoraSrv() : Infinity;
+      const enUltimoMinuto = resto > 0 && resto <= 60000;
+      const esAntisnipe = enUltimoMinuto || (subS.antisnipeUsado === true && resto > 0);
+
+      const puja = {
+        id:     pujaId,
+        uid:    user.uid   || "",
+        nombre: user.nombre,
+        monto:  val,
+        timestamp: ahora.getTime(),
+        hora:   fmtTime(ahora),
+        horaMs: fmtTimeMs(ahora),
+        antisnipe: esAntisnipe,
+      };
+
+      const pujas = normalizarPujas(actual.pujas);
+      pujas.unshift(puja);
+      actual.pujas = pujasAObjeto(pujas);
+
+      actual.subasta.precioAct = val;
+      actual.lider = puja;
+
+      if(esAntisnipe){
+        const agregaMs = (subS.antisnipeAgrega || 5) * 60 * 1000;
+        actual.subasta.finTs = subS.finTs + agregaMs;
+        actual.subasta.antisnipeActivo = true;
+        actual.subasta.antisnipeUsado  = true;
+      }
+
+      return actual;
+    });
+  }catch(err){
+    console.error("Error al pujar en modo dual:", err);
+    toast("No se pudo registrar la puja. Reintenta.","err");
+    pujaEnCurso = false;
+    if(btn) btn.disabled = false;
+    return;
+  }
+
+  pujaEnCurso = false;
+  if(btn) btn.disabled = false;
+
+  const datos    = res && res.snapshot ? res.snapshot.val() : null;
+  const listaFin = normalizarPujas(datos && datos.pujas);
+  const miPuja   = listaFin.find(p => p && p.id === pujaId);
+
+  if(!res || !res.committed || !miPuja){
+    const subD = (datos && datos.subasta) || st.subasta;
+    const inc = subD.inc || 1000;
+    const minServidor = (subD.precioAct > 0) ? subD.precioAct + inc : (subD.base || 0);
+    const bloq = normalizarLista(datos && datos.bloqueados);
+
+    if(estaBloqueado(bloq, user)){
+      toast("⛔ Tu cuenta ha sido bloqueada","err");
+    } else if(subD.estado !== "activa" || (subD.finTs && ahoraSrv() >= subD.finTs)){
+      toast("⏰ Esa subasta ya terminó","warn");
+    } else if(val < minServidor){
+      toast(`Alguien pujó primero. Nuevo mínimo: ${fmtCLP(minServidor)}`,"err");
+    } else {
+      toast("No se pudo registrar la puja. Reintenta.","err");
+    }
+    renderDualTodo();
+    return;
+  }
+
+  const inp = document.getElementById(`dx-input-${cual}`);
+  if(inp) inp.value = "";
+  const min = (datos.subasta && datos.subasta.antisnipeAgrega) || 5;
+  if(miPuja.antisnipe){
+    const previas = listaFin.filter(p => p && p.antisnipe && p.id !== pujaId).length;
+    toast(previas === 0
+      ? `⚡ ¡Anti-snipe en ${NOMde(cual)}! +${min} min`
+      : `✅ Puja de ${fmtCLP(val)} — +${min} min`,
+      previas === 0 ? "warn" : "ok");
+  } else {
+    toast(`✅ Puja de ${fmtCLP(val)} en ${NOMde(cual)}`, "ok");
+  }
+  // El listener de Firebase refresca ambos paneles con el dato confirmado
+}
+
+// ══════════════════════════════════════
+//  TICK DUAL: relojes, último minuto y arranque/cierre por subasta
+// ══════════════════════════════════════
+// La Subasta 1 conserva su startTimer() de siempre (cierre incluido).
+// Este tick actualiza los relojes de AMBOS paneles (app y TV) y se encarga
+// del arranque programado y del cierre de la Subasta 2.
+function startDualTick(){
+  if(dualTickInt) return;
+  dualTickInt = setInterval(()=>{ try{ tickDual(); }catch(e){ console.error("tickDual:", e); } }, 500);
+}
+function stopDualTick(){
+  if(dualTickInt){ clearInterval(dualTickInt); dualTickInt = null; }
+}
+
+let dualTickFoto = 0;   // cada 8 ticks (~4 s) la TV dual cambia de foto
+
+function tickDual(){
+  if(!CFG.modoDual) return;
+  const ahora = ahoraSrv();
+
+  // Arranque programado de la Subasta 2 (el primero que llega la activa)
+  if(SB.subasta.estado === "programada"){
+    const ini = inicioSubastaDe("b");
+    if(ini && SB.subasta.finTs && ahora >= ini) activarSubastaB();
+  }
+  // Cierre de la Subasta 2 (transacción idempotente en el servidor)
+  if(SB.subasta.estado === "activa" && SB.subasta.finTs && ahora >= SB.subasta.finTs){
+    SB.subasta.estado = "finalizada";
+    cerrarSubastaEnServidorB();
+    if(isTVMode) renderDualTV(); else if(user) renderDualTodo();
+    toast("🏁 ¡Subasta 2 finalizada!","warn");
+  }
+
+  pintarTimerDual("a");
+  pintarTimerDual("b");
+
+  // Carrusel tranquilo de fotos en la TV dual
+  if(isTVMode){
+    dualTickFoto++;
+    if(dualTickFoto >= 8){
+      dualTickFoto = 0;
+      for(const cual of ["a","b"]){
+        const imgs = ST(cual).carta.imgs || [];
+        if(imgs.length > 1 && ST(cual).subasta.estado !== "finalizada"){
+          dtImgIdx[cual] = (dtImgIdx[cual] + 1) % imgs.length;
+          pintarImgDualTV(cual);
+        }
+      }
+    }
+  }
+}
+
+// Pinta el reloj de UNA subasta en todos sus lugares: panel app, panel TV y,
+// para la Subasta 2, la caja del login. También enciende las clases de
+// último minuto / últimos 10 segundos de ESE panel solamente.
+function pintarTimerDual(cual){
+  const st  = ST(cual);
+  const sub = st.subasta;
+  const ahora = ahoraSrv();
+
+  let txt = "--:--", html = null, cls = "stopped", finTxt = "";
+  let enUM = false, enU10 = false;
+
+  if(sub.estado === "activa" && sub.finTs){
+    const resto = sub.finTs - ahora;
+    if(resto > 0){
+      const h = Math.floor(resto/3600000);
+      const m = Math.floor((resto%3600000)/60000);
+      const s = Math.floor((resto%60000)/1000);
+      txt = h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+      cls = resto < 60000 ? "ending" : "";
+      enUM  = resto < 60000;
+      enU10 = resto <= 10000;
+    } else {
+      txt = "00:00"; cls = "ending";
+    }
+    finTxt = textoFin(sub.finTs);
+  } else if(sub.estado === "programada" && inicioSubastaDe(cual)){
+    const resto = inicioSubastaDe(cual) - ahora;
+    if(resto > 0){
+      const h = Math.floor(resto/3600000);
+      const m = Math.floor((resto%3600000)/60000);
+      const s = Math.floor((resto%60000)/1000);
+      html = `<span style="display:block;font-size:9px;letter-spacing:1px;color:var(--muted2);margin-bottom:1px">INICIA EN</span>${pad(h)}:${pad(m)}:${pad(s)}`;
+      cls = "";
+    }
+    finTxt = "📅 Inicia: " + fechaLegible(inicioSubastaDe(cual));
+  } else if(sub.estado === "finalizada"){
+    txt = "00:00"; cls = "stopped";
+    if(sub.finTs) finTxt = "Terminó: " + fechaLegible(sub.finTs);
+  }
+
+  // Panel del pujador (app)
+  const el = document.getElementById(`dx-timer-${cual}`);
+  if(el){
+    if(html){ el.innerHTML = html; } else { el.textContent = txt; }
+    el.className = "dx-timer" + (cls ? " " + cls : "");
+  }
+  const fin = document.getElementById(`dx-fin-${cual}`);
+  if(fin) fin.textContent = finTxt;
+  const panel = document.getElementById(`dx-panel-${cual}`);
+  if(panel){
+    panel.classList.toggle("ultimo-minuto", enUM);
+    panel.classList.toggle("ultimos-10", enU10);
+  }
+
+  // Panel de TV
+  const tel = document.getElementById(`dt-timer-${cual}`);
+  if(tel){
+    if(html){ tel.innerHTML = html; } else { tel.textContent = txt; }
+    tel.className = "dt-tval" + (cls === "ending" ? " ending" : "");
+  }
+  const tfin = document.getElementById(`dt-fin-${cual}`);
+  if(tfin) tfin.textContent = finTxt;
+  const tp = document.getElementById(`dt-panel-${cual}`);
+  if(tp) tp.classList.toggle("ultimo-minuto", enUM);
+
+  // Caja de la Subasta 2 en la pantalla de login
+  if(cual === "b"){
+    const lt = document.getElementById("llb-timer");
+    if(lt){
+      if(html){ lt.innerHTML = html; lt.style.color = "var(--gold)"; }
+      else {
+        lt.textContent = txt;
+        lt.style.color = cls === "ending" ? "var(--red)" : (cls === "stopped" ? "var(--muted)" : "var(--green)");
+      }
+    }
+  }
+
+  // Resumen paralelo del login (mini tarjetas)
+  const lr = document.getElementById(`lr-timer-${cual}`);
+  if(lr){
+    if(html){ lr.innerHTML = html; } else { lr.textContent = txt; }
+    lr.classList.toggle("ending", cls === "ending");
+  }
+}
+
+// ── Imagen de cada panel ──
+function pintarImgDualApp(cual){
+  const imgs  = ST(cual).carta.imgs || [];
+  const img   = document.getElementById(`dx-img-${cual}`);
+  const noimg = document.getElementById(`dx-noimg-${cual}`);
+  const prev  = document.getElementById(`dx-prev-${cual}`);
+  const next  = document.getElementById(`dx-next-${cual}`);
+  const cnt   = document.getElementById(`dx-counter-${cual}`);
+  if(!img) return;
+  if(imgs.length === 0){
+    img.style.display = "none";
+    if(noimg) noimg.style.display = "";
+    if(prev) prev.style.display = "none";
+    if(next) next.style.display = "none";
+    if(cnt) cnt.style.display = "none";
+    return;
+  }
+  dxImgIdx[cual] = Math.max(0, Math.min(dxImgIdx[cual], imgs.length - 1));
+  img.src = imgs[dxImgIdx[cual]];
+  img.style.display = "block";
+  img.onclick = () => openLightboxDual(cual, dxImgIdx[cual]);
+  if(noimg) noimg.style.display = "none";
+  const varias = imgs.length > 1;
+  if(prev) prev.style.display = varias ? "flex" : "none";
+  if(next) next.style.display = varias ? "flex" : "none";
+  if(cnt){
+    cnt.style.display = varias ? "block" : "none";
+    cnt.textContent = `${dxImgIdx[cual] + 1} / ${imgs.length}`;
+  }
+}
+
+function pintarImgDualTV(cual){
+  const imgs  = ST(cual).carta.imgs || [];
+  const img   = document.getElementById(`dt-img-${cual}`);
+  const noimg = document.getElementById(`dt-noimg-${cual}`);
+  if(!img) return;
+  if(imgs.length === 0){
+    img.style.display = "none";
+    if(noimg) noimg.style.display = "";
+    return;
+  }
+  dtImgIdx[cual] = Math.max(0, Math.min(dtImgIdx[cual], imgs.length - 1));
+  img.src = imgs[dtImgIdx[cual]];
+  img.style.display = "block";
+  if(noimg) noimg.style.display = "none";
+}
+
+// Navegación de fotos dentro del panel del pujador
+function dxImgNav(cual, dir){
+  const imgs = ST(cual).carta.imgs || [];
+  if(imgs.length < 2) return;
+  dxImgIdx[cual] = (dxImgIdx[cual] + dir + imgs.length) % imgs.length;
+  pintarImgDualApp(cual);
+}
+
+// El lightbox navegó las fotos de un panel: reflejar el índice de vuelta
+function syncDualImg(cual, idx){
+  dxImgIdx[cual] = idx;
+  pintarImgDualApp(cual);
+}
+
+// Zoom de una foto de un panel dual: el lightbox recuerda de qué subasta vino
+function openLightboxDual(cual, idx){
+  const imgs = ST(cual).carta.imgs || [];
+  if(!imgs.length) return;
+  lbDualCtx = { cual, idx };
+  const lb   = document.getElementById("lightbox");
+  const img  = document.getElementById("lightbox-img");
+  const hint = document.getElementById("lightbox-hint");
+  img.src = imgs[idx];
+  lbScale = 1; lbX = 0; lbY = 0;
+  applyLbTransform();
+  lb.classList.add("open");
+  document.body.style.overflow = "hidden";
+  actualizarContadorLb();
+  if(hint){
+    const isTouch = "ontouchstart" in window;
+    hint.textContent = isTouch
+      ? "Pellizca para zoom · Arrastra para mover · Toca ✕ para cerrar"
+      : "Scroll para zoom · Flechas para mover/navegar · Esc para cerrar";
+  }
+}
+
+// ── Popup "NUEVA PUJA" centrado en SU panel (TV dual) ──
+// Cola por subasta: los carteles se muestran en fila dentro de su propio
+// panel, sin encimarse ni tapar al panel vecino.
+function encolarNuevaPujaDual(cual, puja){
+  const ui = dualUI[cual];
+  ui.npCola.push(puja);
+  if(ui.npCola.length > 6) ui.npCola = ui.npCola.slice(-6);
+  if(!ui.npActiva) procesarColaDual(cual);
+}
+
+function procesarColaDual(cual){
+  const ui = dualUI[cual];
+  const el = document.getElementById(`dt-np-${cual}`);
+  if(!el || ui.npCola.length === 0){ ui.npActiva = false; return; }
+  ui.npActiva = true;
+
+  const puja = ui.npCola.shift();
+  const enEspera = ui.npCola.length;
+  const dur = enEspera === 0 ? 3600
+            : enEspera <= 1 ? 2200
+            : enEspera <= 3 ? 1500
+            : 1100;
+
+  document.getElementById(`dt-np-monto-${cual}`).textContent = fmtCLP(puja.monto);
+  document.getElementById(`dt-np-quien-${cual}`).textContent = anonimizar(puja);
+
+  el.style.animationDuration = `${dur}ms, 1s`;
+  el.classList.remove("show");
+  void el.offsetWidth;
+  el.classList.add("show");
+
+  setTimeout(()=>{
+    el.classList.remove("show");
+    setTimeout(()=> procesarColaDual(cual), enEspera > 0 ? 60 : 0);
+  }, dur);
+}
+
+// ══════════════════════════════════════
+//  RENDER DE LOS PANELES DUALES
+// ══════════════════════════════════════
+// Punto de entrada: redibuja todo lo del modo paralelo (app o TV).
+function renderDualTodo(){
+  if(!CFG.modoDual) return;
+  if(isTVMode){ renderDualTV(); return; }
+  if(!document.getElementById("dx-panel-a")) return;
+  renderDualPanel("a");
+  renderDualPanel("b");
+  renderDualGanadorB();
+  renderEstadoLineB();
+  renderBloqueadosB();
+  renderDualNav();
+  if(!admin && user){
+    try{ checkModalGanadorDual(); }catch(e){ console.error("modalGanadorDual:", e); }
+    try{ checkModalTop23Dual(); }catch(e){ console.error("top23Dual:", e); }
+  }
+}
+
+// Botones rápidos de una subasta (misma lógica que renderQuickBids)
+function dxQuickHTML(cual){
+  const sub = ST(cual).subasta;
+  const activa = sub.estado==="activa";
+  const inc = sub.inc || 1000;
+  let opts;
+  if(sub.precioAct > 0){
+    const base = sub.precioAct;
+    opts = [
+      { monto: base+inc,   extra: inc   },
+      { monto: base+inc*2, extra: inc*2 },
+      { monto: base+inc*5, extra: inc*5 },
+    ];
+  } else {
+    const base = sub.base;
+    opts = [
+      { monto: base,       extra: 0     },
+      { monto: base+inc,   extra: inc   },
+      { monto: base+inc*2, extra: inc*2 },
+    ];
+  }
+  const rayo = sub.express ? "⚡ " : "";
+  return opts.map(o=>`
+    <button class="qbtn ${sub.express?'qbtn-express':''}" onclick="doBidDual('${cual}',${o.monto})" ${activa?"":'disabled'}>
+      ${rayo}${fmtCLP(o.monto)}<span>${o.extra>0 ? "+"+fmtCLP(o.extra) : "Abrir"}</span>
+    </button>
+  `).join("");
+}
+
+// Panel del pujador para UNA subasta
+function renderDualPanel(cual){
+  const st  = ST(cual);
+  const sub = st.subasta;
+  const c   = st.carta;
+  const $   = (suf) => document.getElementById(`dx-${suf}-${cual}`);
+
+  const panel = document.getElementById(`dx-panel-${cual}`);
+  if(!panel) return;
+
+  // Sonido de puja nueva también en la app (igual que la vista simple)
+  const liderP = st.pujas[0] || null;
+  const idActual = liderP && liderP.id ? liderP.id : (liderP ? "sin-id" : null);
+  const ui = dualUI[cual];
+  if(ui.primeraCarga && sub.estado === "activa" && idActual && idActual !== ui.ultimaPujaId){
+    sonidoPuja();
+  }
+  ui.ultimaPujaId = idActual;
+  ui.primeraCarga = true;
+  if(sub.estado === "finalizada" && st.lider && user &&
+     (st.lider.uid ? st.lider.uid === user.uid : st.lider.ig === user.ig) &&
+     !ui.victoriaSonada){
+    ui.victoriaSonada = true; sonidoVictoria();
+  }
+  if(sub.estado !== "finalizada") ui.victoriaSonada = false;
+
+  // Sello express propio del panel
+  const activaOProg = sub.estado === "activa" || sub.estado === "programada";
+  panel.classList.toggle("dx-express", !!sub.express && activaOProg);
+
+  // Pill de estado
+  const pillMap = {
+    espera:     ["pill-wait","⏳ En espera"],
+    programada: ["pill-wait","📅 Programada"],
+    activa:     ["pill-live","🟢 En vivo"],
+    finalizada: ["pill-end","🏁 Finalizada"],
+  };
+  const [pcls, ptxt] = pillMap[sub.estado] || pillMap.espera;
+  const pill = $(`pill`);
+  if(pill) pill.className = "pill " + pcls;
+  const pilltxt = document.getElementById(`dx-pilltxt-${cual}`);
+  if(pilltxt) pilltxt.textContent = ptxt;
+
+  // Carta
+  const t = $("title"); if(t) t.textContent = c.titulo || "Carta en Subasta";
+  const sEl = $("set");
+  if(sEl){
+    let setTxt = c.set || "";
+    if(c.setEs) setTxt += (setTxt ? " · " : "") + c.setEs;
+    sEl.textContent = setTxt;
+  }
+  const bd = $("badges");
+  if(bd){
+    let badges = "";
+    if((c.cond||"").toUpperCase() !== "NONE" && c.cond)
+      badges += `<span style="background:var(--s3);border:1px solid var(--border2);color:var(--muted2);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">${esc(nombreEstado(c.cond))}</span>`;
+    if(c.rareza)
+      badges += `<span style="background:rgba(78,168,255,.1);color:var(--blue);border:1px solid rgba(78,168,255,.25);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">✦ ${esc(c.rareza)}</span>`;
+    if(c.idioma)
+      badges += `<span style="background:var(--s2);border:1px solid var(--border2);color:var(--text);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">${esc(c.idioma)}</span>`;
+    else
+      badges += `<span style="background:rgba(255,59,92,.12);border:1px solid rgba(255,59,92,.4);color:var(--red);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">⚠️ Falta el idioma</span>`;
+    const slab = c.slab || {};
+    if(slab.compania || slab.grado || slab.cert){
+      const tituloSlab = [slab.compania, slab.grado].filter(Boolean).join(" · ");
+      badges += `<span style="background:linear-gradient(135deg,rgba(255,203,66,.16),rgba(255,203,66,.04));border:1px solid rgba(255,203,66,.55);color:var(--gold);font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px">🛡️ ${esc(tituloSlab || "Gradeada")}</span>`;
+      if(slab.cert)
+        badges += `<span style="background:var(--s2);border:1px solid var(--border2);color:var(--muted2);font-size:10px;padding:3px 8px;border-radius:20px">Cert. <span style="font-family:'JetBrains Mono',monospace;color:var(--text)">${esc(slab.cert)}</span></span>`;
+      if(slab.link)
+        badges += `<a href="${esc(slab.link)}" target="_blank" rel="noopener noreferrer" style="background:rgba(78,168,255,.12);border:1px solid rgba(78,168,255,.35);color:var(--blue);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;text-decoration:none">🔍 Verificar</a>`;
+    }
+    bd.innerHTML = badges;
+  }
+
+  pintarImgDualApp(cual);
+
+  // Precio y quién va ganando (anónimo para el resto)
+  const pv = $("price");
+  const pw = $("who");
+  if(sub.precioAct > 0){
+    if(pv) pv.textContent = fmtCLP(sub.precioAct);
+    if(pw){
+      if(st.lider){
+        const liderEsMio = user && (st.lider.uid ? st.lider.uid === user.uid : st.lider.ig === user.ig);
+        if(admin){
+          const info = contactoDe(st.lider.uid);
+          const ct = info ? (info.ig || info.whatsapp || info.email || "") : "";
+          pw.textContent = ct ? `${st.lider.nombre} (${ct})` : st.lider.nombre;
+        } else if(liderEsMio){
+          pw.innerHTML = `${esc(st.lider.nombre)} <span style="color:var(--gold);font-weight:700">· vas ganando 🏆</span>`;
+        } else {
+          const pos = miPosicionEn(cual);
+          pw.innerHTML = anonimizar(st.lider) + (pos ? ` <span style="color:var(--red);font-weight:700">· vas ${pos}°</span>` : "");
+        }
+      } else { pw.textContent = "—"; }
+    }
+  } else {
+    if(pv) pv.innerHTML = `<span style="font-size:11px;font-weight:500;color:var(--muted2);font-family:'Outfit',sans-serif;letter-spacing:1px;text-transform:uppercase">Base</span> ${fmtCLP(sub.base)}`;
+    if(pw) pw.textContent = "Sé el primero en pujar";
+  }
+
+  // Mi estado en esta subasta
+  const me = $("miestado");
+  if(me){
+    const pos = miPosicionEn(cual);
+    if(admin || !user || sub.estado !== "activa" || !pos){
+      me.style.display = "none";
+    } else if(pos === 1){
+      me.style.display = "block";
+      me.style.background = "rgba(0,230,122,.1)";
+      me.style.border = "1px solid rgba(0,230,122,.3)";
+      me.style.color = "var(--green)";
+      me.innerHTML = "🏆 Vas ganando esta — mantén el ojo hasta el final";
+    } else {
+      me.style.display = "block";
+      me.style.background = "rgba(255,59,92,.1)";
+      me.style.border = "1px solid rgba(255,59,92,.3)";
+      me.style.color = "var(--red)";
+      me.innerHTML = `📉 Vas en ${pos}° lugar aquí — puja de nuevo para recuperar el puesto`;
+    }
+  }
+
+  // Botones rápidos + input + hint
+  const qg = $("quick"); if(qg) qg.innerHTML = dxQuickHTML(cual);
+  const activa = sub.estado === "activa";
+  const btn = $(`btn`);
+  if(btn) btn.disabled = !activa;
+  const inp = document.getElementById(`dx-input-${cual}`);
+  if(inp){
+    inp.disabled = !activa;
+    inp.style.opacity = activa ? "1" : "0.4";
+    inp.style.cursor  = activa ? "text" : "not-allowed";
+    if(!activa) inp.value = "";
+  }
+  const hint = $("hint");
+  if(hint){
+    let hintTxt = "";
+    if(activa) hintTxt = `Mínimo: ${fmtCLP(minBidDe(cual))} · Solo múltiplos de ${fmtCLP(sub.inc||1000)}`;
+    else if(sub.estado === "espera") hintTxt = "Esperando inicio de subasta";
+    else if(sub.estado === "programada" && inicioSubastaDe(cual))
+      hintTxt = `📅 Inicia: ${fechaLegible(inicioSubastaDe(cual))}`;
+    else hintTxt = "Subasta finalizada";
+    hint.textContent = hintTxt;
+  }
+  const iBase = $("base"); if(iBase) iBase.textContent = fmtCLP(sub.base);
+  const iInc  = $("inc");  if(iInc)  iInc.textContent  = fmtCLP(sub.inc);
+
+  // Aviso compacto de cierre dentro del panel
+  const win = $("win");
+  if(win){
+    if(sub.estado === "finalizada"){
+      win.style.display = "block";
+      win.innerHTML = st.lider
+        ? `🏁 <strong>Finalizada.</strong> Ganó <span class="dx-win-name">${admin || (user && st.lider.uid === user.uid) ? esc(st.lider.nombre) : anonimizar(st.lider)}</span> con <span class="dx-win-monto">${fmtCLP(st.lider.monto)}</span>`
+        : `🏁 <strong>Finalizada sin ofertas.</strong> Nadie pujó en esta subasta.`;
+    } else {
+      win.style.display = "none";
+    }
+  }
+
+  renderDualLog(cual);
+}
+
+// Registro de pujas de UNA subasta (podio 🥇🥈🥉, nombres anónimos)
+function renderDualLog(cual){
+  const st = ST(cual);
+  const list = document.getElementById(`dx-log-${cual}`);
+  if(!list) return;
+  const tot = document.getElementById(`dx-log-total-${cual}`);
+  if(tot) tot.textContent = `${st.pujas.length} puja${st.pujas.length!==1?"s":""}`;
+  if(st.pujas.length === 0){
+    list.innerHTML = '<div class="log-empty">Aún no hay pujas — ¡sé el primero!</div>';
+    return;
+  }
+  const esB = cual === "b";
+  list.innerHTML = st.pujas.map((p,i)=>{
+    const esMio = user && (p.uid ? p.uid === user.uid : p.ig === user.ig);
+    const verNombre = admin || esMio;
+    const info = admin ? contactoDe(p.uid) : null;
+    const contacto = admin
+      ? (info ? (info.ig || info.whatsapp || info.email || "") : "")
+      : (esMio && user.ig ? user.ig : "");
+    const nombreVisible = verNombre ? esc(p.nombre) : anonimizar(p);
+    const acciones = admin
+      ? `<span class="log-admin-actions" style="display:inline-flex;gap:10px;margin-left:2px">
+          <button class="log-act-btn" onclick="copiarContacto('${escJs(contacto || "")}')" title="Copiar contacto">📋</button>
+          <button class="log-act-btn" onclick="sumarStrike('${escJs(p.uid || p.ig)}')" title="Agregar strike">🚩</button>
+          <button class="log-act-btn" onclick="${esB ? `eliminarPujaB(${i})` : `eliminarPuja(${i})`}" title="Eliminar puja">✕</button>
+          <button class="log-act-btn" onclick="${esB ? `bloquearUsuarioB('${escJs(p.uid || p.ig)}','${escJs(p.nombre)}')` : `bloquearUsuario('${escJs(p.uid || p.ig)}','${escJs(p.nombre)}')`}" title="Bloquear usuario">⛔</button>
+        </span>` : "";
+    return `
+    <div class="log-item ${i===0?"winner-row":""}${i===1?" row-plata":""}${i===2?" row-bronce":""}">
+      <div class="log-rank">${rangoMedalla(i)}</div>
+      <div class="log-body">
+        <div class="log-name">${nombreVisible}${esMio && !admin ? ' <span style="font-size:9px;font-weight:700;color:var(--gold);background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.3);padding:1px 5px;border-radius:20px;margin-left:4px">TÚ</span>' : ''}</div>
+        <div class="log-ig" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          ${verNombre
+            ? (contacto ? esc(contacto) : '<span style="color:var(--green)">✓ Verificado</span>')
+            : '<span style="color:var(--green)">✓ Verificado</span>'}
+          ${acciones}
+        </div>
+      </div>
+      <div class="log-r">
+        <div class="log-amt">${fmtCLP(p.monto)}</div>
+        <div class="log-ts" style="${p.antisnipe?"color:var(--red);font-weight:700":""}">${p.antisnipe?"⚡ ":""} ${admin && p.horaMs ? p.horaMs : p.hora}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// Bloqueados de la Subasta 2 en el admin
+function renderBloqueadosB(){
+  const sec = document.getElementById("b-bloqueados-section");
+  const lst = document.getElementById("b-bloqueados-list");
+  if(!sec || !lst) return;
+  if(!admin){ sec.style.display = "none"; return; }
+  if(SB.bloqueados && SB.bloqueados.length > 0){
+    sec.style.display = "block";
+    lst.innerHTML = SB.bloqueados.map(cl => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <span style="color:var(--muted2)">${esc(cl)}</span>
+        <button onclick="desbloquearB('${escJs(cl)}')" style="background:none;border:1px solid var(--border);color:var(--muted2);padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif">Desbloquear</button>
+      </div>
+    `).join("");
+  } else {
+    sec.style.display = "none";
+  }
+}
+
+// ── TV en modo paralelo ──
+function renderDualTV(){
+  if(!CFG.modoDual || !isTVMode) return;
+  for(const cual of ["a","b"]) renderDualPanelTV(cual);
+}
+
+function renderDualPanelTV(cual){
+  const st  = ST(cual);
+  const sub = st.subasta;
+  const c   = st.carta;
+  const ui  = dualUI[cual];
+  const panel = document.getElementById(`dt-panel-${cual}`);
+  if(!panel) return;
+
+  // Pujas nuevas desde el último refresco (para el popup y el sonido)
+  const lider = st.pujas[0] || null;
+  let pujasNuevas = [];
+  if(ui.primeraCarga && lider){
+    for(const p of st.pujas){
+      if(!p || !p.id) continue;
+      if(p.id === ui.ultimaPujaId) break;
+      pujasNuevas.push(p);
+    }
+    pujasNuevas.reverse();
+  }
+  ui.primeraCarga = true;
+  const hayNueva = pujasNuevas.length > 0;
+
+  // Sello express propio del panel
+  const activaOProg = sub.estado === "activa" || sub.estado === "programada";
+  panel.classList.toggle("dx-express", !!sub.express && activaOProg);
+
+  // Pill
+  const pillMap = {
+    espera:     ["pill-wait","En espera"],
+    programada: ["pill-wait","Programada"],
+    activa:     ["pill-live","En Vivo"],
+    finalizada: ["pill-end","Finalizada"],
+  };
+  const [pcls, ptxt] = pillMap[sub.estado] || pillMap.espera;
+  const pill = document.getElementById(`dt-pill-${cual}`);
+  if(pill) pill.className = "pill " + pcls;
+  const pilltxt = document.getElementById(`dt-pilltxt-${cual}`);
+  if(pilltxt) pilltxt.textContent = ptxt;
+
+  const tt = document.getElementById(`dt-title-${cual}`);
+  if(tt) tt.textContent = c.titulo || "—";
+
+  // Precio / quién
+  const precioEl = document.getElementById(`dt-price-${cual}`);
+  if(precioEl) precioEl.textContent = sub.precioAct > 0 ? fmtCLP(sub.precioAct) : fmtCLP(sub.base) + " (base)";
+  const who = document.getElementById(`dt-who-${cual}`);
+  if(who) who.textContent = st.lider ? anonimizar(st.lider) : "Esperando primera puja";
+  const cnt = document.getElementById(`dt-count-${cual}`);
+  if(cnt) cnt.textContent = st.pujas.length;
+
+  pintarImgDualTV(cual);
+
+  // Banner "va ganando"
+  const gan = document.getElementById(`dt-ganando-${cual}`);
+  if(gan){
+    if(sub.estado === "activa" && st.lider){
+      gan.innerHTML = `🏆 ${anonimizar(st.lider)} va ganando`;
+      gan.classList.add("on");
+    } else {
+      gan.classList.remove("on");
+    }
+  }
+
+  // Pantalla VENDIDO de ESTE panel
+  const vendido = document.getElementById(`dt-vendido-${cual}`);
+  if(vendido){
+    if(sub.estado === "finalizada"){
+      if(st.lider){
+        document.getElementById(`dt-vganador-${cual}`).textContent = anonimizar(st.lider);
+        document.getElementById(`dt-vmonto-${cual}`).textContent   = fmtCLP(st.lider.monto);
+        document.getElementById(`dt-vcarta-${cual}`).textContent   = [c.titulo, c.set].filter(Boolean).join(" · ");
+        document.getElementById(`dt-stamp-${cual}`).textContent    = "¡VENDIDO!";
+        vendido.classList.remove("sin-ganador");
+        vendido.classList.add("on");
+        lanzarConfetiDual(cual);
+        if(!ui.victoriaSonada){ ui.victoriaSonada = true; sonidoVictoria(); }
+      } else {
+        document.getElementById(`dt-vganador-${cual}`).textContent = "Sin ofertas";
+        document.getElementById(`dt-vmonto-${cual}`).textContent   = "";
+        document.getElementById(`dt-vcarta-${cual}`).textContent   = [c.titulo, c.set].filter(Boolean).join(" · ");
+        document.getElementById(`dt-stamp-${cual}`).textContent    = "SIN GANADOR";
+        vendido.classList.add("sin-ganador");
+        vendido.classList.add("on");
+      }
+    } else {
+      ui.victoriaSonada = false;
+      ui.confeti = false;
+      vendido.classList.remove("on");
+    }
+  }
+
+  // Efectos de puja nueva: sonido + popup centrado en ESTE panel
+  if(hayNueva && sub.estado === "activa"){
+    for(const p of pujasNuevas){
+      sonidoPuja();
+      encolarNuevaPujaDual(cual, p);
+    }
+    if(precioEl){ precioEl.classList.remove("pump"); void precioEl.offsetWidth; precioEl.classList.add("pump"); }
+  }
+
+  renderDualLogTV(cual, hayNueva && lider ? lider.id : null);
+  ui.ultimaPujaId = lider && lider.id ? lider.id : (lider ? "sin-id" : null);
+}
+
+// Registro de la TV por subasta (podio, anónimo, fuego en último minuto)
+function renderDualLogTV(cual, flashId){
+  const st = ST(cual);
+  const el = document.getElementById(`dt-log-${cual}`);
+  if(!el) return;
+  if(st.pujas.length === 0){
+    el.innerHTML = '<div class="log-empty">Sin pujas aún</div>';
+    return;
+  }
+  const resto = st.subasta.finTs ? st.subasta.finTs - ahoraSrv() : Infinity;
+  const enLlamas = st.subasta.estado === "activa" && resto > 0 && resto <= 60000;
+
+  el.innerHTML = st.pujas.map((p,i)=>{
+    const fuego = enLlamas && i < 2;
+    const clases = [
+      "log-item",
+      i===0 ? "winner-row" : "",
+      i===1 ? "row-plata" : "",
+      i===2 ? "row-bronce" : "",
+      fuego ? "en-llamas" : "",
+      fuego && i===0 ? "rank1" : "",
+      fuego && i===1 ? "rank2" : "",
+      (flashId && p.id === flashId) ? "flash-nueva" : "",
+    ].filter(Boolean).join(" ");
+    return `
+    <div class="${clases}">
+      ${fuego ? '<span class="fuego-lado izq">🔥</span>' : ''}
+      <div class="log-rank">${rangoMedalla(i)}</div>
+      <div class="log-body">
+        <div class="log-name">${anonimizar(p)}</div>
+        <div class="log-ig"><span style="color:var(--green)">✓ Verificado</span></div>
+      </div>
+      ${fuego ? '<span class="fuego-lado der">🔥</span>' : ''}
+      <div class="log-r">
+        <div class="log-amt">${fmtCLP(p.monto)}</div>
+        <div class="log-ts">${p.antisnipe?"⚡ ":""}${p.hora}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ── Caja de la Subasta 2 en la pantalla de login ──
+function renderLoginDualB(){
+  // Desde v5 el resumen paralelo (login-dual-resumen) reemplaza la antigua
+  // caja verde de la Subasta 2: se mantiene oculta para no duplicar información.
+  const wrap = document.getElementById("login-dual-b");
+  const box  = document.getElementById("login-live-panel-b");
+  if(wrap) wrap.style.display = "none";
+  if(box)  box.style.display  = "none";
+}
+
+// ══════════════════════════════════════
+//  GANADOR Y CONTACTO DE LA SUBASTA 2
+// ══════════════════════════════════════
+// Contacto del ganador de la Subasta 2: mismo criterio que contactoGanador()
+// (visitante registrado al ingresar; ganadorConfirmado como respaldo).
+function contactoGanadorB(){
+  if(!SB.lider) return { valor:"", tipo:"ig" };
+  const info = contactoDe(SB.lider.uid);
+  const gRaw = P.ganadorConfirmado;
+  const g = (gRaw && gRaw.uid && SB.lider.uid && gRaw.uid === SB.lider.uid) ? gRaw : null;
+  const wa = (info && info.whatsapp) || (g && g.whatsapp) || "";
+  if(wa) return { valor:wa, tipo:"wa" };
+  const ig = (info && info.ig) || (g && g.ig) || SB.lider.ig || "";
+  return { valor:ig, tipo:"ig" };
+}
+
+function copiarIgGanadorB(){
+  const { valor } = contactoGanadorB();
+  if(!valor){ toast("El ganador de la Subasta 2 aún no tiene contacto","warn"); return; }
+  navigator.clipboard.writeText(valor)
+    .then(()=> toast(`📋 ${valor} copiado`,"ok"))
+    .catch(()=> { const i=document.getElementById("ag-ig-input-b"); i.select(); document.execCommand("copy"); toast("📋 Copiado","ok"); });
+}
+
+function abrirIgGanadorB(){
+  const { valor, tipo } = contactoGanadorB();
+  if(!valor){ toast("El ganador de la Subasta 2 aún no tiene contacto","warn"); return; }
+  if(tipo === "wa"){
+    window.open("https://wa.me/" + valor.replace(/[^0-9]/g,""), "_blank");
+  } else {
+    window.open("https://instagram.com/" + valor.replace("@",""), "_blank");
+  }
+}
+
+// Mensaje para el ganador de la Subasta 2 (mismo texto, datos de la carta 2)
+function armarMensajeGanadorB(){
+  const nombre = (SB.lider && SB.lider.nombre) ? SB.lider.nombre.split(" ")[0] : "";
+  const carta  = [SB.carta.titulo, SB.carta.set].filter(Boolean).join(" · ");
+  const monto  = SB.lider ? fmtCLP(SB.lider.monto) : "";
+  return `¡Hola${nombre ? " " + nombre : ""}! 🎉 Te escribimos de Paldea Games.
+
+¡Felicidades! Ganaste la subasta de ${carta || "la carta"} con tu oferta de ${monto}.
+
+Para coordinar:
+💰 Tienes 1 hora para realizar el pago por transferencia.
+📦 El envío se hace desde Providencia por Starken (por pagar), o si prefieres retiro presencial te mando el punto de encuentro.
+
+Cualquier duda me dices. ¡Gracias por participar! 💛
+@paldea.games`;
+}
+
+function copiarMensajeGanadorB(){
+  const ta = document.getElementById("ag-mensaje-b");
+  if(!ta) return;
+  ta.select();
+  navigator.clipboard.writeText(ta.value)
+    .then(()=> toast("✅ Mensaje copiado — pégalo en Instagram o WhatsApp","ok"))
+    .catch(()=>{ document.execCommand("copy"); toast("✅ Mensaje copiado","ok"); });
+}
+
+// Banner SUBASTA 2 FINALIZADA (columna derecha de la zona superior)
+function renderDualGanadorB(){
+  const ww = document.getElementById("winner-wrap-b");
+  if(!ww) return;
+  const sub = SB.subasta;
+
+  if(sub.estado === "finalizada" && SB.lider){
+    ww.style.display = "block";
+
+    const wimg = document.getElementById("w-carta-img-b");
+    if(wimg){
+      const imgs = (SB.carta && SB.carta.imgs) || [];
+      if(imgs.length > 0){ wimg.src = imgs[0]; wimg.style.display = "block"; }
+      else { wimg.style.display = "none"; wimg.src = ""; }
+    }
+
+    const soyElGanador = user && (SB.lider.uid ? SB.lider.uid === user.uid : SB.lider.ig === user.ig);
+    const puedeVerDatos = admin || soyElGanador;
+
+    if(puedeVerDatos){
+      document.getElementById("w-name-b").textContent = SB.lider.nombre;
+      document.getElementById("w-ig-b").textContent   = SB.lider.ig || "";
+      document.getElementById("w-ts-b").textContent   = `Puja registrada: ${SB.lider.hora}`;
+      const wmsg = document.getElementById("w-msg-b");
+      if(admin){
+        wmsg.style.display = "none";
+        wmsg.innerHTML = "";
+      } else {
+        wmsg.style.display = "block";
+        wmsg.innerHTML = `
+          <div style="font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:8px">📋 PRÓXIMOS PASOS</div>
+          ${(SB.policies||S.policies||"").replace(/\n\n/g,'</p><p style="margin-top:8px">').replace(/\n/g,"<br>")}
+        `;
+        if(soyElGanador){
+          wmsg.innerHTML +=
+            `<button class="btn-primary" style="margin-top:12px" onclick="reabrirModalGanadorDual('b')">🏆 VER INSTRUCCIONES DE PAGO</button>`;
+        }
+      }
+    } else {
+      document.getElementById("w-name-b").textContent = "La carta ya tiene ganador";
+      document.getElementById("w-ig-b").textContent   = "";
+      document.getElementById("w-ts-b").textContent   = `Cerró a las ${SB.lider.hora}`;
+      const msg = document.getElementById("w-msg-b");
+      msg.style.display = "block";
+      msg.innerHTML = `<div style="font-size:12px;color:var(--muted2);line-height:1.6;text-align:center">Gracias por participar 🙌<br>Atento a nuestras historias para la próxima subasta.</div>`;
+    }
+
+    document.getElementById("w-price-b").textContent = fmtCLP(SB.lider.monto);
+    renderAdminGanadorB();
+  } else if(sub.estado === "finalizada" && !SB.lider){
+    ww.style.display = "block";
+    document.getElementById("w-name-b").textContent = "Sin ofertas";
+    document.getElementById("w-ig-b").textContent   = "";
+    document.getElementById("w-ts-b").textContent   = "La Subasta 2 cerró sin pujas";
+    const wmsg = document.getElementById("w-msg-b");
+    wmsg.style.display = "block";
+    wmsg.innerHTML = admin
+      ? `<div style="font-size:12px;color:var(--muted2);line-height:1.6;text-align:center">Nadie pujó en la Subasta 2. Puedes reiniciarla o configurar una nueva desde el panel.</div>`
+      : `<div style="font-size:12px;color:var(--muted2);line-height:1.6;text-align:center">Esta subasta cerró sin ofertas.<br>Atento a nuestras historias para la próxima 🙌</div>`;
+    document.getElementById("w-price-b").textContent = "—";
+    const agb = document.getElementById("admin-ganador-box-b");
+    if(agb) agb.style.display = "none";
+  } else {
+    ww.style.display = "none";
+    const agb = document.getElementById("admin-ganador-box-b");
+    if(agb) agb.style.display = "none";
+  }
+}
+
+// Panel de contacto del ganador de la Subasta 2 (solo admin)
+function renderAdminGanadorB(){
+  const box = document.getElementById("admin-ganador-box-b");
+  if(!box) return;
+  if(!admin || !SB.lider || SB.subasta.estado !== "finalizada"){ box.style.display = "none"; return; }
+
+  box.style.display = "block";
+  try{ guardarGanadorEnHistorialB(); }catch(e){}
+
+  const gRaw = P.ganadorConfirmado;
+  const g = (gRaw && gRaw.uid && SB.lider.uid && gRaw.uid === SB.lider.uid) ? gRaw : null;
+  const infoLider = contactoDe(SB.lider.uid);
+  const ig  = (infoLider && infoLider.ig) || (g && g.ig) || SB.lider.ig || "";
+
+  const ta = document.getElementById("ag-mensaje-b");
+  if(ta && !ta.dataset.editado){
+    ta.value = armarMensajeGanadorB();
+    ta.oninput = () => { ta.dataset.editado = "1"; };
+  }
+
+  document.getElementById("ag-nombre-b").textContent = SB.lider.nombre;
+  document.getElementById("ag-email-b").textContent  = (g && g.email) || (infoLider && infoLider.email) || "—";
+  document.getElementById("ag-monto-b").textContent  = fmtCLP(SB.lider.monto);
+  const agHora = document.getElementById("ag-hora-b");
+  if(agHora) agHora.textContent = SB.lider.hora ? `🕐 Puja: ${admin && SB.lider.horaMs ? SB.lider.horaMs : SB.lider.hora}` : "";
+
+  const wa  = (infoLider && infoLider.whatsapp) || (g && g.whatsapp) || "";
+  const esWa = !!wa;
+  const contacto = esWa ? wa : ig;
+
+  const lbl = document.getElementById("ag-ig-label-b");
+  if(lbl) lbl.textContent = esWa ? "WhatsApp" : (ig ? "Instagram" : "Contacto");
+
+  const inp = document.getElementById("ag-ig-input-b");
+  inp.value = contacto || "Aún sin confirmar";
+  inp.style.color = contacto ? "var(--text)" : "var(--muted)";
+
+  const btnAbrir = document.getElementById("ag-abrir-b");
+  if(btnAbrir) btnAbrir.title = esWa ? "Abrir WhatsApp" : "Abrir perfil";
+
+  const est  = document.getElementById("ag-estado-b");
+  const nota = document.getElementById("ag-nota-b");
+  const tieneContacto = !!(ig || wa);
+
+  if(tieneContacto){
+    est.textContent = "✓ CONTACTO LISTO";
+    est.style.background = "rgba(0,230,122,.15)";
+    est.style.color = "var(--green)";
+    est.style.border = "1px solid rgba(0,230,122,.3)";
+    nota.textContent = esWa
+      ? "Lo registró al ingresar (eligió WhatsApp). Escríbele directo con el botón ↗"
+      : "Lo registró al ingresar (Instagram). Ya puedes escribirle sin esperar confirmación.";
+  } else {
+    est.textContent = "⚠ SIN CONTACTO";
+    est.style.background = "rgba(245,200,66,.15)";
+    est.style.color = "var(--gold)";
+    est.style.border = "1px solid rgba(245,200,66,.3)";
+    nota.textContent = "Entró antes de este cambio y no dejó contacto. Su correo está arriba si necesitas escribirle.";
+  }
+
+  // Respaldo 2° y 3° de la Subasta 2
+  const t23box   = document.getElementById("ag-top23-b");
+  const t23lista = document.getElementById("ag-top23-lista-b");
+  if(t23box && t23lista){
+    const top = topPujadoresDe("b", 3);
+    const contactos = P.contactoTop23 || [];
+    const filas = [];
+    for(let i = 1; i < top.length; i++){
+      const puja = top[i];
+      const c23 = contactos.find(x => x.uid === puja.uid) || null;
+      const info = contactoDe(puja.uid);
+      const pos = i + 1;
+      const medalla = pos === 2 ? "🥈" : "🥉";
+      const contacto = (info && (info.whatsapp || info.ig)) || (c23 && (c23.whatsapp || c23.ig)) || puja.ig || "";
+      const email = (info && info.email) || (c23 && c23.email) || "";
+      const confirmado = !!contacto;
+      const valorCopiar = contacto || email || "";
+      filas.push(`<div style="background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:9px 11px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+          <div style="font-size:13px;font-weight:700">${medalla} ${esc(puja.nombre)}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--gold)">${fmtCLP(puja.monto)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+          <span style="font-size:12px;color:${contacto?'var(--text)':'var(--muted)'};font-family:'JetBrains Mono',monospace;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${esc(contacto || email || "Sin contacto aún")}</span>
+          ${confirmado ? '<span style="font-size:9px;color:var(--green);font-weight:700;flex-shrink:0">✓</span>' : '<span style="font-size:9px;color:var(--gold);font-weight:700;flex-shrink:0">⏳</span>'}
+          ${valorCopiar ? `<button onclick="copiarContacto('${escJs(valorCopiar)}')" title="Copiar" style="background:none;border:1px solid var(--border);color:var(--muted2);padding:2px 7px;border-radius:5px;font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif;flex-shrink:0">📋</button>` : ""}
+        </div>
+      </div>`);
+    }
+    if(filas.length > 0){ t23box.style.display = "block"; t23lista.innerHTML = filas.join(""); }
+    else { t23box.style.display = "none"; }
+  }
+}
+
+// Historial de ganadores: la Subasta 2 también deja registro en este navegador
+function guardarGanadorEnHistorialB(){
+  if(!admin) return;
+  if(!SB.lider || SB.subasta.estado !== "finalizada") return;
+  const carta = [SB.carta.titulo, SB.carta.set].filter(Boolean).join(" · ");
+  const clave = `b|${SB.carta.titulo||"?"}|${SB.lider.hora||""}|${SB.lider.monto}`;
+  const hist = leerHistorialGanadores();
+  if(hist.find(h => h.clave === clave)) return;
+  const info = contactoDe(SB.lider.uid);
+  hist.unshift({
+    clave,
+    fecha:    new Date().toLocaleDateString("es-CL",{day:"2-digit",month:"2-digit",year:"numeric"}),
+    fechaTs:  Date.now(),
+    carta:    (carta || (SB.carta.titulo || "—")) + "  ·  🃏 Subasta 2",
+    nombre:   SB.lider.nombre || "—",
+    email:    (info && info.email) || "",
+    ig:       (info && info.ig) || SB.lider.ig || "",
+    whatsapp: (info && info.whatsapp) || "",
+    monto:    SB.lider.monto
+  });
+  try{ localStorage.setItem(HIST_GANADORES_KEY, JSON.stringify(hist)); }catch(e){}
+  renderHistorialGanadores();
+}
+
+// ── Modal del ganador en modo paralelo (uno por subasta, en fila) ──
+function llenarModalGanadorDual(cual){
+  const st = ST(cual);
+  const tag = document.getElementById("modal-ganador-tag");
+  if(tag){
+    tag.style.display = "block";
+    tag.querySelector("span").textContent = NOMde(cual);
+  }
+  document.getElementById("modal-ganador-monto").textContent = fmtCLP(st.lider.monto);
+  document.getElementById("modal-ganador-carta").textContent = st.carta.titulo || "";
+  const cont = document.getElementById("modal-ganador-contacto");
+  if(cont){
+    const wa = user.whatsapp || "";
+    const ig = user.ig || "";
+    cont.textContent = wa && ig ? `💬 ${wa} · 📷 ${ig}`
+                     : wa ? `💬 ${wa}`
+                     : ig ? `📷 ${ig}`
+                     : "—";
+  }
+}
+
+function checkModalGanadorDual(){
+  if(isTVMode) return;
+  if(!user || admin) return;
+  for(const cual of ["a","b"]){
+    const st = ST(cual);
+    if(st.subasta.estado !== "finalizada" || !st.lider){ modalGanadorVisto[cual] = false; continue; }
+    const soyGanador = st.lider.uid
+      ? (st.lider.uid === user.uid)
+      : (st.lider.ig === user.ig);
+    if(!soyGanador) continue;
+    if(st.ganadorAvisado) continue;
+    if(modalGanadorVisto[cual]) continue;
+
+    const m = document.getElementById("modal-ganador");
+    if(m && m.classList.contains("open")) return;   // uno a la vez
+    modalGanadorVisto[cual] = true;
+    modalGanadorCual = cual;
+    llenarModalGanadorDual(cual);
+    m.classList.add("open");
+    return;
+  }
+}
+
+// Apertura MANUAL desde el banner de la Subasta 2 (siempre disponible)
+function reabrirModalGanadorDual(cual){
+  const st = ST(cual);
+  if(!user || !st.lider) return;
+  const soyGanador = st.lider.uid
+    ? (st.lider.uid === user.uid)
+    : (st.lider.ig === user.ig);
+  if(!soyGanador) return;
+  modalGanadorCual = cual;
+  llenarModalGanadorDual(cual);
+  document.getElementById("modal-ganador").classList.add("open");
+}
+
+// ── Modal 2°/3° lugar en modo paralelo (uno por subasta, en fila) ──
+function checkModalTop23Dual(){
+  if(isTVMode || admin) return;
+  if(!user) return;
+  for(const cual of ["a","b"]){
+    const st = ST(cual);
+    if(st.subasta.estado !== "finalizada"){ top23VistoDual[cual] = false; continue; }
+
+    const top = topPujadoresDe(cual, 3);
+    if(top.length < 2) continue;
+
+    const miClave = user.uid || user.ig;
+    let pos = 0;
+    for(let i = 1; i < top.length; i++){
+      const c = top[i].uid || top[i].ig;
+      if(c && c === miClave){ pos = i + 1; break; }
+    }
+    if(pos === 0) continue;
+
+    const claveSub = `paldea_top23_${cual}_${st.carta.titulo||"?"}_${top[0].hora||""}_${miClave}`;
+    try{ if(localStorage.getItem(claveSub)) continue; }catch(e){}
+
+    if(top23VistoDual[cual]) continue;
+    const m = document.getElementById("modal-top23");
+    if(m && m.classList.contains("open")) return;   // uno a la vez
+
+    top23VistoDual[cual] = true;
+    modalTop23Cual = cual;
+    abrirModalTop23Dual(cual, pos, top[pos-1]);
+    return;
+  }
+}
+
+function abrirModalTop23Dual(cual, pos, miPuja){
+  const st = ST(cual);
+  const tag = document.getElementById("t23-tag");
+  if(tag){
+    tag.style.display = "block";
+    tag.querySelector("span").textContent = NOMde(cual);
+  }
+  const emoji = document.getElementById("t23-emoji");
+  const titulo = document.getElementById("t23-titulo");
+  const monto = document.getElementById("t23-monto");
+  const carta = document.getElementById("t23-carta");
+  const explica = document.getElementById("t23-explica");
+  if(emoji) emoji.textContent = pos === 2 ? "🥈" : "🥉";
+  if(titulo) titulo.textContent = pos === 2 ? "¡Quedaste en 2° lugar!" : "¡Quedaste en 3° lugar!";
+  if(monto) monto.textContent = fmtCLP(miPuja.monto);
+  if(carta) carta.textContent = st.carta.titulo || "";
+  if(explica){
+    explica.textContent = pos === 2
+      ? "Mantente atento: si el 1° lugar no concreta el pago dentro de 1 hora, la carta podría ser tuya y te contactaremos de inmediato."
+      : "Mantente atento: si ni el 1° ni el 2° lugar concretan el pago, la carta podría ser tuya y te contactaremos de inmediato.";
+  }
+  const cont = document.getElementById("t23-contacto");
+  if(cont){
+    const wa = user.whatsapp || "";
+    const ig = user.ig || "";
+    cont.textContent = wa && ig ? `💬 ${wa} · 📷 ${ig}`
+                     : wa ? `💬 ${wa}`
+                     : ig ? `📷 ${ig}`
+                     : "—";
+  }
+  const m = document.getElementById("modal-top23");
+  if(m) m.classList.add("open");
+}
+
+// ══════════════════════════════════════
+//  RESUMEN PARALELO EN LOGIN + NAV + REGLAMENTO
+// ══════════════════════════════════════
+
+// Mini tarjetas de ambas subastas lado a lado en la pantalla de login:
+// se ven las dos sin desplazarse, con foto, condición, precio y tiempo.
+function renderLoginResumenDual(){
+  const cont = document.getElementById("login-dual-resumen");
+  if(!cont) return;
+  if(!CFG.modoDual){ cont.style.display = "none"; return; }
+  cont.style.display = "block";
+  cont.innerHTML = `<div class="lr-grid">${["a","b"].map(cual => {
+    const st  = ST(cual);
+    const c   = st.carta || {};
+    const sub = st.subasta;
+    const activa     = sub.estado === "activa";
+    const programada = sub.estado === "programada";
+    const estadoTxt  = activa ? "● EN VIVO" : programada ? "📅 PROGRAMADA"
+                     : sub.estado === "finalizada" ? "FINALIZADA" : "EN ESPERA";
+    const estadoCls  = activa ? "activa" : programada ? "programada" : "otra";
+    const imgs  = c.imgs || [];
+    const precio = sub.precioAct > 0 ? sub.precioAct : (sub.base || 0);
+    let badges = "";
+    if((c.cond||"").toUpperCase() !== "NONE" && c.cond)
+      badges += `<span class="lr-cond">🔍 ${esc(nombreEstado(c.cond))}</span>`;
+    if(c.idioma)  badges += `<span>🌐 ${esc(c.idioma)}</span>`;
+    if(c.rareza)  badges += `<span>✦ ${esc(c.rareza)}</span>`;
+    if(c.slab && (c.slab.compania || c.slab.grado))
+      badges += `<span style="color:var(--gold);border-color:rgba(245,200,66,.4);background:rgba(245,200,66,.08)">🛡️ ${esc([c.slab.compania, c.slab.grado].filter(Boolean).join(" "))}</span>`;
+    if(sub.express)
+      badges += `<span style="color:var(--red);border-color:rgba(255,59,92,.4);background:rgba(255,59,92,.08)">⚡ EXPRESS</span>`;
+    return `
+    <div class="lr-card${sub.express && (activa || programada) ? " express" : ""}">
+      <span class="lr-tag">${NOMde(cual)}</span>
+      <span class="lr-estado ${estadoCls}">${estadoTxt}</span>
+      <div class="lr-fila">
+        <div class="lr-thumb" ${imgs.length ? `onclick="openLightboxDual('${cual}',0)" title="Ver foto"` : ""}>
+          ${imgs.length
+            ? `<img src="${esc(imgs[0])}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="lr-ph" style="display:none">⚡</div>`
+            : `<div class="lr-ph">⚡</div>`}
+        </div>
+        <div style="min-width:0">
+          <div class="lr-titulo">${esc(c.titulo || "Carta en preparación")}</div>
+          ${c.set ? `<div style="font-size:10px;color:var(--muted2);margin-top:2px">${esc(c.set)}</div>` : ""}
+          <div class="lr-badges">${badges}</div>
+        </div>
+      </div>
+      <div class="lr-nums">
+        <div class="lr-num"><div class="l">${sub.precioAct > 0 ? "Oferta actual" : "Base"}</div><div class="v">${fmtCLP(precio)}</div></div>
+        <div class="lr-num"><div class="l">${activa ? "Termina en" : "Tiempo"}</div><div class="v tiempo" id="lr-timer-${cual}">--:--</div></div>
+      </div>
+      <div class="lr-pujas">${st.pujas ? st.pujas.length : 0} pujas · Incrementos de ${fmtCLP(sub.inc || 0)}</div>
+    </div>`;
+  }).join("")}</div>`;
+  // Los timers quedan al día de inmediato y luego siguen vía tickDual()
+  try{ pintarTimerDual("a"); pintarTimerDual("b"); }catch(e){}
+}
+
+// Barra inferior para saltar de una subasta a la otra (móvil, modo paralelo)
+function renderDualNav(){
+  const nav = document.getElementById("dual-nav");
+  if(!nav) return;
+  if(!CFG.modoDual || isTVMode){ nav.innerHTML = ""; return; }
+  nav.innerHTML = ["a","b"].map(cual => {
+    const st   = ST(cual);
+    const viva = st.subasta.estado === "activa";
+    const precio = st.subasta.precioAct > 0 ? st.subasta.precioAct : (st.subasta.base || 0);
+    return `<button class="dn-tab" onclick="irASubasta('${cual}')">
+      <span class="dn-dot${viva ? " viva" : ""}"></span>
+      <span style="min-width:0">
+        <span class="dn-tag">${NOMde(cual)}</span><br>
+        <span class="dn-tit">${esc(st.carta.titulo || "En preparación")}</span>
+      </span>
+      <span class="dn-price">${fmtCLP(precio)}</span>
+    </button>`;
+  }).join("");
+}
+function irASubasta(cual){
+  const el = document.getElementById(`dx-panel-${cual}`);
+  if(el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// Modal de reglamento ("léeme") — disponible dentro de la app con el botón 📜
+function abrirReglas(){
+  const el = document.getElementById("reglas-antisnipe");
+  if(el){
+    if(CFG.modoDual){
+      const a = S.subasta.antisnipeAgrega || 5, b = SB.subasta.antisnipeAgrega || 5;
+      el.textContent = a === b ? String(a) : `${a} en la Subasta 1 · ${b} en la Subasta 2`;
+    } else {
+      el.textContent = String(S.subasta.antisnipeAgrega || 5);
+    }
+  }
+  document.getElementById("modal-reglas").classList.add("open");
+}
+function cerrarReglas(){
+  document.getElementById("modal-reglas").classList.remove("open");
+}
+
+// ══════════════════════════════════════
+//  ARRANQUE DEL MÓDULO DUAL
+// ══════════════════════════════════════
+construirDualUI();
+initDualListeners();
+
+// ── Ganchos de prueba (no afectan la app; los usan las pruebas de interfaz) ──
+window.__setModoDualLocal = function(on){
+  CFG.modoDual = !!on;
+  aplicarModoDual();
+};
+window.__inyectarSB = function(data){
+  SB = { ...deepCopy(defaultState), ...(data||{}) };
+  SB.pujas      = normalizarPujas(SB.pujas);
+  SB.bloqueados = normalizarLista(SB.bloqueados);
+  if(SB.carta) SB.carta.imgs = normalizarLista(SB.carta.imgs);
+  if(SB.pujas.length > 0) recalcularLiderDe("b");
+  if(CFG.modoDual){
+    try{ if(isTVMode) renderDualTV(); else renderDualTodo(); }catch(e){ console.error(e); }
+    try{ renderLoginDualB(); }catch(e){}
+    try{ renderLoginResumenDual(); }catch(e){}
+  }
+};
+window.__renderDual = function(){ renderDualTodo(); };
+
 // ── Exponer funciones al scope global (necesario para type="module") ──
 window.doLogin         = doLogin;
 window.loginGoogle     = loginGoogle;
@@ -7080,6 +10125,7 @@ window.galNav       = galNav;
 window.galTo        = galTo;
 window.doBid        = doBid;
 window.addImg       = addImg;
+window.generarUrlsFotos = generarUrlsFotos;
 window.clearImgs    = clearImgs;
 window.removeImg    = removeImg;
 window.adminUpdate  = adminUpdate;
@@ -7098,6 +10144,29 @@ window.copiarHistorialGanadores = copiarHistorialGanadores;
 window.borrarHistorialGanadores = borrarHistorialGanadores;
 window.limpiarYReintentar = limpiarYReintentar;
 window.parsearTextoCarta = parsearTextoCarta;
+// ── Modo paralelo (Subasta 2) ──
+window.cambiarModoDual   = cambiarModoDual;
+window.doBidDual         = doBidDual;
+window.dxImgNav          = dxImgNav;
+window.openLightboxDual  = openLightboxDual;
+window.adminStartB       = adminStartB;
+window.adminUpdateB      = adminUpdateB;
+window.adminResetB       = adminResetB;
+window.addImgB           = addImgB;
+window.clearImgsB        = clearImgsB;
+window.removeImgB        = removeImgB;
+window.generarUrlsFotosB = generarUrlsFotosB;
+window.parsearTextoCartaB = parsearTextoCartaB;
+window.eliminarPujaB     = eliminarPujaB;
+window.bloquearUsuarioB  = bloquearUsuarioB;
+window.desbloquearB      = desbloquearB;
+window.copiarIgGanadorB  = copiarIgGanadorB;
+window.abrirIgGanadorB   = abrirIgGanadorB;
+window.copiarMensajeGanadorB = copiarMensajeGanadorB;
+window.reabrirModalGanadorDual = reabrirModalGanadorDual;
+window.irASubasta    = irASubasta;
+window.abrirReglas   = abrirReglas;
+window.cerrarReglas  = cerrarReglas;
 </script>
 </body>
 </html>
