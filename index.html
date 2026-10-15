@@ -3090,6 +3090,12 @@ const CONFIG_REF    = "config_app";        // público: { modoDual: bool }
 let CFG = { modoDual: false };
 let SB  = deepCopy(defaultState);
 
+// ── Modo demo (sin Firebase): ?demo=1 pujador · ?demo=admin administrador · ?demo=login portada ──
+// Solo visualización local: los listeners de Firebase se ignoran y las
+// escrituras se aplican en memoria. Nada sale ni llega de la base de datos.
+const DEMO       = new URLSearchParams(location.search).get("demo");
+const DEMO_ADMIN = DEMO === "admin";
+
 function deepCopy(o){ return JSON.parse(JSON.stringify(o)); }
 
 // ── Normalización de datos que vienen de Firebase ──
@@ -3128,6 +3134,8 @@ function save(opts = {}){
   try{ localStorage.setItem(STORAGE_KEY+"_ping", Date.now()); }catch(e){}
   // La vista TV solo observa: nunca escribe
   if(isTVMode) return;
+  // Modo demo: los cambios se ven localmente, no se guardan en Firebase
+  if(DEMO){ toast("🧪 Demo: cambios aplicados solo en esta pantalla","warn"); try{ if(CFG.modoDual) renderDualTodo(); else renderApp(); }catch(e){} return; }
   // Sin sesión de Google no se puede escribir (reglas de Firebase)
   if(!auth.currentUser) return;
   try{
@@ -3227,6 +3235,7 @@ function initPrivadoListener(){
 
 function initFirebaseListener(){
   onValue(ref(db, SUBASTA_REF), (snapshot) => {
+    if(DEMO) return;              // en demo los datos son locales
     const data = snapshot.val();
     if(!data) return;
     const prevFinTs = S.subasta.finTs;
@@ -6504,6 +6513,7 @@ getRedirectResult(auth).catch(err => {
 onAuthStateChanged(auth, (fbUser) => {
   const urlP = new URLSearchParams(location.search);
   if(urlP.get("tv")==="1") return; // TV no usa sesión
+  if(urlP.get("demo")) return;    // modo demo: la sesión la simula arrancarDemo()
 
   if(fbUser){
     // CRÍTICO: si un error previo de getRedirectResult dejó la UI bloqueada
@@ -7714,6 +7724,11 @@ let dualUILista = false;   // los paneles ya están construidos en el DOM
 // ── Guardar la Subasta 2 (misma política de transacción que save()) ──
 function saveB(opts = {}){
   if(isTVMode) return;
+  if(DEMO){   // demo: los cambios del admin se ven localmente, no se guardan
+    toast("🧪 Demo: cambios aplicados solo en esta pantalla","warn");
+    try{ if(isTVMode) renderDualTV(); else renderDualTodo(); }catch(e){}
+    return;
+  }
   if(!auth.currentUser) return;
   try{
     const publico = JSON.parse(JSON.stringify(SB));
@@ -8228,6 +8243,13 @@ function cambiarModoDual(on){
     if(t) t.checked = !!CFG.modoDual;
     return;
   }
+  // En modo demo el interruptor es local (no hay Firebase)
+  if(DEMO){
+    CFG.modoDual = !!on; CFG._listo = true;
+    aplicarModoDual();
+    toast(on ? "🃏🃏 Modo paralelo ACTIVADO (demo)" : "Modo paralelo desactivado (demo)", on ? "ok" : "warn");
+    return;
+  }
   set(ref(db, `${CONFIG_REF}/modoDual`), !!on)
     .then(()=> toast(on
       ? "🃏🃏 Modo paralelo ACTIVADO — configura la Subasta 2 más abajo"
@@ -8247,6 +8269,7 @@ function cambiarModoDual(on){
 function initDualListeners(){
   // Interruptor global
   onValue(ref(db, CONFIG_REF), (snap) => {
+    if(DEMO) return;              // en demo el interruptor es local
     const v = snap.val() || {};
     const antes = CFG.modoDual;
     const primera = CFG._listo !== true;
@@ -8263,6 +8286,7 @@ function initDualListeners(){
 
   // Subasta 2
   onValue(ref(db, SUBASTA_REF_B), (snapshot) => {
+    if(DEMO) return;              // en demo los datos son locales
     const data = snapshot.val();
     if(!data){
       SB = deepCopy(defaultState);
@@ -8374,6 +8398,7 @@ function renderEstadoLineB(){
 // GUARDAR 2: toca solo carta y configuración de la Subasta 2.
 function adminUpdateB(){
   leerFormularioB();
+  if(DEMO){ toast("🧪 Demo: Subasta 2 actualizada solo en esta pantalla","warn"); try{ renderDualTodo(); }catch(e){} return; }
   const carta = deepCopy(SB.carta);
   const cfg = {
     base: SB.subasta.base,
@@ -8785,6 +8810,28 @@ async function ejecutarPujaDual(cual, val){
     toast("⛔ Tu cuenta ha sido bloqueada","err"); return;
   }
 
+  // ── MODO DEMO: la puja se aplica solo en memoria (sin Firebase) ──
+  if(DEMO){
+    const ahoraDemo = Date.now();
+    const pujaDemo = {
+      id: `demo_${ahoraDemo}`,
+      nombre: user.nombre, uid: user.uid, ig: user.ig,
+      monto: val, timestamp: ahoraDemo,
+      hora: new Date().toLocaleTimeString("es-CL",{hour12:false})
+    };
+    // Anti-snipe local: puja en el último minuto extiende el fin
+    if(sub.finTs && sub.finTs - ahoraSrv() < 60000){
+      sub.finTs += (sub.antisnipeAgrega || 5) * 60000;
+      pujaDemo.antisnipe = true;
+      toast(`⚡ Anti-snipe: +${sub.antisnipeAgrega || 5} min (demo)`,"warn");
+    }
+    st.pujas = normalizarPujas([pujaDemo, ...(st.pujas || [])]);
+    recalcularLiderDe(cual);
+    try{ if(isTVMode) renderDualTV(); else renderDualTodo(); }catch(e){}
+    toast(`✅ Puja de ${fmtCLP(val)} registrada en ${NOMde(cual)} (demo)`,"ok");
+    return;
+  }
+
   pujaEnCurso = true;
   const btn = document.getElementById(`dx-btn-${cual}`);
   if(btn) btn.disabled = true;
@@ -8912,12 +8959,15 @@ function tickDual(){
   // Arranque programado de la Subasta 2 (el primero que llega la activa)
   if(SB.subasta.estado === "programada"){
     const ini = inicioSubastaDe("b");
-    if(ini && SB.subasta.finTs && ahora >= ini) activarSubastaB();
+    if(ini && SB.subasta.finTs && ahora >= ini){
+      if(DEMO){ SB.subasta.estado = "activa"; if(isTVMode) renderDualTV(); else renderDualTodo(); }
+      else activarSubastaB();
+    }
   }
   // Cierre de la Subasta 2 (transacción idempotente en el servidor)
   if(SB.subasta.estado === "activa" && SB.subasta.finTs && ahora >= SB.subasta.finTs){
     SB.subasta.estado = "finalizada";
-    cerrarSubastaEnServidorB();
+    if(!DEMO) cerrarSubastaEnServidorB();
     if(isTVMode) renderDualTV(); else if(user) renderDualTodo();
     toast("🏁 ¡Subasta 2 finalizada!","warn");
   }
@@ -10056,10 +10106,89 @@ function cerrarReglas(){
 }
 
 // ══════════════════════════════════════
+//  MODO DEMO — visualización sin Firebase
+//  ?demo=1 pujador · ?demo=admin administrador · ?demo=login portada
+//  (en TV: ?tv=1&demo=1)
+// ══════════════════════════════════════
+function arrancarDemo(){
+  if(!DEMO) return;
+  const ahora = Date.now();
+  const imgDemo = (txt, color) => "data:image/svg+xml," + encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='420'><rect width='300' height='420' rx='14' fill='${color}'/><text x='150' y='200' fill='#fff' font-family='sans-serif' font-size='24' text-anchor='middle'>${txt}</text><text x='150' y='232' fill='rgba(255,255,255,.55)' font-family='sans-serif' font-size='13' text-anchor='middle'>FOTO DEMO</text></svg>`);
+
+  // ── Subasta 1: carta suelta, modo NORMAL ──
+  S = deepCopy(defaultState);
+  S.carta = { titulo:"Charizard GX", set:"Hidden Fates · SM211", setEs:"SM Promos",
+    cond:"NM", idioma:"Español", rareza:"Promo", slab:null,
+    imgs:[imgDemo("Charizard GX","#2a4a6b"), imgDemo("Charizard (dorso)","#1f3a55")] };
+  S.subasta = { ...S.subasta, estado:"activa", base:1000, inc:500, precioAct:3500,
+    inicioTs:ahora-3600000, finTs:ahora+45*60000, express:false, antisnipeAgrega:5 };
+  S.pujas = normalizarPujas([
+    {id:"d1", nombre:"Rodrigo Soto",    monto:3500, timestamp:ahora-180000, uid:"du1", ig:"rods", hora:"18:12:12"},
+    {id:"d2", nombre:"Romina Quintero", monto:3000, timestamp:ahora-300000, uid:"du2", ig:"romi", hora:"18:10:22"},
+    {id:"d3", nombre:"Rodrigo Soto",    monto:1000, timestamp:ahora-600000, uid:"du1", ig:"rods", hora:"18:05:01"}
+  ]);
+  recalcularLiderDe("a");
+
+  // ── Subasta 2: SLAB gradeado, modo EXPRESS ──
+  SB = deepCopy(defaultState);
+  SB.carta = { titulo:"Mewtwo VSTAR", set:"Crown Zenith · GG31", setEs:"",
+    cond:"NONE", idioma:"Inglés", rareza:"",
+    slab:{ compania:"PSA", grado:"GEM MT 10", cert:"84523176", link:"" },
+    imgs:[imgDemo("Mewtwo PSA 10","#4a2a6b"), imgDemo("Mewtwo (dorso)","#3b2256")] };
+  SB.subasta = { ...SB.subasta, estado:"activa", base:20000, inc:2000, precioAct:26000,
+    inicioTs:ahora-1200000, finTs:ahora+58*60000, express:true, antisnipeAgrega:2 };
+  SB.pujas = normalizarPujas([
+    {id:"d4", nombre:"María Fernanda", monto:26000, timestamp:ahora-120000, uid:"du4", ig:"mafe",  hora:"18:11:40"},
+    {id:"d5", nombre:"José Pérez",     monto:24000, timestamp:ahora-240000, uid:"du5", ig:"jose",  hora:"18:09:15"},
+    {id:"d6", nombre:"Ana Ruiz",       monto:22000, timestamp:ahora-400000, uid:"du6", ig:"anita", hora:"18:06:44"}
+  ]);
+  recalcularLiderDe("b");
+
+  CFG.modoDual = true; CFG._listo = true;
+
+  // Sesión simulada (excepto en demo=login, que muestra la portada)
+  if(DEMO !== "login"){
+    user  = { uid:"demo-user", nombre:"Usuario Demo", email:"demo@paldea.games", ig:"demo.user", whatsapp:"912345678" };
+    admin = DEMO_ADMIN;
+  }
+
+  // Distintivo visible para no confundirlo con producción
+  const badge = document.createElement("div");
+  badge.textContent = "🧪 MODO DEMO — SIN FIREBASE";
+  badge.style.cssText = "position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:9990;background:rgba(245,200,66,.95);color:#1a1a1a;font-size:10px;font-weight:800;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;box-shadow:0 4px 14px rgba(0,0,0,.45);pointer-events:none;font-family:'Outfit',sans-serif";
+  document.body.appendChild(badge);
+
+  if(isTVMode){ aplicarModoDual(); return; }              // TV: dos paneles
+  if(DEMO === "login"){ aplicarModoDual(); return; }      // portada con resumen
+
+  // Vista de la app (pujador o admin)
+  document.getElementById("screen-login").style.display = "none";
+  document.getElementById("screen-app").style.display   = "block";
+  document.getElementById("hdr-user").textContent       = DEMO_ADMIN ? "Admin (demo)" : user.nombre;
+  if(DEMO_ADMIN){
+    const al = document.getElementById("admin-link"); if(al) al.style.display = "block";
+    const tvb = document.getElementById("hdr-tv-btn"); if(tvb) tvb.style.display = "flex";
+  }
+  aplicarModoDual();
+  if(DEMO_ADMIN){
+    setTimeout(()=>{
+      const p = document.getElementById("admin-panel");
+      if(p){
+        p.style.display = "block";
+        try{ fillAdminFields(); }catch(e){}
+        try{ fillAdminFieldsB(); }catch(e){}
+      }
+    }, 300);
+  }
+}
+
+// ══════════════════════════════════════
 //  ARRANQUE DEL MÓDULO DUAL
 // ══════════════════════════════════════
 construirDualUI();
 initDualListeners();
+arrancarDemo();
 
 // ── Ganchos de prueba (no afectan la app; los usan las pruebas de interfaz) ──
 window.__setModoDualLocal = function(on){
