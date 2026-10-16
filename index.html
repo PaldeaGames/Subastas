@@ -472,10 +472,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   position:relative; overflow:hidden;
 }
 .lr-card.express{ border-color:rgba(255,59,92,.55); box-shadow:0 0 18px rgba(255,59,92,.12); }
+.lr-top{ display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap; }
 .lr-tag{ font-size:9px; font-weight:800; letter-spacing:2px; color:var(--blue);
   background:rgba(78,168,255,.1); border:1px solid rgba(78,168,255,.3);
-  padding:2px 8px; border-radius:20px; align-self:flex-start; }
-.lr-estado{ position:absolute; top:10px; right:10px; font-size:9px; font-weight:800;
+  padding:2px 8px; border-radius:20px; flex-shrink:0; }
+.lr-tag.b{ color:var(--red); background:rgba(255,59,92,.1); border-color:rgba(255,59,92,.3); }
+.lr-estado{ flex-shrink:0; font-size:9px; font-weight:800;
   letter-spacing:1px; padding:3px 9px; border-radius:20px; }
 .lr-estado.activa{ background:rgba(0,230,122,.15); color:var(--green); border:1px solid rgba(0,230,122,.4); }
 .lr-estado.programada{ background:rgba(245,200,66,.12); color:var(--gold); border:1px solid rgba(245,200,66,.4); }
@@ -486,6 +488,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   display:flex; align-items:center; justify-content:center; cursor:zoom-in; }
 .lr-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
 .lr-thumb .lr-ph{ font-size:20px; opacity:.35; }
+.lr-foto-hint{ font-size:8px; color:var(--muted2); text-align:center; margin-top:3px;
+  max-width:52px; line-height:1.25; letter-spacing:.2px; }
+@media(max-width:400px){ .lr-foto-hint{ max-width:42px; } }
 .lr-titulo{ font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:.5px;
   line-height:1.1; word-break:break-word; }
 .lr-badges{ display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
@@ -536,6 +541,13 @@ body.dual-choosing #screen-app > .wrap{ display:none !important; }
 .dc-pill{ font-size:10px; font-weight:800; letter-spacing:2px; padding:4px 14px; border-radius:20px; display:inline-block; margin-bottom:10px; }
 .dc-a .dc-pill{ background:rgba(78,168,255,.14); color:var(--blue); border:1px solid rgba(78,168,255,.4); }
 .dc-b .dc-pill{ background:rgba(255,59,92,.12); color:var(--red); border:1px solid rgba(255,59,92,.4); }
+.dc-imgw{ position:relative; display:block; width:130px; margin:0 auto 10px; }
+.dc-imgw .dc-img{ margin:0; }
+.dc-zoom{
+  position:absolute; right:6px; bottom:6px; background:rgba(7,7,13,.7);
+  border:1px solid var(--border2); border-radius:8px; padding:4px 7px;
+  font-size:12px; line-height:1; cursor:zoom-in;
+}
 .dc-img{
   width:130px; height:182px; object-fit:cover; border-radius:10px; margin:0 auto 10px;
   border:1px solid var(--border2); display:block; background:var(--s2);
@@ -557,6 +569,10 @@ body.dual-choosing #screen-app > .wrap{ display:none !important; }
 }
 .dc-a .dc-entrar{ background:linear-gradient(135deg,var(--blue),#2b6fd4); color:#fff; }
 .dc-b .dc-entrar{ background:linear-gradient(135deg,var(--red),#d42b4d); color:#fff; }
+/* Tarjeta finalizada: se muestra como resultado, no se puede entrar */
+.dc-card.dc-fin{ opacity:.82; cursor:default; }
+.dc-card.dc-fin:hover{ transform:none; box-shadow:none; }
+.dc-entrar.dc-cerrada{ background:var(--s3); color:var(--muted2); border:1px solid var(--border2); cursor:default; }
 
 /* ════════════════════════════
    VISTA DE UNA SOLA SUBASTA + BOTÓN FIJO DE CAMBIO
@@ -584,6 +600,7 @@ body.dual-on:not(.dual-choosing) #dual-switch{
 }
 #dual-switch:hover{ border-color:var(--gold); }
 #dual-switch .ds-thumb{ width:26px; height:36px; border-radius:4px; object-fit:cover; flex-shrink:0; background:var(--s3); border:1px solid var(--border2); }
+#dual-switch .ds-thumb.ds-flex{ display:flex; align-items:center; justify-content:center; font-size:15px; }
 #dual-switch .ds-tag{ font-size:8px; font-weight:800; letter-spacing:1.5px; color:var(--blue); display:block; }
 #dual-switch .ds-tit{ font-size:11px; font-weight:600; display:block; max-width:34vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #dual-switch .ds-price{ font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; color:var(--gold); margin-left:auto; flex-shrink:0; }
@@ -3800,15 +3817,47 @@ async function loginGoogle(){
     }
   }
 
-  // Móvil no-Safari (Chrome Android, etc.)
+  // Móvil no-Safari (Chrome Android, etc.): POPUP primero, igual que Safari.
+  // Con redirect, apretar "atrás" durante la elección de cuenta devolvía a la
+  // página intermedia de Firebase (auth.paldeagames.cl/__/auth/handler) ya sin
+  // el estado inicial → pantalla de error en inglés "missing initial state"
+  // y había que cerrar la página. Con popup la app nunca sale de su pestaña:
+  // "atrás" solo cierra la ventanita de Google y se sigue donde estabas.
   if(esMovil()){
     try{
-      mostrarAvisoRedirect();
-      await signInWithRedirect(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      const u = result.user;
+      googleUser = {
+        uid:    u.uid,
+        nombre: u.displayName || "Sin nombre",
+        email:  u.email || "",
+        foto:   u.photoURL || ""
+      };
+      mostrarPasoDatos();
       return;
     }catch(err){
-      console.error("Redirect login error:", err);
-      mostrarAvisoAbrirFuera();
+      if(err.code === "auth/popup-closed-by-user" ||
+         err.code === "auth/cancelled-popup-request" ||
+         err.code === "auth/user-cancelled") return;
+
+      console.error("Móvil popup error:", err);
+
+      // Último recurso: redirect, solo si el popup fue bloqueado/no soportado
+      if(err.code === "auth/popup-blocked" ||
+         err.code === "auth/operation-not-supported-in-this-environment"){
+        try{
+          mostrarAvisoRedirect();
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        }catch(err2){
+          console.error("Móvil redirect fallback error:", err2);
+          mostrarAvisoAbrirFuera();
+          return;
+        }
+      }
+
+      toast("No se pudo iniciar sesión. Reintenta.","err");
+      mostrarBotonReintentar();
       return;
     }
   }
@@ -4027,6 +4076,7 @@ function confirmarRectificacion(){
   document.getElementById("screen-login").style.display = "none";
   document.getElementById("screen-app").style.display   = "block";
   document.getElementById("hdr-user").textContent       = user.nombre;
+  marcarEntradaApp();
   renderApp();
   try{ aplicarEleccionDual(); }catch(e){}
   toast("✅ Contacto registrado — ¡a pujar!","ok");
@@ -5727,7 +5777,7 @@ function fillAdminFields(){
 function renderImgList(){
   const el = document.getElementById("img-list");
   el.innerHTML = (S.carta.imgs||[]).map((url,i)=>`
-    <img class="img-preview ${i===galIdx?"active":""}" src="${esc(url)}" title="Click para eliminar" onclick="removeImg(${i})" onerror="this.style.opacity=.3" />
+    <img class="img-preview ${i===galIdx?"active":""}" src="${esc(url)}" title="Click para eliminar" onclick="removeImg(${i})" onerror="this.style.opacity=.45;this.style.border='2px dashed var(--red)';this.title='⚠️ URL rota (¿la foto existe en GitHub?) — click para eliminar'" />
   `).join("") || "<span style='font-size:12px;color:var(--muted2)'>Sin imágenes aún</span>";
 }
 
@@ -6390,7 +6440,9 @@ function renderTV(){
     tvNoImg.style.display="block";
   }
 
-  document.getElementById("tv-card-title").textContent = c.titulo;
+  // En modo paralelo el TV muestra ambas cartas con sus propios paneles;
+  // el título junto al logo solo tiene sentido cuando hay UNA subasta.
+  document.getElementById("tv-card-title").textContent = CFG.modoDual ? "" : c.titulo;
   const precioEl = document.getElementById("tv-price");
   precioEl.textContent = sub.precioAct>0 ? fmtCLP(sub.precioAct) : fmtCLP(sub.base)+" (base)";
   document.getElementById("tv-who").textContent = S.lider ? anonimizar(S.lider) : "Esperando primera puja";
@@ -6772,6 +6824,7 @@ onAuthStateChanged(auth, (fbUser) => {
       if(al) al.style.display = "block";
       const tvb = document.getElementById("hdr-tv-btn");
       if(tvb) tvb.style.display = "flex";
+      marcarEntradaApp();
       setTimeout(()=>{
         const p = document.getElementById("admin-panel");
         if(p){ p.style.display="block"; fillAdminFields(); try{ renderHistorialGanadores(); }catch(e){}
@@ -6814,6 +6867,7 @@ onAuthStateChanged(auth, (fbUser) => {
           document.getElementById("screen-login").style.display = "none";
           document.getElementById("screen-app").style.display   = "block";
           document.getElementById("hdr-user").textContent       = user.nombre;
+          marcarEntradaApp();
           renderApp();
           try{ aplicarEleccionDual(); }catch(e){}
         } else {
@@ -8203,7 +8257,7 @@ function htmlAdminB(){
     </div>
   </div>
   <div style="margin-bottom:8px">
-    <textarea class="a-input" id="b-img-url" placeholder="Pega una o varias URLs, una por línea" style="resize:vertical;min-height:70px;font-size:12px;line-height:1.6"></textarea>
+    <textarea class="a-input" id="b-img-url" placeholder="Pega una o varias URLs, una por línea:&#10;https://raw.githubusercontent.com/.../16.jpg?raw=true&#10;https://raw.githubusercontent.com/.../17.jpg?raw=true&#10;https://raw.githubusercontent.com/.../18.jpg?raw=true" style="resize:vertical;min-height:90px;font-size:12px;line-height:1.6"></textarea>
   </div>
   <div style="display:flex;gap:8px;margin-bottom:8px">
     <button class="a-btn-sm" onclick="addImgB()" style="flex:1">+ Agregar</button>
@@ -8856,7 +8910,7 @@ function renderImgListB(){
   const el = document.getElementById("b-img-list");
   if(!el) return;
   el.innerHTML = (SB.carta.imgs||[]).map((url,i)=>`
-    <img class="img-preview" src="${esc(url)}" title="Click para eliminar" onclick="removeImgB(${i})" onerror="this.style.opacity=.3" />
+    <img class="img-preview" src="${esc(url)}" title="Click para eliminar" onclick="removeImgB(${i})" onerror="this.style.opacity=.45;this.style.border='2px dashed var(--red)';this.title='⚠️ URL rota (¿la foto existe en GitHub?) — click para eliminar'" />
   `).join("") || "<span style='font-size:12px;color:var(--muted2)'>Sin imágenes aún</span>";
 }
 
@@ -9758,6 +9812,9 @@ function renderBloqueadosB(){
 // ── TV en modo paralelo ──
 function renderDualTV(){
   if(!CFG.modoDual || !isTVMode) return;
+  // Con dos subastas en pantalla el título junto al logo no aplica: se limpia.
+  const tvTit = document.getElementById("tv-card-title");
+  if(tvTit) tvTit.textContent = "";
   for(const cual of ["a","b"]) renderDualPanelTV(cual);
 }
 
@@ -10320,13 +10377,18 @@ function renderLoginResumenDual(){
       badges += `<span style="color:var(--red);border-color:rgba(255,59,92,.4);background:rgba(255,59,92,.08)">⚡ EXPRESS</span>`;
     return `
     <div class="lr-card${sub.express && (activa || programada) ? " express" : ""}">
-      <span class="lr-tag">${NOMde(cual)}</span>
-      <span class="lr-estado ${estadoCls}">${estadoTxt}</span>
+      <div class="lr-top">
+        <span class="lr-tag${cual === "b" ? " b" : ""}">${NOMde(cual)}</span>
+        <span class="lr-estado ${estadoCls}">${estadoTxt}</span>
+      </div>
       <div class="lr-fila">
-        <div class="lr-thumb" ${imgs.length ? `onclick="openLightboxDual('${cual}',0)" title="Ver foto"` : ""}>
-          ${imgs.length
-            ? `<img src="${esc(imgs[0])}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="lr-ph" style="display:none">⚡</div>`
-            : `<div class="lr-ph">⚡</div>`}
+        <div style="flex-shrink:0">
+          <div class="lr-thumb" ${imgs.length ? `onclick="openLightboxDual('${cual}',0)" title="Ver foto"` : ""}>
+            ${imgs.length
+              ? `<img src="${esc(imgs[0])}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="lr-ph" style="display:none">⚡</div>`
+              : `<div class="lr-ph">⚡</div>`}
+          </div>
+          ${imgs.length ? `<div class="lr-foto-hint">🔍 toca la foto</div>` : ``}
         </div>
         <div style="min-width:0">
           <div class="lr-titulo">${esc(c.titulo || "Carta en preparación")}</div>
@@ -10335,10 +10397,15 @@ function renderLoginResumenDual(){
         </div>
       </div>
       <div class="lr-nums">
-        <div class="lr-num"><div class="l">${sub.precioAct > 0 ? "Oferta actual" : "Base"}</div><div class="v">${fmtCLP(precio)}</div></div>
-        <div class="lr-num"><div class="l">${activa ? "Termina en" : "Tiempo"}</div><div class="v tiempo" id="lr-timer-${cual}">--:--</div></div>
+        <div class="lr-num"><div class="l">${sub.estado === "finalizada" ? "Precio final" : sub.precioAct > 0 ? "Oferta actual" : "Base"}</div><div class="v">${fmtCLP(precio)}</div></div>
+        <div class="lr-num"><div class="l">${activa ? "Termina en" : sub.estado === "finalizada" ? "Cerró" : "Tiempo"}</div><div class="v tiempo" id="lr-timer-${cual}">--:--</div></div>
       </div>
       <div class="lr-pujas">${st.pujas ? st.pujas.length : 0} pujas · Incrementos de ${fmtCLP(sub.inc || 0)}</div>
+      ${sub.estado === "finalizada"
+        ? `<div class="lr-pujas" style="color:var(--gold);font-weight:700">${st.lider
+            ? `🏆 Ganó ${anonimizar(st.lider)} · ${fmtCLP(st.lider.monto || 0)}`
+            : "🏁 Terminó sin pujas"}</div>`
+        : ""}
     </div>`;
   }).join("")}</div>`;
   // Los timers quedan al día de inmediato y luego siguen vía tickDual()
@@ -10447,6 +10514,7 @@ function arrancarDemo(){
   document.getElementById("screen-login").style.display = "none";
   document.getElementById("screen-app").style.display   = "block";
   document.getElementById("hdr-user").textContent       = DEMO_ADMIN ? "Admin (demo)" : user.nombre;
+  marcarEntradaApp();
   if(DEMO_ADMIN){
     const al = document.getElementById("admin-link"); if(al) al.style.display = "block";
     const tvb = document.getElementById("hdr-tv-btn"); if(tvb) tvb.style.display = "flex";
@@ -10511,6 +10579,55 @@ function elegirSubasta(cual){
 }
 function cambiarSubastaDual(){ elegirSubasta(dualElegida === "a" ? "b" : "a"); }
 
+// Vuelve a la pantalla "Elige tu subasta" sin recargar (botón atrás del teléfono)
+function volverAlChooserDual(){
+  dualElegida = null;
+  try{ localStorage.removeItem("paldea_dual_elegida"); }catch(e){}
+  const b = document.body;
+  b.classList.remove("dual-sel-a","dual-sel-b");
+  b.classList.add("dual-choosing");
+  renderDualChooser();
+  window.scrollTo({ top: 0 });
+}
+
+// ── Botón "atrás" del teléfono: navegación fluida ──────────────────────
+// Al entrar a la app se deja una entrada en el historial; así el botón atrás
+// lo capturamos nosotros (popstate) en vez de volver a Google o a una pantalla
+// extraña. Orden al retroceder: 1) cierra lightbox, 2) cierra modal,
+// 3) en modo paralelo con subasta elegida → vuelve al selector,
+// 4) si no hay nada que cerrar → te quedas en la app (no sales al login).
+function marcarEntradaApp(){
+  if(isTVMode) return;
+  try{ history.pushState({ paldea:"app" }, ""); }catch(e){}
+}
+window.addEventListener("popstate", function(){
+  if(isTVMode) return;
+  try{
+    const lb = document.getElementById("lightbox");
+    if(lb && lb.classList.contains("open")){ closeLightbox(); marcarEntradaApp(); return; }
+    const abierto = document.querySelector(".modal-overlay.open");
+    if(abierto){ abierto.classList.remove("open"); marcarEntradaApp(); return; }
+    const enApp = document.getElementById("screen-app").style.display === "block";
+    if(enApp && CFG.modoDual && dualElegida && !admin){
+      volverAlChooserDual(); marcarEntradaApp(); return;
+    }
+    if(enApp){ marcarEntradaApp(); } // atrapar: no volver a la pantalla de Google
+  }catch(e){}
+});
+
+// Al volver desde Google con "atrás", algunos móviles restauran la página desde
+// caché (bfcache) con el aviso "Redirigiendo…" visible y el botón oculto.
+// Al mostrarse la página otra vez, restauramos la UI del login.
+window.addEventListener("pageshow", function(e){
+  if(!e.persisted) return;
+  const aviso = document.getElementById("login-redirect-aviso");
+  if(aviso){ aviso.style.display = "none"; aviso.innerHTML = ""; }
+  const btn = document.querySelector(".btn-google");
+  if(btn){ btn.style.display = ""; btn.disabled = false; }
+  const btnReint = document.getElementById("btn-reintentar-login");
+  if(btnReint) btnReint.style.display = "none";
+});
+
 // Pantalla de elección: portada, precio y estado de cada subasta
 function renderDualChooser(){
   const box = document.getElementById("dual-chooser");
@@ -10528,30 +10645,53 @@ function renderDualChooser(){
     const chipCond = (!esSlab && cond && cond !== "NONE")
       ? `<div style="margin-bottom:7px"><span style="font-size:9px;font-weight:800;letter-spacing:1px;padding:3px 10px;border-radius:20px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.35);color:var(--gold)">${esc(nombreEstado(cond))}</span></div>`
       : "";
+    const fin = sub.estado === "finalizada";
+    const ganador = fin ? st.lider : null;
     const estado = sub.estado === "activa"
       ? `<div class="dc-estado viva">● EN VIVO${sub.express ? " ⚡ EXPRESS" : ""}</div>`
-      : sub.estado === "finalizada"
+      : fin
         ? `<div class="dc-estado fin">🏁 FINALIZADA</div>`
         : `<div class="dc-estado prog">🕐 PRÓXIMAMENTE</div>`;
-    return `<button class="dc-card dc-${cual}" onclick="elegirSubasta('${cual}')">
+    // Finalizada: la tarjeta deja de ser clickeable — no tiene sentido entrar.
+    // Se muestra quién ganó y por cuánto, a modo de resultado.
+    const lineaGanador = fin
+      ? `<div class="dc-set" style="color:var(--gold);margin-top:6px;font-weight:700">${ganador
+          ? `🏆 Ganó ${anonimizar(ganador)} · ${fmtCLP(ganador.monto || 0)}`
+          : "🏁 Terminó sin pujas"}</div>`
+      : "";
+    const botonEntrar = fin
+      ? `<span class="dc-entrar dc-cerrada">🏁 SUBASTA CERRADA</span>`
+      : `<span class="dc-entrar">ENTRAR A ESTA SUBASTA →</span>`;
+    const abreCard  = fin ? `<div class="dc-card dc-${cual} dc-fin">`
+                          : `<button class="dc-card dc-${cual}" onclick="elegirSubasta('${cual}')">`;
+    const cierraCard = fin ? `</div>` : `</button>`;
+    return `${abreCard}
       <span class="dc-pill">${cual === "a" ? "🔵 SUBASTA 1" : "🔴 SUBASTA 2"}</span>
       ${foto
-        ? `<img class="dc-img" src="${esc(foto)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;dc-noimg&quot;>🃏</div>'">`
+        ? `<span class="dc-imgw"><img class="dc-img" src="${esc(foto)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;dc-noimg&quot;>🃏</div>'"><span class="dc-zoom" title="Ver foto en grande" onclick="event.stopPropagation();openLightboxDual('${cual}',0)">🔍</span></span>`
         : `<div class="dc-noimg">🃏</div>`}
       ${chipCond}
       <div class="dc-tit">${esc(st.carta.titulo || "Por anunciar")}</div>
       <div class="dc-set">${esc(st.carta.set || "")}${st.carta.idioma ? ` · ${esc(etiquetaIdioma(st.carta.idioma))}` : ""}</div>
       ${esSlab ? `<div class="dc-set" style="color:var(--gold)">🏆 ${esc([st.carta.slab.compania, st.carta.slab.grado].filter(Boolean).join(" "))}${st.carta.slab.cert ? ` · Cert. ${esc(st.carta.slab.cert)}` : ""}</div>` : ""}
       <div class="dc-precio">${fmtCLP(precio)}</div>
-      <div style="font-size:9px;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase;margin-top:1px">${hayOferta ? "Oferta actual en vivo" : "Precio base · sin pujas aún"}</div>
-      <div class="dc-set" style="margin-top:4px">${nPujas} puja${nPujas !== 1 ? "s" : ""} · incrementos de ${fmtCLP(sub.inc || 0)}</div>
+      <div style="font-size:9px;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase;margin-top:1px">${fin ? "Precio final" : hayOferta ? "Oferta actual en vivo" : "Precio base · sin pujas aún"}</div>
+      ${!fin ? `<div class="dc-set" style="margin-top:4px">${nPujas} puja${nPujas !== 1 ? "s" : ""} · incrementos de ${fmtCLP(sub.inc || 0)}</div>` : ""}
       ${estado}
-      <span class="dc-entrar">ENTRAR A ESTA SUBASTA →</span>
-    </button>`;
+      ${lineaGanador}
+      ${botonEntrar}
+    ${cierraCard}`;
   };
+  const finA = ST("a").subasta.estado === "finalizada";
+  const finB = ST("b").subasta.estado === "finalizada";
+  const subtitulo = (finA && finB)
+    ? `Ambas subastas ya <b>finalizaron</b> — estos fueron los resultados.<br>Vuelve pronto: siempre hay algo nuevo en Paldea ⚡`
+    : (finA || finB)
+      ? `Una subasta sigue viva y la otra ya <b>finalizó</b> — abajo ves su resultado.<br>Entra a la que está activa y puja antes de que cierre ⚡`
+      : `Hay <b>dos subastas</b> activas ahora mismo — elige por dónde empezar.<br>Después puedes saltar a la otra con el botón ⇄ de arriba, cuando quieras.`;
   box.innerHTML = `
     <div class="dc-titulo">⚡ ELIGE TU SUBASTA ⚡</div>
-    <div class="dc-sub">Hay <b>dos subastas</b> activas ahora mismo — elige por dónde empezar.<br>Después puedes saltar a la otra con el botón ⇄ de arriba, cuando quieras.</div>
+    <div class="dc-sub">${subtitulo}</div>
     <div class="dc-grid">${tarjeta("a")}${tarjeta("b")}</div>`;
 }
 
@@ -10568,9 +10708,9 @@ function renderDualSwitch(){
   const sub  = st.subasta;
   const foto = (st.carta.imgs || [])[0] || "";
   const precio = sub.precioAct > 0 ? sub.precioAct : (sub.base || 0);
-  const sinFoto = `<span class="ds-thumb" style="display:flex;align-items:center;justify-content:center;font-size:15px">🃏</span>`;
+  const sinFoto = `<span class="ds-thumb ds-flex">🃏</span>`;
   box.innerHTML = `
-    ${foto ? `<img class="ds-thumb" src="${esc(foto)}" alt="" onerror="this.outerHTML='${sinFoto.replace(/'/g, "&apos;")}'">` : sinFoto}
+    ${foto ? `<img class="ds-thumb" src="${esc(foto)}" alt="" onerror="this.outerHTML='<span class=&quot;ds-thumb ds-flex&quot;>🃏</span>'">` : sinFoto}
     <span style="min-width:0">
       <span class="ds-tag" style="color:${otra === "a" ? "var(--blue)" : "var(--red)"}">⇄ IR A ${otra === "a" ? "SUBASTA 1 🔵" : "SUBASTA 2 🔴"}</span>
       <span class="ds-tit">${esc(st.carta.titulo || "Por anunciar")}</span>
