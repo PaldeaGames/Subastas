@@ -507,29 +507,131 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 }
 
 /* ════════════════════════════
-   NAVEGACIÓN ENTRE SUBASTAS (modo paralelo, móvil)
+   SELECTOR "ELIGE TU SUBASTA" (modo paralelo, al entrar)
 ════════════════════════════ */
-#dual-nav{ display:none; }
-body.dual-on #dual-nav{
-  display:flex; gap:8px; position:fixed; left:10px; right:10px; bottom:10px; z-index:70;
+#dual-chooser{ display:none; }
+body.dual-choosing #dual-chooser{
+  display:flex; flex-direction:column; align-items:center;
+  max-width:900px; margin:0 auto; padding:26px 16px 40px; min-height:70vh;
 }
-body.dual-on #dual-nav .dn-tab{
-  flex:1; display:flex; align-items:center; gap:8px; min-width:0;
-  background:rgba(16,16,26,.92); backdrop-filter:blur(8px);
-  border:1.5px solid var(--border2); border-radius:14px; padding:8px 10px;
-  color:var(--text); cursor:pointer; font-family:'Outfit',sans-serif; text-align:left;
+body.dual-choosing #screen-app > .wrap{ display:none !important; }
+.dc-titulo{
+  font-family:'Bebas Neue',sans-serif; font-size:clamp(26px,6vw,40px); letter-spacing:3px;
+  text-align:center; background:linear-gradient(135deg,#fff,var(--gold));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
-body.dual-on #dual-nav .dn-tab:active{ transform:scale(.97); }
-body.dual-on #dual-nav .dn-tab .dn-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; background:var(--muted2); }
-body.dual-on #dual-nav .dn-tab .dn-dot.viva{ background:var(--green); box-shadow:0 0 8px var(--green); }
-body.dual-on #dual-nav .dn-tab .dn-tag{ font-size:8px; font-weight:800; letter-spacing:1.5px; color:var(--blue); }
-body.dual-on #dual-nav .dn-tab .dn-tit{ font-size:11px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-body.dual-on #dual-nav .dn-tab .dn-price{ font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--gold); margin-left:auto; flex-shrink:0; }
-/* En pantallas anchas ambas subastas ya se ven: la barra no hace falta */
-@media (min-width: 961px){ body.dual-on #dual-nav{ display:none; } }
-/* Espacio para que la barra no tape el contenido al final */
-body.dual-on #screen-app{ padding-bottom:150px !important; }
-/* Al saltar con la barra, el panel no queda tapado por el header fijo */
+.dc-sub{ font-size:12px; color:var(--muted2); margin:6px 0 22px; text-align:center; letter-spacing:.5px; }
+.dc-grid{ display:grid; grid-template-columns:minmax(0,1fr); gap:14px; width:100%; }
+@media(min-width:700px){ .dc-grid{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; } }
+.dc-card{
+  position:relative; background:var(--s1); border:2px solid var(--border2); border-radius:18px;
+  padding:16px; cursor:pointer; text-align:center; transition:transform .15s, border-color .2s, box-shadow .2s;
+  font-family:'Outfit',sans-serif; color:var(--text); width:100%;
+}
+.dc-card:hover{ transform:translateY(-3px); }
+.dc-card.dc-a{ border-color:rgba(78,168,255,.45); }
+.dc-card.dc-a:hover{ border-color:var(--blue); box-shadow:0 8px 30px rgba(78,168,255,.18); }
+.dc-card.dc-b{ border-color:rgba(255,59,92,.45); }
+.dc-card.dc-b:hover{ border-color:var(--red); box-shadow:0 8px 30px rgba(255,59,92,.18); }
+.dc-pill{ font-size:10px; font-weight:800; letter-spacing:2px; padding:4px 14px; border-radius:20px; display:inline-block; margin-bottom:10px; }
+.dc-a .dc-pill{ background:rgba(78,168,255,.14); color:var(--blue); border:1px solid rgba(78,168,255,.4); }
+.dc-b .dc-pill{ background:rgba(255,59,92,.12); color:var(--red); border:1px solid rgba(255,59,92,.4); }
+.dc-img{
+  width:130px; height:182px; object-fit:cover; border-radius:10px; margin:0 auto 10px;
+  border:1px solid var(--border2); display:block; background:var(--s2);
+}
+.dc-noimg{
+  width:130px; height:182px; border-radius:10px; margin:0 auto 10px; border:1px dashed var(--border2);
+  display:flex; align-items:center; justify-content:center; font-size:34px; opacity:.4; background:var(--s2);
+}
+.dc-tit{ font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:1px; line-height:1.15; }
+.dc-set{ font-size:11px; color:var(--muted2); margin-top:2px; }
+.dc-precio{ font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:800; color:var(--gold); margin-top:8px; }
+.dc-estado{ font-size:10px; font-weight:700; letter-spacing:1px; margin-top:4px; }
+.dc-estado.viva{ color:var(--green); }
+.dc-estado.prog{ color:var(--gold); }
+.dc-estado.fin{ color:var(--muted2); }
+.dc-entrar{
+  margin-top:12px; width:100%; padding:11px; border-radius:10px; font-weight:800; font-size:13px;
+  letter-spacing:1.5px; border:none; cursor:pointer; font-family:'Outfit',sans-serif;
+}
+.dc-a .dc-entrar{ background:linear-gradient(135deg,var(--blue),#2b6fd4); color:#fff; }
+.dc-b .dc-entrar{ background:linear-gradient(135deg,var(--red),#d42b4d); color:#fff; }
+
+/* ════════════════════════════
+   VISTA DE UNA SOLA SUBASTA + BOTÓN FIJO DE CAMBIO
+════════════════════════════ */
+/* La elegida ocupa una sola columna centrada */
+body.dual-on:not(.dual-choosing):not(.dual-admin-ambas) #dual-app{ grid-template-columns:minmax(0,1fr) !important; }
+@media(min-width:900px){
+  body.dual-on:not(.dual-choosing):not(.dual-admin-ambas) #dual-app{ max-width:620px; margin-left:auto; margin-right:auto; width:100%; }
+}
+body.dual-sel-a #dx-panel-b, body.dual-sel-b #dx-panel-a{ display:none !important; }
+body.dual-sel-a #dz-col-b,  body.dual-sel-b #dz-col-a{ display:none !important; }
+body.dual-sel-a #dual-zonas, body.dual-sel-b #dual-zonas{ grid-template-columns:minmax(0,1fr) !important; }
+/* El admin ve AMBAS a la vez (necesita vigilar las dos): sin selección única */
+body.dual-admin-ambas #dual-switch{ display:none !important; }
+
+#dual-switch{ display:none; }
+body.dual-on:not(.dual-choosing) #dual-switch{
+  display:flex; align-items:center; gap:9px;
+  position:sticky; top:58px; z-index:150;
+  margin:0 0 12px; padding:7px 12px;
+  background:rgba(16,16,26,.94); backdrop-filter:blur(10px);
+  border:1.5px solid var(--border2); border-radius:14px;
+  cursor:pointer; color:var(--text); font-family:'Outfit',sans-serif; text-align:left;
+  transition:border-color .2s;
+}
+#dual-switch:hover{ border-color:var(--gold); }
+#dual-switch .ds-thumb{ width:26px; height:36px; border-radius:4px; object-fit:cover; flex-shrink:0; background:var(--s3); border:1px solid var(--border2); }
+#dual-switch .ds-tag{ font-size:8px; font-weight:800; letter-spacing:1.5px; color:var(--blue); display:block; }
+#dual-switch .ds-tit{ font-size:11px; font-weight:600; display:block; max-width:34vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#dual-switch .ds-price{ font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; color:var(--gold); margin-left:auto; flex-shrink:0; }
+#dual-switch .ds-flecha{ font-size:15px; flex-shrink:0; color:var(--muted2); }
+#dual-switch .ds-fin{ font-size:9px; font-weight:800; color:var(--red); flex-shrink:0; letter-spacing:1px; }
+
+/* ════════════════════════════
+   ADMIN EN DOS COLUMNAS (modo paralelo, pantallas anchas)
+════════════════════════════ */
+#admin-cols{ display:block; }
+@media(min-width:1000px){
+  body.dual-on #admin-cols{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; align-items:start; }
+}
+
+/* ════════════════════════════
+   ESTADÍSTICAS PARALELAS (admin, modo dual)
+════════════════════════════ */
+#stats-dual:empty{ display:none; }
+.stats-dual-grid{ display:grid; grid-template-columns:minmax(0,1fr); gap:10px; margin-bottom:12px; }
+@media(min-width:800px){ .stats-dual-grid{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
+.stat-col{ background:var(--s2); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.stat-col-h{ padding:9px 12px; border-bottom:1px solid var(--border); font-size:10px; font-weight:800; letter-spacing:1.5px; color:var(--blue); display:flex; justify-content:space-between; align-items:center; }
+.stat-col-nums{ display:flex; gap:6px; padding:9px 12px; }
+.stat-col-nums > div{ flex:1; background:var(--s1); border:1px solid var(--border); border-radius:8px; padding:7px; text-align:center; }
+.stat-col-nums .n{ font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700; color:var(--gold); }
+.stat-col-nums .l{ font-size:8px; color:var(--muted2); text-transform:uppercase; letter-spacing:.5px; margin-top:1px; }
+.stat-col-list{ max-height:170px; overflow-y:auto; }
+.stat-puja-row{ display:flex; justify-content:space-between; align-items:center; gap:8px; padding:7px 12px; border-bottom:1px solid var(--border); font-size:11px; }
+
+/* Historial de ganadores en dos columnas (modo dual) */
+.hist-dual{ display:grid; grid-template-columns:minmax(0,1fr); gap:0; }
+@media(min-width:800px){ .hist-dual{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
+.hist-dual .hist-col-h{ padding:8px 14px; font-size:9px; font-weight:800; letter-spacing:1.5px; color:var(--blue); border-bottom:1px solid var(--border); background:var(--s3); }
+.hist-dual > div{ min-width:0; }
+
+/* Enlace visible al reglamento (bajo la zona de puja) */
+.reglas-link{
+  display:block; width:100%; margin-top:8px; background:rgba(245,200,66,.07);
+  border:1px solid rgba(245,200,66,.35); color:var(--gold); border-radius:9px;
+  padding:8px 10px; font-size:11px; font-weight:700; letter-spacing:.5px;
+  cursor:pointer; font-family:'Outfit',sans-serif; text-align:center;
+  transition:background .2s, border-color .2s;
+}
+.reglas-link:hover{ background:rgba(245,200,66,.14); border-color:var(--gold); }
+
+/* La barra inferior antigua queda reemplazada por el botón superior */
+#dual-nav{ display:none !important; }
+/* Al saltar con el botón, el panel no queda tapado por el header */
 .dx-panel{ scroll-margin-top:74px; }
 
 /* ════════════════════════════
@@ -2067,14 +2169,20 @@ body.dual-on #admin-b-box{ display:block; }
     <div class="hdr-logo" id="hdr-logo-wrap">Paldea Games</div>
     <div class="hdr-right">
       <button id="hdr-tv-btn" onclick="openTV()" title="Abrir vista TV" style="display:none;background:var(--s3);color:var(--text);border:1px solid var(--border2);border-radius:9px;width:38px;height:34px;font-size:17px;cursor:pointer;align-items:center;justify-content:center;padding:0">📺</button>
-      <button onclick="abrirReglas()" title="Reglamento de la subasta — léeme" style="background:var(--s3);color:var(--text);border:1px solid var(--border2);border-radius:9px;width:38px;height:34px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">📜</button>
+      <button onclick="abrirReglas()" title="Leer el reglamento de la subasta" style="background:var(--s3);color:var(--gold);border:1px solid rgba(245,200,66,.45);border-radius:9px;height:34px;font-size:11px;font-weight:700;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 11px;font-family:'Outfit',sans-serif;white-space:nowrap">📜 <span>REGLAMENTO</span></button>
       <div class="pill pill-wait" id="status-pill"><div class="dot-pulse"></div><span id="status-txt">En espera</span></div>
       <div class="hdr-user" id="hdr-user">—</div>
       <button class="btn-ghost" onclick="confirmLogout()">Salir</button>
     </div>
   </div>
 
+  <!-- Selector "elige tu subasta" (solo modo paralelo; lo rellena el JS) -->
+  <div id="dual-chooser"></div>
+
   <div class="wrap">
+
+    <!-- Botón fijo para cambiar de subasta (modo paralelo; lo rellena el JS) -->
+    <div id="dual-switch"></div>
 
     <!-- CINTA SUBASTA EXPRESS (solo modo express) -->
     <div id="express-cinta">⚡ SUBASTA EXPRESS · ¡RÁPIDA! ⚡</div>
@@ -2227,6 +2335,7 @@ body.dual-on #admin-b-box{ display:block; }
         <button class="btn-bid" id="btn-bid" onclick="doBid()" disabled>PUJAR</button>
       </div>
       <div class="bid-min-hint" id="bid-hint">Esperando inicio de subasta</div>
+      <button class="reglas-link" onclick="abrirReglas()">📖 Leer el reglamento antes de pujar</button>
       <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
         <div style="font-size:11px;color:var(--muted2)">
           💰 Precio base: <span id="info-base" style="color:var(--text);font-family:'JetBrains Mono',monospace;font-weight:600">—</span>
@@ -2269,6 +2378,10 @@ body.dual-on #admin-b-box{ display:block; }
           <span class="switch-slider"></span>
         </label>
       </div>
+
+      <!-- En modo paralelo: dos columnas (Subasta 1 | Subasta 2) -->
+      <div id="admin-cols">
+      <div id="admin-col-a">
 
       <div class="section-label">Carta <span id="a-etiqueta-1a" style="display:none;color:var(--blue)">· SUBASTA 1</span></div>
 
@@ -2382,8 +2495,12 @@ body.dual-on #admin-b-box{ display:block; }
 
       <!-- SLAB / CARTA GRADEADA -->
       <div class="sep"></div>
-      <div class="section-label">🛡️ Carta gradeada (slab) <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">· opcional</span></div>
-      <div style="font-size:10px;color:var(--muted2);margin-bottom:8px;line-height:1.5">Si la carta está encapsulada, completa estos datos y se mostrarán en la descripción con botón de verificación. Déjalos vacíos si es una carta suelta (raw) y no se mostrará nada.</div>
+      <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <span>🛡️ Carta gradeada (slab) <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">· opcional</span></span>
+        <label class="switch" title="Activar si la carta está encapsulada"><input type="checkbox" id="a-es-slab" onchange="toggleSlabA(this.checked)"><span class="switch-slider"></span></label>
+      </div>
+      <div id="a-slab-campos" style="display:none">
+      <div style="font-size:10px;color:var(--muted2);margin-bottom:8px;line-height:1.5">Al activarla, la <strong style="color:var(--text)">condición queda en "Ninguna · sin badge"</strong> automáticamente: el grado de la encapsuladora reemplaza al estado de la carta. Completa los datos y se mostrarán en la descripción con botón de verificación.</div>
       <div class="admin-grid2">
         <input class="a-input" id="a-slab-comp" list="slab-companias" placeholder="Compañía (ej: PSA)" autocomplete="off" />
         <datalist id="slab-companias">
@@ -2416,6 +2533,7 @@ body.dual-on #admin-b-box{ display:block; }
         <input class="a-input" id="a-slab-cert" placeholder="N° de certificación" inputmode="numeric" autocomplete="off" />
         <input class="a-input" id="a-slab-link" type="url" placeholder="Link de verificación (https://...)" autocomplete="off" />
       </div>
+      </div>
 
       <div class="sep"></div>
       <div class="section-label" style="display:flex;align-items:center;gap:7px">
@@ -2440,21 +2558,21 @@ body.dual-on #admin-b-box{ display:block; }
           <span style="color:var(--muted)">o también</span> <code style="color:var(--green);font-size:9px;word-break:break-all">raw.githubusercontent.com/...</code>
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6">
-          💡 Nómbralas con <strong style="color:var(--muted2)">prefijo por ítem</strong>: <strong style="color:var(--muted2)">c1-01.jpg…</strong> (carta 1), <strong style="color:var(--muted2)">c2-01.jpg…</strong> (carta 2), <strong style="color:var(--muted2)">s1-01.jpg…</strong> (slab). Con el generador de abajo pegas solo la primera URL.
+          💡 <strong style="color:var(--muted2)">Convención de la carpeta:</strong> fotos <strong style="color:var(--gold)">1.jpg a 15.jpg</strong> → Subasta 1 · <strong style="color:var(--red)">16.jpg a 30.jpg</strong> → Subasta 2. Si hay una sola subasta, usa solo 1–15. Con el generador de abajo pegas solo la URL de la primera.
         </div>
       </div>
 
       <!-- GENERADOR RÁPIDO DE URLs DE FOTOS -->
       <div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:11px 13px;margin-bottom:10px">
-        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:7px">⚡ Generador rápido de URLs</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:7px">⚡ Generador rápido de URLs · Subasta 1 (fotos 1–15)</div>
         <div style="font-size:10px;color:var(--muted2);line-height:1.5;margin-bottom:8px">
-          Pega la URL de la <strong style="color:var(--text)">primera foto</strong> (ej: <code style="background:var(--s3);padding:1px 4px;border-radius:4px;font-size:9px">…/c1-01.jpg</code>), indica cuántas fotos son y se generan todas solas: c1-01, c1-02, c1-03…
+          Pega la URL de la <strong style="color:var(--text)">foto 1</strong> (ej: <code style="background:var(--s3);padding:1px 4px;border-radius:4px;font-size:9px">…/1.jpg</code>) y se generan solas las 15: 1, 2, 3… 15. Las que no existan simplemente no cargan — borra las que sobren con ✕ en la lista. Si tus archivos tienen ceros (01.jpg), también funciona.
         </div>
         <div class="admin-grid1" style="margin-bottom:6px">
-          <input class="a-input" id="a-gen-url" placeholder="URL de la primera foto (https://raw.githubusercontent.com/.../c1-01.jpg)" style="font-size:12px" />
+          <input class="a-input" id="a-gen-url" placeholder="URL de la foto 1 (https://github.com/.../blob/main/1.jpg?raw=true)" style="font-size:12px" />
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <input class="a-input" id="a-gen-n" type="number" placeholder="N° fotos" value="12" style="width:86px;flex-shrink:0" />
+          <input class="a-input" id="a-gen-n" type="number" placeholder="N° fotos" value="15" style="width:86px;flex-shrink:0;display:none" />
           <button class="a-btn-sm" onclick="generarUrlsFotos(false)" style="flex:1;min-width:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070d;font-weight:700;border-color:transparent">⚡ Generar y agregar</button>
           <button class="a-btn-sm" onclick="generarUrlsFotos(true)" title="Borra la lista actual y la reemplaza con las fotos generadas" style="color:var(--muted2)">⇄ Reemplazar</button>
         </div>
@@ -2554,8 +2672,12 @@ body.dual-on #admin-b-box{ display:block; }
         <button class="a-btn danger" onclick="adminReset()">🗑 Resetear</button>
       </div>
 
+      </div><!-- /admin-col-a -->
+      <div id="admin-col-b">
       <!-- SUBASTA 2 (modo paralelo): la construye el JS -->
       <div id="admin-b-box"></div>
+      </div><!-- /admin-col-b -->
+      </div><!-- /admin-cols -->
 
       <div id="bloqueados-section" style="display:none;margin-top:10px">
         <div class="sep"></div>
@@ -2601,6 +2723,9 @@ body.dual-on #admin-b-box{ display:block; }
           <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Solo miraron</div>
         </div>
       </div>
+
+      <!-- Estadísticas por subasta (modo paralelo; lo rellena el JS) -->
+      <div id="stats-dual"></div>
 
       <!-- Lista visitantes -->
       <div style="background:var(--s2);border:1px solid var(--border);border-radius:10px;overflow:hidden">
@@ -3892,6 +4017,7 @@ function confirmarRectificacion(){
   document.getElementById("screen-app").style.display   = "block";
   document.getElementById("hdr-user").textContent       = user.nombre;
   renderApp();
+  try{ aplicarEleccionDual(); }catch(e){}
   toast("✅ Contacto registrado — ¡a pujar!","ok");
 }
 
@@ -3904,6 +4030,13 @@ async function doLogout(){
   document.getElementById("admin-panel").style.display="none";
   document.getElementById("paso-google").style.display="block";
   document.getElementById("paso-datos").style.display="none";
+  // Salir del modo paralelo limpio: sin selector ni botón de cambio visibles.
+  // La elección se olvida: al volver a entrar, el selector aparece de nuevo.
+  document.body.classList.remove("dual-choosing","dual-sel-a","dual-sel-b","dual-admin-ambas");
+  try{ localStorage.removeItem("paldea_dual_elegida"); }catch(e){}
+  dualElegida = null;
+  const dch = document.getElementById("dual-chooser"); if(dch) dch.innerHTML="";
+  const dsw = document.getElementById("dual-switch");  if(dsw) dsw.innerHTML="";
 }
 
 function confirmLogout(){
@@ -5503,6 +5636,42 @@ function parsearTextoCarta(px){
   toast(msg, detectados.length >= 4 ? "ok" : "warn");
 }
 
+// ── Interruptor "carta gradeada (slab)" ──
+// Al activarlo: se muestran los campos del slab y la condición pasa sola a
+// "Ninguna · sin badge" (el grado de la encapsuladora reemplaza al estado).
+// Al apagarlo: se limpian los campos del slab y, si la condición había quedado
+// en "sin badge", vuelve a NM.
+function toggleSlabA(on){ setSlabUI("a", on); }
+function toggleSlabB(on){ setSlabUI("b", on); }
+function setSlabUI(prefijo, on){
+  const chk = document.getElementById(prefijo + "-es-slab");
+  if(chk) chk.checked = !!on;
+  const box = document.getElementById(prefijo + "-slab-campos");
+  if(box) box.style.display = on ? "" : "none";
+  const condSel = document.getElementById(prefijo + "-cond");
+  if(on){
+    if(condSel) condSel.value = "NONE";
+  } else {
+    for(const suf of ["slab-comp","slab-grado","slab-cert","slab-link"]){
+      const e = document.getElementById(prefijo + "-" + suf);
+      if(e) e.value = "";
+    }
+    if(condSel && condSel.value === "NONE") condSel.value = "NM";
+  }
+}
+// Refleja en el interruptor lo que ya está guardado (al abrir el panel admin)
+function sincronizarSlabUI(prefijo){
+  let hay = false;
+  for(const suf of ["slab-comp","slab-grado","slab-cert","slab-link"]){
+    const e = document.getElementById(prefijo + "-" + suf);
+    if(e && (e.value || "").trim()){ hay = true; break; }
+  }
+  const chk = document.getElementById(prefijo + "-es-slab");
+  if(chk) chk.checked = hay;
+  const box = document.getElementById(prefijo + "-slab-campos");
+  if(box) box.style.display = hay ? "" : "none";
+}
+
 function fillAdminFields(){
   llenarHoras();
   document.getElementById("a-title").value    = S.carta.titulo;
@@ -5528,6 +5697,7 @@ function fillAdminFields(){
   }
   document.getElementById("a-slab-cert").value  = slabF.cert||"";
   document.getElementById("a-slab-link").value  = slabF.link||"";
+  sincronizarSlabUI("a");
   document.getElementById("a-base").value     = S.subasta.base;
   document.getElementById("a-inc").value      = S.subasta.inc;
   const expEl = document.getElementById("a-express");
@@ -5554,16 +5724,26 @@ function renderImgList(){
 // Detecta el último grupo numérico del nombre (c1-01.jpg → prefijo "c1-",
 // ancho 2) y genera c1-01 … c1-NN respetando el relleno de ceros.
 // reemplazar=true borra la lista actual; false agrega a lo que ya haya.
+// Convención de carpeta (v5.2): Subasta 1 = fotos 1–15 · Subasta 2 = 16–30.
+// Acepta la URL de la primera foto (…/1.jpg) o la URL de la carpeta (…/fotos/).
+// Respeta el formato del nombre: si la muestra tiene ceros a la izquierda
+// (…/01.jpg) los conserva; si no (…/1.jpg), genera 1, 2, 3… sin relleno.
+function construirUrlsRango(muestra, desde, hasta){
+  let m = muestra.match(/^(.*?)(\d+)(\.[a-zA-Z0-9]+(?:\?.*)?)$/);
+  let base, ancho, ext;
+  if(m){ base = m[1]; ancho = (m[2].length > 1 && m[2][0] === "0") ? m[2].length : 0; ext = m[3]; }
+  else if(muestra.endsWith("/")){ base = muestra; ancho = 0; ext = ".jpg"; }
+  else return null;
+  const urls = [];
+  for(let i = desde; i <= hasta; i++) urls.push(base + (ancho ? String(i).padStart(ancho, "0") : String(i)) + ext);
+  return urls;
+}
+
 function generarUrlsFotos(reemplazar){
   const muestra = (document.getElementById("a-gen-url").value || "").trim();
-  const n = parseInt(document.getElementById("a-gen-n").value);
-  if(!muestra){ toast("Pega la URL de la primera foto","err"); return; }
-  if(!n || n < 1 || n > 60){ toast("N° de fotos inválido (1–60)","err"); return; }
-  const m = muestra.match(/^(.*?)(\d+)(\.[a-zA-Z0-9]+(?:\?.*)?)$/);
-  if(!m){ toast("La URL debe terminar en número + extensión (ej: c1-01.jpg)","err"); return; }
-  const base = m[1], ancho = m[2].length, ext = m[3];
-  const urls = [];
-  for(let i = 1; i <= n; i++) urls.push(base + String(i).padStart(ancho, "0") + ext);
+  if(!muestra){ toast("Pega la URL de la foto 1 (o de la carpeta)","err"); return; }
+  const urls = construirUrlsRango(muestra, 1, 15);   // Subasta 1: fotos 1–15
+  if(!urls){ toast("La URL debe terminar en número + extensión (ej: 1.jpg) o ser la carpeta","err"); return; }
   if(reemplazar){
     S.carta.imgs = urls.slice();
     save(); renderImgList(); renderGallery();
@@ -6552,6 +6732,7 @@ onAuthStateChanged(auth, (fbUser) => {
                try{ if(typeof fillAdminFieldsB === "function") fillAdminFieldsB(); }catch(e){} }
       }, 400);
       renderApp();
+      try{ aplicarEleccionDual(); }catch(e){}
       return;
     }
 
@@ -6588,6 +6769,7 @@ onAuthStateChanged(auth, (fbUser) => {
           document.getElementById("screen-app").style.display   = "block";
           document.getElementById("hdr-user").textContent       = user.nombre;
           renderApp();
+          try{ aplicarEleccionDual(); }catch(e){}
         } else {
           console.log("[Paldea] Perfil incompleto → mostrar formulario de contacto:", {ig: !!perfil.ig, whatsapp: !!perfil.whatsapp, declaro18: !!perfil.declaro18});
           perfilPrevio = perfil;   // pre-rellena lo que haya
@@ -6606,6 +6788,8 @@ onAuthStateChanged(auth, (fbUser) => {
     if(al) al.style.display = "none";
     const ap = document.getElementById("admin-panel");
     if(ap) ap.style.display = "none";
+    // …y del selector/vista única del modo paralelo
+    document.body.classList.remove("dual-choosing","dual-sel-a","dual-sel-b","dual-admin-ambas");
   }
 });
 
@@ -6721,7 +6905,7 @@ function renderHistorialGanadores(){
     box.innerHTML = '<div style="padding:16px;text-align:center;font-size:12px;color:var(--muted2)">Aún no hay ganadores guardados en este navegador</div>';
     return;
   }
-  box.innerHTML = hist.map((h, i) => {
+  const itemHtml = (h, i) => {
     const contacto = h.whatsapp || h.ig || "";
     return `<div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:8px">
       <div style="flex:1;min-width:0">
@@ -6734,7 +6918,22 @@ function renderHistorialGanadores(){
       </div>
       <button onclick="eliminarGanadorHist(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;flex-shrink:0" title="Eliminar este ganador">✕</button>
     </div>`;
-  }).join("");
+  };
+  // En modo paralelo el historial se separa por subasta (la clave de la
+  // Subasta 2 lleva el prefijo "b|"). Los índices originales se conservan
+  // para que eliminarGanadorHist(i) siga apuntando al registro correcto.
+  if(CFG.modoDual){
+    const colA = hist.map((h,i)=>({h,i})).filter(x => !String(x.h.clave||"").startsWith("b|"));
+    const colB = hist.map((h,i)=>({h,i})).filter(x =>  String(x.h.clave||"").startsWith("b|"));
+    const col = (arr, titulo, color) => `<div>
+      <div class="hist-col-h" style="color:${color}">${titulo} · ${arr.length}</div>
+      ${arr.length ? arr.map(x => itemHtml(x.h, x.i)).join("")
+        : '<div style="padding:14px;text-align:center;font-size:11px;color:var(--muted2)">Sin ganadores aún</div>'}
+    </div>`;
+    box.innerHTML = `<div class="hist-dual">${col(colA,"🔵 SUBASTA 1","var(--blue)")}${col(colB,"🔴 SUBASTA 2","var(--red)")}</div>`;
+    return;
+  }
+  box.innerHTML = hist.map((h, i) => itemHtml(h, i)).join("");
 }
 
 function copiarHistorialGanadores(){
@@ -7818,6 +8017,7 @@ function htmlPanelApp(cual){
       <button class="btn-bid" id="dx-btn-${cual}" onclick="doBidDual('${cual}')" disabled>PUJAR</button>
     </div>
     <div class="dx-hint" id="dx-hint-${cual}">Esperando inicio de subasta</div>
+    <button class="reglas-link" onclick="abrirReglas()">📖 Leer el reglamento antes de pujar</button>
     <div class="dx-baseinc">
       <span>💰 Base: <b id="dx-base-${cual}" style="color:var(--text);font-family:'JetBrains Mono',monospace">—</b></span>
       <span>📈 Incrementos: <b id="dx-inc-${cual}" style="color:var(--text);font-family:'JetBrains Mono',monospace">—</b></span>
@@ -7922,7 +8122,12 @@ function htmlAdminB(){
   </div>
 
   <div class="sep"></div>
-  <div class="section-label">🛡️ Carta gradeada (slab) <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">· opcional</span></div>
+  <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+    <span>🛡️ Carta gradeada (slab) <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">· opcional</span></span>
+    <label class="switch" title="Activar si la carta está encapsulada"><input type="checkbox" id="b-es-slab" onchange="toggleSlabB(this.checked)"><span class="switch-slider"></span></label>
+  </div>
+  <div id="b-slab-campos" style="display:none">
+  <div style="font-size:10px;color:var(--muted2);margin-bottom:8px;line-height:1.5">Al activarla, la <strong style="color:var(--text)">condición queda en "Ninguna · sin badge"</strong> automáticamente: el grado de la encapsuladora reemplaza al estado de la carta.</div>
   <div class="admin-grid2">
     <input class="a-input" id="b-slab-comp" list="slab-companias" placeholder="Compañía (ej: PSA)" autocomplete="off" />
     <select class="a-input" id="b-slab-grado" style="cursor:pointer;color:var(--text)">${ops("a-slab-grado")}</select>
@@ -7931,16 +8136,20 @@ function htmlAdminB(){
     <input class="a-input" id="b-slab-cert" placeholder="N° de certificación" inputmode="numeric" autocomplete="off" />
     <input class="a-input" id="b-slab-link" type="url" placeholder="Link de verificación (https://...)" autocomplete="off" />
   </div>
+  </div>
 
   <div class="sep"></div>
   <div class="section-label">Fotos (URLs) · Subasta 2</div>
   <div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:11px 13px;margin-bottom:10px">
-    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:7px">⚡ Generador rápido de URLs</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:7px">⚡ Generador rápido de URLs · Subasta 2 (fotos 16–30)</div>
+    <div style="font-size:10px;color:var(--muted2);line-height:1.5;margin-bottom:8px">
+      Pega la URL de la <strong style="color:var(--text)">foto 16</strong> (ej: <code style="background:var(--s3);padding:1px 4px;border-radius:4px;font-size:9px">…/16.jpg</code>) y se generan solas las 15: 16, 17… 30.
+    </div>
     <div class="admin-grid1" style="margin-bottom:6px">
-      <input class="a-input" id="b-gen-url" placeholder="URL de la primera foto (…/c2-01.jpg)" style="font-size:12px" />
+      <input class="a-input" id="b-gen-url" placeholder="URL de la foto 16 (…/16.jpg)" style="font-size:12px" />
     </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
-      <input class="a-input" id="b-gen-n" type="number" placeholder="N° fotos" value="12" style="width:86px;flex-shrink:0" />
+      <input class="a-input" id="b-gen-n" type="number" placeholder="N° fotos" value="15" style="width:86px;flex-shrink:0;display:none" />
       <button class="a-btn-sm" onclick="generarUrlsFotosB(false)" style="flex:1;min-width:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070d;font-weight:700;border-color:transparent">⚡ Generar y agregar</button>
       <button class="a-btn-sm" onclick="generarUrlsFotosB(true)" title="Borra la lista actual y la reemplaza" style="color:var(--muted2)">⇄ Reemplazar</button>
     </div>
@@ -8202,6 +8411,9 @@ function aplicarModoDual(){
   // por el resumen compacto de ambas (visibles sin desplazarse)
   toggleLoginDualBlocks(on);
 
+  // Selector "elige tu subasta" / vista de una sola (v5.2)
+  try{ aplicarEleccionDual(); }catch(e){ console.error("eleccionDual:", e); }
+
   if(on){
     startDualTick();
     try{ if(isTVMode) renderDualTV(); else if(user) renderDualTodo(); }catch(e){ console.error("dual:", e); }
@@ -8209,6 +8421,13 @@ function aplicarModoDual(){
     try{ renderLoginResumenDual(); }catch(e){}
   } else {
     stopDualTick();
+    // Limpiar selector/botón de cambio del modo paralelo
+    dualElegida = null;
+    document.body.classList.remove("dual-choosing","dual-sel-a","dual-sel-b","dual-admin-ambas");
+    const dch = document.getElementById("dual-chooser"); if(dch) dch.innerHTML = "";
+    const dsw = document.getElementById("dual-switch");  if(dsw) dsw.innerHTML = "";
+    const sd  = document.getElementById("stats-dual");   if(sd)  sd.innerHTML  = "";
+    try{ renderHistorialGanadores(); }catch(e){}   // vuelve a la vista de una lista
     // Volver a la vista normal: los renders de siempre retoman el control
     // y el tema express global vuelve a aplicar si la Subasta 1 es express
     try{ aplicarTemaExpress(); }catch(e){}
@@ -8367,6 +8586,7 @@ function fillAdminFieldsB(){
   }
   document.getElementById("b-slab-cert").value  = slabF.cert||"";
   document.getElementById("b-slab-link").value  = slabF.link||"";
+  sincronizarSlabUI("b");
   document.getElementById("b-base").value     = SB.subasta.base;
   document.getElementById("b-inc").value      = SB.subasta.inc;
   const expEl = document.getElementById("b-express");
@@ -8580,14 +8800,9 @@ function renderImgListB(){
 
 function generarUrlsFotosB(reemplazar){
   const muestra = (document.getElementById("b-gen-url").value || "").trim();
-  const n = parseInt(document.getElementById("b-gen-n").value);
-  if(!muestra){ toast("Pega la URL de la primera foto","err"); return; }
-  if(!n || n < 1 || n > 60){ toast("N° de fotos inválido (1–60)","err"); return; }
-  const m = muestra.match(/^(.*?)(\d+)(\.[a-zA-Z0-9]+(?:\?.*)?)$/);
-  if(!m){ toast("La URL debe terminar en número + extensión (ej: c2-01.jpg)","err"); return; }
-  const base = m[1], ancho = m[2].length, ext = m[3];
-  const urls = [];
-  for(let i = 1; i <= n; i++) urls.push(base + String(i).padStart(ancho, "0") + ext);
+  if(!muestra){ toast("Pega la URL de la foto 16 (o de la carpeta)","err"); return; }
+  const urls = construirUrlsRango(muestra, 16, 30);   // Subasta 2: fotos 16–30
+  if(!urls){ toast("La URL debe terminar en número + extensión (ej: 16.jpg) o ser la carpeta","err"); return; }
   if(reemplazar){
     SB.carta.imgs = urls.slice();
     saveB(); renderImgListB(); renderDualTodo();
@@ -9210,6 +9425,9 @@ function renderDualTodo(){
   renderEstadoLineB();
   renderBloqueadosB();
   renderDualNav();
+  try{ renderDualSwitch(); }catch(e){ console.error("dualSwitch:", e); }
+  try{ renderStatsDual();  }catch(e){ console.error("statsDual:", e); }
+  try{ renderHistorialGanadores(); }catch(e){}
   if(!admin && user){
     try{ checkModalGanadorDual(); }catch(e){ console.error("modalGanadorDual:", e); }
     try{ checkModalTop23Dual(); }catch(e){ console.error("top23Dual:", e); }
@@ -10186,6 +10404,162 @@ function arrancarDemo(){
 // ══════════════════════════════════════
 //  ARRANQUE DEL MÓDULO DUAL
 // ══════════════════════════════════════
+
+// ══════════════════════════════════════
+//  SELECTOR "ELIGE TU SUBASTA" + BOTÓN FIJO DE CAMBIO (v5.2)
+// ══════════════════════════════════════
+// En modo paralelo el pujador ve UNA sola subasta a la vez. Al entrar aparece
+// el selector con la portada de cada una ("la azul o la roja"); la elección se
+// recuerda en localStorage y se puede cambiar con el botón fijo de arriba.
+// El admin no elige: vigila ambas a la vez (clase dual-admin-ambas).
+let dualElegida = null;   // "a" | "b"
+
+function aplicarEleccionDual(){
+  const b = document.body;
+  b.classList.remove("dual-choosing","dual-sel-a","dual-sel-b","dual-admin-ambas");
+  if(!CFG.modoDual || isTVMode){ dualElegida = null; return; }
+  const app = document.getElementById("screen-app");
+  if(!app || app.style.display !== "block"){
+    dualElegida = null;
+    const ch = document.getElementById("dual-chooser"); if(ch) ch.innerHTML = "";
+    const sw = document.getElementById("dual-switch");  if(sw) sw.innerHTML = "";
+    return;
+  }
+  if(admin){ b.classList.add("dual-admin-ambas"); return; }
+  let guardada = null;
+  try{ guardada = localStorage.getItem("paldea_dual_elegida"); }catch(e){}
+  dualElegida = (guardada === "a" || guardada === "b") ? guardada : null;
+  if(!dualElegida){
+    b.classList.add("dual-choosing");
+    renderDualChooser();
+  } else {
+    b.classList.add(dualElegida === "a" ? "dual-sel-a" : "dual-sel-b");
+  }
+}
+
+function elegirSubasta(cual){
+  dualElegida = (cual === "b") ? "b" : "a";
+  try{ localStorage.setItem("paldea_dual_elegida", dualElegida); }catch(e){}
+  const b = document.body;
+  b.classList.remove("dual-choosing","dual-sel-a","dual-sel-b");
+  b.classList.add(dualElegida === "a" ? "dual-sel-a" : "dual-sel-b");
+  try{ renderDualTodo(); }catch(e){ console.error("elegirSubasta:", e); }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function cambiarSubastaDual(){ elegirSubasta(dualElegida === "a" ? "b" : "a"); }
+
+// Pantalla de elección: portada, precio y estado de cada subasta
+function renderDualChooser(){
+  const box = document.getElementById("dual-chooser");
+  if(!box) return;
+  const tarjeta = (cual) => {
+    const st  = ST(cual);
+    const sub = st.subasta;
+    const foto = (st.carta.imgs || [])[0] || "";
+    const hayOferta = sub.precioAct > 0;
+    const precio = hayOferta ? sub.precioAct : (sub.base || 0);
+    const esSlab = !!(st.carta.slab && (st.carta.slab.compania || st.carta.slab.grado));
+    const cond = (st.carta.cond || "").toUpperCase();
+    const nPujas = (st.pujas || []).length;
+    // Estado de la carta (NM, LP…) — solo si es carta suelta; en slab manda el grado
+    const chipCond = (!esSlab && cond && cond !== "NONE")
+      ? `<div style="margin-bottom:7px"><span style="font-size:9px;font-weight:800;letter-spacing:1px;padding:3px 10px;border-radius:20px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.35);color:var(--gold)">${esc(nombreEstado(cond))}</span></div>`
+      : "";
+    const estado = sub.estado === "activa"
+      ? `<div class="dc-estado viva">● EN VIVO${sub.express ? " ⚡ EXPRESS" : ""}</div>`
+      : sub.estado === "finalizada"
+        ? `<div class="dc-estado fin">🏁 FINALIZADA</div>`
+        : `<div class="dc-estado prog">🕐 PRÓXIMAMENTE</div>`;
+    return `<button class="dc-card dc-${cual}" onclick="elegirSubasta('${cual}')">
+      <span class="dc-pill">${cual === "a" ? "🔵 SUBASTA 1" : "🔴 SUBASTA 2"}</span>
+      ${foto
+        ? `<img class="dc-img" src="${esc(foto)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;dc-noimg&quot;>🃏</div>'">`
+        : `<div class="dc-noimg">🃏</div>`}
+      ${chipCond}
+      <div class="dc-tit">${esc(st.carta.titulo || "Por anunciar")}</div>
+      <div class="dc-set">${esc(st.carta.set || "")}</div>
+      ${esSlab ? `<div class="dc-set" style="color:var(--gold)">🏆 ${esc([st.carta.slab.compania, st.carta.slab.grado].filter(Boolean).join(" "))}${st.carta.slab.cert ? ` · Cert. ${esc(st.carta.slab.cert)}` : ""}</div>` : ""}
+      <div class="dc-precio">${fmtCLP(precio)}</div>
+      <div style="font-size:9px;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase;margin-top:1px">${hayOferta ? "Oferta actual en vivo" : "Precio base · sin pujas aún"}</div>
+      <div class="dc-set" style="margin-top:4px">${nPujas} puja${nPujas !== 1 ? "s" : ""} · incrementos de ${fmtCLP(sub.inc || 0)}</div>
+      ${estado}
+      <span class="dc-entrar">ENTRAR A ESTA SUBASTA →</span>
+    </button>`;
+  };
+  box.innerHTML = `
+    <div class="dc-titulo">⚡ ELIGE TU SUBASTA ⚡</div>
+    <div class="dc-sub">Hay <b>dos subastas</b> activas ahora mismo — elige por dónde empezar.<br>Después puedes saltar a la otra con el botón ⇄ de arriba, cuando quieras.</div>
+    <div class="dc-grid">${tarjeta("a")}${tarjeta("b")}</div>`;
+}
+
+// Botón fijo superior: muestra la OTRA subasta y lleva a ella con un toque
+function renderDualSwitch(){
+  const box = document.getElementById("dual-switch");
+  if(!box) return;
+  if(!CFG.modoDual || isTVMode || admin || (dualElegida !== "a" && dualElegida !== "b")){
+    box.innerHTML = "";
+    return;
+  }
+  const otra = dualElegida === "a" ? "b" : "a";
+  const st   = ST(otra);
+  const sub  = st.subasta;
+  const foto = (st.carta.imgs || [])[0] || "";
+  const precio = sub.precioAct > 0 ? sub.precioAct : (sub.base || 0);
+  const sinFoto = `<span class="ds-thumb" style="display:flex;align-items:center;justify-content:center;font-size:15px">🃏</span>`;
+  box.innerHTML = `
+    ${foto ? `<img class="ds-thumb" src="${esc(foto)}" alt="" onerror="this.outerHTML='${sinFoto.replace(/'/g, "&apos;")}'">` : sinFoto}
+    <span style="min-width:0">
+      <span class="ds-tag" style="color:${otra === "a" ? "var(--blue)" : "var(--red)"}">⇄ IR A ${otra === "a" ? "SUBASTA 1 🔵" : "SUBASTA 2 🔴"}</span>
+      <span class="ds-tit">${esc(st.carta.titulo || "Por anunciar")}</span>
+    </span>
+    ${sub.estado === "finalizada" ? `<span class="ds-fin">🏁 FIN</span>` : ""}
+    <span class="ds-price">${fmtCLP(precio)}</span>
+    <span class="ds-flecha">→</span>`;
+  box.onclick = cambiarSubastaDual;
+}
+
+// ── Estadísticas y participantes en paralelo (admin, modo dual) ──
+// Los datos de cada subasta NUNCA se mezclan: cada columna sale de su propio
+// estado (S o SB), que a su vez viene de su propio nodo de Firebase.
+function statsDeSubasta(cual){
+  const st = ST(cual);
+  const pujas = st.pujas || [];
+  const porPujador = {};
+  pujas.forEach(p => {
+    const clave = p.uid || p.ig || p.nombre || "?";
+    if(!porPujador[clave]) porPujador[clave] = { nombre: p.nombre || "—", uid: p.uid || "", n: 0, max: 0 };
+    porPujador[clave].n++;
+    porPujador[clave].max = Math.max(porPujador[clave].max, p.monto || 0);
+  });
+  const pujadores = Object.values(porPujador).sort((x, y) => y.max - x.max);
+  return { pujadores, nPujas: pujas.length, mayor: pujas.reduce((m, p) => Math.max(m, p.monto || 0), 0) };
+}
+function renderStatsDual(){
+  const box = document.getElementById("stats-dual");
+  if(!box) return;
+  if(!admin || !CFG.modoDual){ box.innerHTML = ""; return; }
+  box.innerHTML = `<div class="stats-dual-grid">${["a","b"].map(cual => {
+    const d = statsDeSubasta(cual);
+    const color = cual === "a" ? "var(--blue)" : "var(--red)";
+    const lista = d.pujadores.length ? d.pujadores.map((pj, i) => {
+      const c = pj.uid ? contactoDe(pj.uid) : null;
+      return `<div class="stat-puja-row">
+        <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i+1}. ${esc(pj.nombre)}${c && c.whatsapp ? ` · 💬 ${esc(c.whatsapp)}` : ""}</span>
+        <span style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-weight:700;color:${color}">${fmtCLP(pj.max)} <span style="color:var(--muted2);font-weight:400">×${pj.n}</span></span>
+      </div>`;
+    }).join("") : `<div style="padding:12px;text-align:center;font-size:11px;color:var(--muted2)">Sin pujas aún</div>`;
+    return `<div class="stat-col">
+      <div class="stat-col-h" style="color:${color}"><span>${cual === "a" ? "🔵 SUBASTA 1" : "🔴 SUBASTA 2"}</span><span style="color:var(--muted2);font-weight:600;letter-spacing:0;text-transform:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:45%">${esc(ST(cual).carta.titulo || "—")}</span></div>
+      <div class="stat-col-nums">
+        <div><div class="n">${d.pujadores.length}</div><div class="l">Pujadores</div></div>
+        <div><div class="n">${d.nPujas}</div><div class="l">Pujas</div></div>
+        <div><div class="n" style="font-size:13px">${d.mayor ? fmtCLP(d.mayor) : "—"}</div><div class="l">Mayor puja</div></div>
+      </div>
+      <div class="stat-col-list">${lista}</div>
+    </div>`;
+  }).join("")}</div>`;
+}
+
 construirDualUI();
 initDualListeners();
 arrancarDemo();
@@ -10273,6 +10647,8 @@ window.copiarHistorialGanadores = copiarHistorialGanadores;
 window.borrarHistorialGanadores = borrarHistorialGanadores;
 window.limpiarYReintentar = limpiarYReintentar;
 window.parsearTextoCarta = parsearTextoCarta;
+window.toggleSlabA = toggleSlabA;
+window.toggleSlabB = toggleSlabB;
 // ── Modo paralelo (Subasta 2) ──
 window.cambiarModoDual   = cambiarModoDual;
 window.doBidDual         = doBidDual;
@@ -10296,6 +10672,8 @@ window.reabrirModalGanadorDual = reabrirModalGanadorDual;
 window.irASubasta    = irASubasta;
 window.abrirReglas   = abrirReglas;
 window.cerrarReglas  = cerrarReglas;
+window.elegirSubasta      = elegirSubasta;
+window.cambiarSubastaDual = cambiarSubastaDual;
 </script>
 </body>
 </html>
