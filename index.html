@@ -356,7 +356,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .winner-ts{font-size:10px;color:var(--muted2);margin-top:2px}
 .winner-price{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:700;color:var(--gold);white-space:nowrap;flex-shrink:0}
 .winner-body{display:flex;align-items:center;gap:10px;margin-top:9px}
-#w-carta-img{width:44px;height:62px;object-fit:cover;border-radius:6px;flex-shrink:0;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+#w-carta-img, #w-carta-img-b{width:44px;height:62px;object-fit:cover;border-radius:6px;flex-shrink:0;box-shadow:0 4px 14px rgba(0,0,0,.5)}
 .winner-datos{flex:1;min-width:0}
 .winner-name{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .winner-ig{font-size:11px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
@@ -2668,6 +2668,7 @@ body.dual-on #a-label-carta{ display:none; }
         <label style="font-size:11px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">🏁 Término programado (opcional) — calcula la duración solo</label>
         <input class="a-input" type="datetime-local" id="a-fin" style="margin-bottom:6px" onchange="recalcDuracion()" />
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <button class="chip-btn" onclick="setFinAhora()">⚡ Ahora</button>
           <button class="chip-btn" id="chip-fin-0" onclick="setFinDia(0)">Hoy</button>
           <button class="chip-btn" id="chip-fin-1" onclick="setFinDia(1)">Mañana</button>
           <button class="chip-btn" id="chip-fin-2" onclick="setFinDia(2)">+2 días</button>
@@ -3349,7 +3350,10 @@ function initPrivadoListener(){
   onValue(ref(db, `${PRIVADO_REF}/visitantes`), (snap) => {
     const v = snap.val();
     P.visitantes = v ? Object.values(v).filter(Boolean) : [];
-    if(admin) renderApp();
+    // En modo paralelo, el panel de la Subasta 2 también usa estos datos:
+    // si solo corre renderApp, la columna B queda "sin contacto" para siempre
+    // cuando los visitantes llegan después que los datos de la subasta.
+    if(admin){ renderApp(); try{ if(CFG.modoDual && !isTVMode) renderDualTodo(); }catch(e){} }
   }, (err) => {
     if(admin){
       console.error("No se pudo leer visitantes:", err.code || err);
@@ -3360,7 +3364,7 @@ function initPrivadoListener(){
 
   onValue(ref(db, `${PRIVADO_REF}/ganadorConfirmado`), (snap) => {
     P.ganadorConfirmado = snap.val() || null;
-    if(admin) renderApp();
+    if(admin){ renderApp(); try{ if(CFG.modoDual && !isTVMode) renderDualTodo(); }catch(e){} }
   }, (err) => {
     if(admin) console.error("No se pudo leer ganadorConfirmado:", err.code || err);
   });
@@ -3368,7 +3372,7 @@ function initPrivadoListener(){
   onValue(ref(db, `${PRIVADO_REF}/contactoTop23`), (snap) => {
     const v = snap.val();
     P.contactoTop23 = v ? Object.values(v).filter(Boolean) : [];
-    if(admin) renderApp();
+    if(admin){ renderApp(); try{ if(CFG.modoDual && !isTVMode) renderDualTodo(); }catch(e){} }
   }, (err) => {
     if(admin) console.error("No se pudo leer contactoTop23:", err.code || err);
   });
@@ -4223,13 +4227,25 @@ function renderApp(){
       me.style.background = "rgba(0,230,122,.1)";
       me.style.border = "1px solid rgba(0,230,122,.3)";
       me.style.color = "var(--green)";
-      me.innerHTML = "🏆 Vas ganando — mantén el ojo hasta el final";
+      me.innerHTML = "👑 <b>¡ERES EL LÍDER!</b> Vas ganando — defiende tu corona hasta el final 🏆";
+    } else if(pos === 2){
+      me.style.display = "block";
+      me.style.background = "rgba(245,200,66,.1)";
+      me.style.border = "1px solid rgba(245,200,66,.35)";
+      me.style.color = "var(--gold)";
+      me.innerHTML = "🥈 <b>¡Vas en 2° lugar!</b> Estás a una sola puja del primer puesto — ¡tú puedes! 💪";
+    } else if(pos === 3){
+      me.style.display = "block";
+      me.style.background = "rgba(255,140,66,.1)";
+      me.style.border = "1px solid rgba(255,140,66,.35)";
+      me.style.color = "var(--orange, #ff8c42)";
+      me.innerHTML = "🥉 <b>Vas en 3° lugar</b> — la remontada está viva: ¡una buena puja te devuelve a la pelea! ⚡";
     } else {
       me.style.display = "block";
       me.style.background = "rgba(255,59,92,.1)";
       me.style.border = "1px solid rgba(255,59,92,.3)";
       me.style.color = "var(--red)";
-      me.innerHTML = `📉 Vas en ${pos}° lugar — puja de nuevo para recuperar el primer puesto`;
+      me.innerHTML = `⚡ <b>Vas en ${pos}° lugar</b> — ¡no te rindas! Sube tu puja y vuelve a la pelea 🚀`;
     }
   }
 
@@ -4245,10 +4261,11 @@ function renderApp(){
         const ct = info ? (info.ig || info.whatsapp || info.email || "") : "";
         pw.textContent = ct ? `${S.lider.nombre} (${ct})` : S.lider.nombre;
       } else if(liderEsMio){
-        pw.innerHTML = `${esc(S.lider.nombre)} <span style="color:var(--gold);font-weight:700">· vas ganando 🏆</span>`;
+        pw.innerHTML = `${esc(S.lider.nombre)} <span style="color:var(--gold);font-weight:700">· ¡eres el líder! 👑</span>`;
       } else {
         const pos = miPosicion();
-        pw.innerHTML = anonimizar(S.lider) + (pos ? ` <span style="color:var(--red);font-weight:700">· vas ${pos}°</span>` : "");
+        const medalla = pos === 2 ? " 🥈" : pos === 3 ? " 🥉" : "";
+        pw.innerHTML = anonimizar(S.lider) + (pos ? ` <span style="color:var(--red);font-weight:700">· vas ${pos}°${medalla}</span>` : "");
       }
     } else { pw.textContent = "—"; }
   } else {
@@ -5389,6 +5406,19 @@ function setFinDesdeAhora(min, px){
   if(sel) sel.value = "";
   recalcDuracion(px);
   toast(`🏁 Término en +${min} min (desde ahora)`, "ok");
+}
+
+// Espejo del "⚡ Ahora" de inicio: término = este momento
+function setFinAhora(px){
+  px = px || "a-";
+  const d = new Date();
+  d.setSeconds(0,0);
+  const campo = document.getElementById(px+"fin");
+  if(campo){ campo.value = aDatetimeLocal(d); }
+  const sel = document.getElementById(px+"fin-hora");
+  if(sel) sel.value = "";
+  recalcDuracion(px);
+  toast("🏁 Término: ahora","ok");
 }
 
 function setFinDia(offset, px){
@@ -8316,6 +8346,7 @@ function htmlAdminB(){
     <label style="font-size:11px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px">🏁 Término programado (opcional) — calcula la duración solo</label>
     <input class="a-input" type="datetime-local" id="b-fin" style="margin-bottom:6px" onchange="recalcDuracion('b-')" />
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <button class="chip-btn" onclick="setFinAhora('b-')">⚡ Ahora</button>
       <button class="chip-btn" id="chip-fin-b-0" onclick="setFinDia(0,'b-')">Hoy</button>
       <button class="chip-btn" id="chip-fin-b-1" onclick="setFinDia(1,'b-')">Mañana</button>
       <button class="chip-btn" id="chip-fin-b-2" onclick="setFinDia(2,'b-')">+2 días</button>
@@ -9358,7 +9389,7 @@ function pintarTimerDual(cual){
     }
     finTxt = "📅 Inicia: " + fechaLegible(inicioSubastaDe(cual));
   } else if(sub.estado === "finalizada"){
-    txt = "00:00"; cls = "stopped";
+    txt = "—"; cls = "stopped";
     if(sub.finTs) finTxt = "Terminó: " + fechaLegible(sub.finTs);
   }
 
@@ -9669,10 +9700,11 @@ function renderDualPanel(cual){
           const ct = info ? (info.ig || info.whatsapp || info.email || "") : "";
           pw.textContent = ct ? `${st.lider.nombre} (${ct})` : st.lider.nombre;
         } else if(liderEsMio){
-          pw.innerHTML = `${esc(st.lider.nombre)} <span style="color:var(--gold);font-weight:700">· vas ganando 🏆</span>`;
+          pw.innerHTML = `${esc(st.lider.nombre)} <span style="color:var(--gold);font-weight:700">· ¡eres el líder! 👑</span>`;
         } else {
           const pos = miPosicionEn(cual);
-          pw.innerHTML = anonimizar(st.lider) + (pos ? ` <span style="color:var(--red);font-weight:700">· vas ${pos}°</span>` : "");
+          const medalla = pos === 2 ? " 🥈" : pos === 3 ? " 🥉" : "";
+          pw.innerHTML = anonimizar(st.lider) + (pos ? ` <span style="color:var(--red);font-weight:700">· vas ${pos}°${medalla}</span>` : "");
         }
       } else { pw.textContent = "—"; }
     }
@@ -9692,13 +9724,25 @@ function renderDualPanel(cual){
       me.style.background = "rgba(0,230,122,.1)";
       me.style.border = "1px solid rgba(0,230,122,.3)";
       me.style.color = "var(--green)";
-      me.innerHTML = "🏆 Vas ganando esta — mantén el ojo hasta el final";
+      me.innerHTML = "👑 <b>¡ERES EL LÍDER!</b> Vas ganando — defiende tu corona hasta el final 🏆";
+    } else if(pos === 2){
+      me.style.display = "block";
+      me.style.background = "rgba(245,200,66,.1)";
+      me.style.border = "1px solid rgba(245,200,66,.35)";
+      me.style.color = "var(--gold)";
+      me.innerHTML = "🥈 <b>¡Vas en 2° lugar!</b> Estás a una sola puja del primer puesto — ¡tú puedes! 💪";
+    } else if(pos === 3){
+      me.style.display = "block";
+      me.style.background = "rgba(255,140,66,.1)";
+      me.style.border = "1px solid rgba(255,140,66,.35)";
+      me.style.color = "var(--orange, #ff8c42)";
+      me.innerHTML = "🥉 <b>Vas en 3° lugar</b> — la remontada está viva: ¡una buena puja te devuelve a la pelea! ⚡";
     } else {
       me.style.display = "block";
       me.style.background = "rgba(255,59,92,.1)";
       me.style.border = "1px solid rgba(255,59,92,.3)";
       me.style.color = "var(--red)";
-      me.innerHTML = `📉 Vas en ${pos}° lugar aquí — puja de nuevo para recuperar el puesto`;
+      me.innerHTML = `⚡ <b>Vas en ${pos}° lugar aquí</b> — ¡no te rindas! Sube tu puja y vuelve a la pelea 🚀`;
     }
   }
 
@@ -10785,6 +10829,8 @@ window.__inyectarSB = function(data){
   }
 };
 window.__renderDual = function(){ renderDualTodo(); };
+window.__inyectarP = function(data){ P = { ...P, ...(data || {}) }; };
+window.__leerEstado = function(){ return { S, SB, P, CFG, user, admin }; };
 
 // ── Exponer funciones al scope global (necesario para type="module") ──
 window.doLogin         = doLogin;
@@ -10840,6 +10886,7 @@ window.adminReset   = adminReset;
 window.toggleAdmin  = toggleAdmin;
 window.toggleAyudaFotos = toggleAyudaFotos;
 window.setInicio        = setInicio;
+window.setFinAhora      = setFinAhora;
 window.setDia           = setDia;
 window.aplicarHora      = aplicarHora;
 window.limpiarInicio    = limpiarInicio;
