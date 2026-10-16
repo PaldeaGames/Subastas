@@ -1770,13 +1770,18 @@ body.dual-on #dual-app{
 /* ── Admin: sección Subasta 2 ── */
 #admin-b-box{ display:none; }
 body.dual-on #admin-b-box{ display:block; }
-#admin-b-box .admin-b-cab{
+.admin-b-cab{
   background:linear-gradient(100deg,rgba(78,168,255,.12),rgba(120,80,255,.05));
   border:1px solid rgba(78,168,255,.35); border-radius:11px;
   padding:10px 13px; margin-bottom:12px;
 }
-#admin-b-box .b-estado-line{ font-size:11px; color:var(--muted2); margin-top:4px; }
-#admin-b-box .b-estado-line strong{ color:var(--text); }
+.b-estado-line{ font-size:11px; color:var(--muted2); margin-top:4px; }
+.b-estado-line strong{ color:var(--text); }
+/* Cabecera espejo de la Subasta 1: solo en modo paralelo, para que
+   ambas columnas del admin partan a la misma altura */
+#admin-a-cab{ display:none; }
+body.dual-on #admin-a-cab{ display:block; }
+body.dual-on #a-label-carta{ display:none; }
 </style>
 </head>
 <body>
@@ -2383,7 +2388,13 @@ body.dual-on #admin-b-box{ display:block; }
       <div id="admin-cols">
       <div id="admin-col-a">
 
-      <div class="section-label">Carta <span id="a-etiqueta-1a" style="display:none;color:var(--blue)">· SUBASTA 1</span></div>
+      <!-- Cabecera espejo de la Subasta 2: solo visible en modo paralelo,
+           para que ambas columnas queden alineadas fila por fila -->
+      <div class="admin-b-cab" id="admin-a-cab">
+        <div style="font-size:14px;font-weight:800;color:var(--blue);letter-spacing:.5px">🃏 SUBASTA 1 · en paralelo</div>
+        <div class="b-estado-line" id="a-estado-line">Estado: <strong>—</strong></div>
+      </div>
+      <div class="section-label" id="a-label-carta">Carta <span id="a-etiqueta-1a" style="display:none;color:var(--blue)">· SUBASTA 1</span></div>
 
       <!-- PEGAR TEXTO RÁPIDO -->
       <div class="admin-grid1" style="margin-bottom:10px">
@@ -4119,7 +4130,7 @@ function renderApp(){
     idiomaEl.innerHTML = `<div style="display:inline-flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:6px 12px">
       <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">Idioma</span>
       <span style="width:1px;height:12px;background:var(--border2)"></span>
-      <span style="font-size:13px;font-weight:700;color:var(--text)">${c.idioma}</span>
+      <span style="font-size:13px;font-weight:700;color:var(--text)">${esc(etiquetaIdioma(c.idioma))}</span>
     </div>`;
   } else {
     idiomaEl.innerHTML = `<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,59,92,.12);border:1px solid rgba(255,59,92,.4);color:var(--red);font-size:11px;font-weight:700;padding:6px 12px;border-radius:8px">⚠️ Falta definir el idioma</div>`;
@@ -5681,7 +5692,7 @@ function fillAdminFields(){
   const condSel = document.getElementById("a-cond");
   condSel.value = (S.carta.cond||"NM").toUpperCase();
   if(!condSel.value) condSel.value = "NM";   // valor viejo no reconocido → NM
-  document.getElementById("a-idioma").value   = S.carta.idioma||"";
+  fijarSelectIdioma(document.getElementById("a-idioma"), S.carta.idioma);
   const slabF = S.carta.slab || {};
   document.getElementById("a-slab-comp").value  = slabF.compania||"";
   const gradoSel = document.getElementById("a-slab-grado");
@@ -6619,6 +6630,41 @@ function nombreEstado(cod){
   if(!cod) return "";
   const k = cod.trim().toUpperCase();
   return ESTADOS[k] || cod;
+}
+
+// Bandera del idioma para los badges. Los datos antiguos (o escritos a mano)
+// no la traen; si ya viene con bandera en el texto, no se duplica.
+function banderaIdioma(idioma){
+  if(!idioma) return "";
+  const t = String(idioma).toLowerCase();
+  if(t.includes("japon"))    return "🇯🇵";
+  if(t.includes("ingl"))     return "🇺🇸";
+  if(t.includes("españ"))    return "🇪🇸";
+  if(t.includes("corean"))   return "🇰🇷";
+  if(t.includes("chin"))     return "🇨🇳";
+  if(t.includes("alem"))     return "🇩🇪";
+  if(t.includes("franc"))    return "🇫🇷";
+  if(t.includes("italian"))  return "🇮🇹";
+  if(t.includes("portugu"))  return "🇵🇹";
+  return "🌐";
+}
+function textoIdioma(idioma){
+  return String(idioma || "").replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, "").replace(/🌐/g, "").trim();
+}
+function etiquetaIdioma(idioma){
+  if(!idioma) return "";
+  return banderaIdioma(idioma) + " " + textoIdioma(idioma);
+}
+// Asigna el idioma al select del admin aunque el dato guardado no traiga
+// bandera (los datos antiguos dicen "Español" y la opción es "🇪🇸 Español")
+function fijarSelectIdioma(el, valor){
+  if(!el) return;
+  el.value = valor || "";
+  if(el.value || !valor) return;
+  const busc = textoIdioma(valor).toLowerCase();
+  for(const o of el.options){
+    if(textoIdioma(o.text).toLowerCase() === busc){ el.value = o.value || o.text; return; }
+  }
 }
 
 function fmtCLP(n){ return "$"+Math.round(n).toLocaleString("es-CL"); }
@@ -7765,7 +7811,7 @@ function renderLoginInfo(){
       idiomaLogin.innerHTML = `<div style="display:inline-flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:6px 12px">
         <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">Idioma</span>
         <span style="width:1px;height:12px;background:var(--border2)"></span>
-        <span style="font-size:13px;font-weight:700;color:var(--text)">${c.idioma}</span>
+        <span style="font-size:13px;font-weight:700;color:var(--text)">${esc(etiquetaIdioma(c.idioma))}</span>
       </div>`;
     } else {
       idiomaLogin.style.display="none";
@@ -8087,7 +8133,6 @@ function htmlPanelTV(cual){
 function htmlAdminB(){
   const ops = (id) => { const el = document.getElementById(id); return el ? el.innerHTML : ""; };
   return `
-  <div class="sep"></div>
   <div class="admin-b-cab">
     <div style="font-size:14px;font-weight:800;color:var(--blue);letter-spacing:.5px">🃏 SUBASTA 2 · en paralelo</div>
     <div class="b-estado-line" id="b-estado-line">Estado: <strong>—</strong></div>
@@ -8095,12 +8140,15 @@ function htmlAdminB(){
 
   <div class="admin-grid1" style="margin-bottom:10px">
     <div style="font-size:11px;color:var(--muted2);margin-bottom:6px;line-height:1.5">
-      ⚡ <strong>Pega aquí los datos de la carta 2</strong> y toca <strong>Llenar campos</strong>:
+      ⚡ <strong>Pega aquí los datos de la carta 2</strong> (una línea o separados con <code style="background:var(--s3);padding:1px 4px;border-radius:4px">|</code>) y toca <strong>Llenar campos</strong>:
     </div>
-    <textarea class="a-input" id="b-parse-text" placeholder="Pega aquí el texto de TCGplayer o escribe manualmente..." style="resize:vertical;min-height:64px;font-size:12px;line-height:1.6"></textarea>
+    <textarea class="a-input" id="b-parse-text" placeholder="Pega aquí el texto de TCGplayer o escribe manualmente..." style="resize:vertical;min-height:80px;font-size:12px;line-height:1.6"></textarea>
     <div style="display:flex;gap:8px;margin-top:6px">
       <button class="a-btn-sm" onclick="parsearTextoCartaB()" style="flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070d;font-weight:700;border-color:transparent">⚡ Llenar campos automáticamente</button>
       <button class="a-btn-sm" onclick="document.getElementById('b-parse-text').value=''" style="color:var(--muted)">🗑 Limpiar</button>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.5">
+      Funciona con <strong>texto copiado de TCGplayer</strong> (Ctrl+A, Ctrl+C, Ctrl+V) o escrito a mano. Detecta automáticamente: nombre, set, código, rareza y estado. También acepta formato separado por barras <code style="background:var(--s3);padding:1px 4px;border-radius:4px">|</code>.
     </div>
   </div>
   <div class="sep" style="margin-bottom:14px"></div>
@@ -8571,7 +8619,7 @@ function fillAdminFieldsB(){
   const condSel = document.getElementById("b-cond");
   condSel.value = (SB.carta.cond||"NM").toUpperCase();
   if(!condSel.value) condSel.value = "NM";
-  document.getElementById("b-idioma").value   = SB.carta.idioma||"";
+  fijarSelectIdioma(document.getElementById("b-idioma"), SB.carta.idioma);
   const slabF = SB.carta.slab || {};
   document.getElementById("b-slab-comp").value  = slabF.compania||"";
   const gradoSel = document.getElementById("b-slab-grado");
@@ -8600,6 +8648,20 @@ function fillAdminFieldsB(){
   }
   renderImgListB();
   renderEstadoLineB();
+}
+
+// Línea de estado de la Subasta 1 dentro del admin (espejo de la 2:
+// alinea ambas columnas y permite comparar de un vistazo en modo paralelo)
+function renderEstadoLineA(){
+  const el = document.getElementById("a-estado-line");
+  if(!el) return;
+  const sub = S.subasta;
+  const mapa = { espera:"⏳ En espera", programada:"📅 Programada", activa:"🟢 En vivo", finalizada:"🏁 Finalizada" };
+  let txt = `Estado: <strong>${mapa[sub.estado]||sub.estado}</strong> · ${S.pujas.length} puja${S.pujas.length!==1?"s":""}`;
+  if(sub.estado === "activa" && sub.finTs) txt += ` · cierra ${fechaLegible(sub.finTs)}`;
+  if(sub.estado === "programada" && inicioSubastaDe("a")) txt += ` · inicia ${fechaLegible(inicioSubastaDe("a"))}`;
+  if(sub.estado === "finalizada" && S.lider) txt += ` · ganó ${esc(S.lider.nombre)} con ${fmtCLP(S.lider.monto)}`;
+  el.innerHTML = txt;
 }
 
 // Línea de estado de la Subasta 2 dentro del admin
@@ -9422,6 +9484,7 @@ function renderDualTodo(){
   renderDualPanel("a");
   renderDualPanel("b");
   renderDualGanadorB();
+  renderEstadoLineA();
   renderEstadoLineB();
   renderBloqueadosB();
   renderDualNav();
@@ -9522,7 +9585,7 @@ function renderDualPanel(cual){
     if(c.rareza)
       badges += `<span style="background:rgba(78,168,255,.1);color:var(--blue);border:1px solid rgba(78,168,255,.25);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">✦ ${esc(c.rareza)}</span>`;
     if(c.idioma)
-      badges += `<span style="background:var(--s2);border:1px solid var(--border2);color:var(--text);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">${esc(c.idioma)}</span>`;
+      badges += `<span style="background:var(--s2);border:1px solid var(--border2);color:var(--text);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">${esc(etiquetaIdioma(c.idioma))}</span>`;
     else
       badges += `<span style="background:rgba(255,59,92,.12);border:1px solid rgba(255,59,92,.4);color:var(--red);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">⚠️ Falta el idioma</span>`;
     const slab = c.slab || {};
@@ -10249,7 +10312,7 @@ function renderLoginResumenDual(){
     let badges = "";
     if((c.cond||"").toUpperCase() !== "NONE" && c.cond)
       badges += `<span class="lr-cond">🔍 ${esc(nombreEstado(c.cond))}</span>`;
-    if(c.idioma)  badges += `<span>🌐 ${esc(c.idioma)}</span>`;
+    if(c.idioma)  badges += `<span>${esc(etiquetaIdioma(c.idioma))}</span>`;
     if(c.rareza)  badges += `<span>✦ ${esc(c.rareza)}</span>`;
     if(c.slab && (c.slab.compania || c.slab.grado))
       badges += `<span style="color:var(--gold);border-color:rgba(245,200,66,.4);background:rgba(245,200,66,.08)">🛡️ ${esc([c.slab.compania, c.slab.grado].filter(Boolean).join(" "))}</span>`;
@@ -10477,7 +10540,7 @@ function renderDualChooser(){
         : `<div class="dc-noimg">🃏</div>`}
       ${chipCond}
       <div class="dc-tit">${esc(st.carta.titulo || "Por anunciar")}</div>
-      <div class="dc-set">${esc(st.carta.set || "")}</div>
+      <div class="dc-set">${esc(st.carta.set || "")}${st.carta.idioma ? ` · ${esc(etiquetaIdioma(st.carta.idioma))}` : ""}</div>
       ${esSlab ? `<div class="dc-set" style="color:var(--gold)">🏆 ${esc([st.carta.slab.compania, st.carta.slab.grado].filter(Boolean).join(" "))}${st.carta.slab.cert ? ` · Cert. ${esc(st.carta.slab.cert)}` : ""}</div>` : ""}
       <div class="dc-precio">${fmtCLP(precio)}</div>
       <div style="font-size:9px;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase;margin-top:1px">${hayOferta ? "Oferta actual en vivo" : "Precio base · sin pujas aún"}</div>
