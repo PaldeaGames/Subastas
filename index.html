@@ -1799,6 +1799,41 @@ body.dual-on #admin-b-box{ display:block; }
 #admin-a-cab{ display:none; }
 body.dual-on #admin-a-cab{ display:block; }
 body.dual-on #a-label-carta{ display:none; }
+
+/* ══ Banner "A la espera de una nueva subasta" ══
+   Cuando una subasta está en espera se ocultan TODOS los datos de la carta
+   anterior (foto, título, precio, pujas) y solo se muestra este aviso. */
+.espera-banner{ display:none; text-align:center; padding:34px 18px;
+  background:linear-gradient(160deg, rgba(245,200,66,.07), rgba(78,168,255,.04));
+  border:1.5px dashed rgba(245,200,66,.4); border-radius:14px; }
+.espera-banner .eb-icon{ font-size:34px; line-height:1; margin-bottom:10px; animation:eb-flota 3s ease-in-out infinite; }
+@keyframes eb-flota{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-6px); } }
+.espera-banner .eb-title{ font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:2px; line-height:1.15;
+  background:linear-gradient(135deg,#fff 20%,var(--gold) 80%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.espera-banner .eb-sub{ font-size:12px; color:var(--muted2); margin-top:8px; line-height:1.6; }
+.espera-banner .eb-sub b{ color:var(--gold); }
+/* Paneles duales (app): se esconde todo menos el banner */
+.dx-panel.dx-espera .dx-head, .dx-panel.dx-espera .dx-imgbox, .dx-panel.dx-espera .dx-livebar,
+.dx-panel.dx-espera .dx-miestado, .dx-panel.dx-espera .quick-grid, .dx-panel.dx-espera .bid-row,
+.dx-panel.dx-espera .dx-hint, .dx-panel.dx-espera .reglas-link, .dx-panel.dx-espera .dx-baseinc,
+.dx-panel.dx-espera .dx-win, .dx-panel.dx-espera .log-card{ display:none !important; }
+.dx-panel.dx-espera .espera-banner{ display:block; }
+/* Modo simple (app) */
+#screen-app.app-espera .gallery-section, #screen-app.app-espera .live-bar, #screen-app.app-espera #fin-bar,
+#screen-app.app-espera #bid-card, #screen-app.app-espera #express-cinta,
+#screen-app.app-espera .wrap > .log-card{ display:none !important; }
+#screen-app.app-espera #app-espera-banner{ display:block; }
+/* TV modo simple */
+#screen-tv.tv-espera #tv-topbar, #screen-tv.tv-espera #tv-layout{ display:none !important; }
+#tv-espera-banner{ flex:1 1 auto; border:none; background:transparent; border-radius:0; }
+#screen-tv.tv-espera #tv-espera-banner{ display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#tv-espera-banner .eb-title{ font-size:clamp(30px,5vw,64px); }
+#tv-espera-banner .eb-icon{ font-size:clamp(40px,6vw,80px); }
+#tv-espera-banner .eb-sub{ font-size:clamp(13px,1.8vw,20px); }
+/* TV modo dual */
+.dt-panel.dt-espera .dt-top, .dt-panel.dt-espera .dt-body{ display:none !important; }
+.dt-panel .espera-banner{ flex:1 1 auto; border:none; background:transparent; border-radius:0; }
+.dt-panel.dt-espera .espera-banner{ display:flex; flex-direction:column; align-items:center; justify-content:center; }
 </style>
 </head>
 <body>
@@ -2293,6 +2328,14 @@ body.dual-on #a-label-carta{ display:none; }
       🔒 Tu identidad está verificada con Google. Puedes cerrar y volver cuando quieras: tus pujas siguen asociadas a tu cuenta.
     </div>
 
+    <!-- BANNER "A LA ESPERA" (solo visible cuando la subasta está en espera:
+         oculta todos los datos de la carta anterior) -->
+    <div class="espera-banner" id="app-espera-banner">
+      <div class="eb-icon">⚡</div>
+      <div class="eb-title">A LA ESPERA DE<br>UNA NUEVA SUBASTA</div>
+      <div class="eb-sub">Estamos preparando la próxima carta.<br>Atento a <b>@paldea.games</b> que la anunciamos por ahí 🔥</div>
+    </div>
+
     <!-- GALERÍA CARTA -->
     <div class="gallery-section">
       <div class="gallery-stage" id="gallery-stage">
@@ -2385,7 +2428,7 @@ body.dual-on #a-label-carta{ display:none; }
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v48</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v49</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2858,6 +2901,13 @@ body.dual-on #a-label-carta{ display:none; }
     <div class="vendido-carta" id="tv-vendido-carta">—</div>
   </div>
 
+  <!-- BANNER "A LA ESPERA" EN TV (solo visible en estado espera) -->
+  <div class="espera-banner" id="tv-espera-banner">
+    <div class="eb-icon">⚡</div>
+    <div class="eb-title">A LA ESPERA DE<br>UNA NUEVA SUBASTA</div>
+    <div class="eb-sub">Estamos preparando la próxima carta · <b>@paldea.games</b> 🔥</div>
+  </div>
+
   <!-- MODO DUAL EN TV: dos paneles (lo construye el JS) -->
   <div id="dual-tv"></div>
 </div>
@@ -3090,7 +3140,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v47 — declaro18: todos pasan por el formulario una vez","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v48 — anti-fantasma + banner de espera","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -4117,6 +4167,11 @@ function renderApp(){
 
   const sub = S.subasta;
   const c   = S.carta;
+
+  // Estado "espera" (modo simple): se ocultan los datos de la carta anterior
+  // y solo queda visible el banner "A la espera de una nueva subasta".
+  const scrApp = document.getElementById("screen-app");
+  if(scrApp) scrApp.classList.toggle("app-espera", !CFG.modoDual && sub.estado === "espera");
 
   // Sonidos también para el pujador (no solo la TV). El navegador exige un toque
   // previo para permitir audio; como el pujador toca para pujar, se activa solo.
@@ -6420,6 +6475,8 @@ function renderTV(){
   const vendido = document.getElementById("tv-vendido");
   const screenTvEl = document.getElementById("screen-tv");
   if(sub.estado!=="activa" && screenTvEl){ screenTvEl.classList.remove("ultimo-minuto"); }
+  // Estado "espera" (TV simple): banner grande sin datos de la carta anterior.
+  if(screenTvEl) screenTvEl.classList.toggle("tv-espera", !CFG.modoDual && sub.estado === "espera");
   if(sub.estado==="activa"){
     tvPill.className="pill pill-live";
     tvTxt.textContent="En Vivo";
@@ -6472,7 +6529,7 @@ function renderTV(){
 
   // En modo paralelo el TV muestra ambas cartas con sus propios paneles;
   // el título junto al logo solo tiene sentido cuando hay UNA subasta.
-  document.getElementById("tv-card-title").textContent = CFG.modoDual ? "" : c.titulo;
+  document.getElementById("tv-card-title").textContent = (CFG.modoDual || sub.estado === "espera") ? "" : c.titulo;
   const precioEl = document.getElementById("tv-price");
   precioEl.textContent = sub.precioAct>0 ? fmtCLP(sub.precioAct) : fmtCLP(sub.base)+" (base)";
   document.getElementById("tv-who").textContent = S.lider ? anonimizar(S.lider) : "Esperando primera puja";
@@ -7848,6 +7905,30 @@ function renderLoginInfo(){
   const b = document.getElementById("login-base");
   const i = document.getElementById("login-inc");
   const bd= document.getElementById("login-card-badges");
+  // En espera (modo simple): el login no muestra foto ni datos de la carta anterior
+  if(!CFG.modoDual && sub.estado === "espera"){
+    const th    = document.getElementById("login-thumb");
+    const thImg = document.getElementById("login-thumb-img");
+    const thPh  = document.getElementById("login-thumb-ph");
+    if(th && thImg && thPh){
+      thImg.style.display = "none";
+      thPh.style.display  = "flex";
+      th.style.cursor = "default";
+      th.onclick = null;
+      th.title = "";
+    }
+    if(t)  t.textContent = "Nueva subasta próximamente";
+    if(s)  s.textContent = "A la espera de una nueva subasta — atento a @paldea.games ⚡";
+    if(se) se.textContent= "";
+    if(b)  b.textContent = "—";
+    if(i)  i.textContent = "—";
+    if(bd) bd.innerHTML = "";
+    const idiomaLogin0 = document.getElementById("login-card-idioma");
+    if(idiomaLogin0) idiomaLogin0.style.display = "none";
+    const slabLogin0 = document.getElementById("login-card-slab");
+    if(slabLogin0) slabLogin0.style.display = "none";
+    return;
+  }
   // Miniatura de la carta
   const th    = document.getElementById("login-thumb");
   const thImg = document.getElementById("login-thumb-img");
@@ -8112,6 +8193,11 @@ function htmlPanelApp(cual){
   return `
   <div class="dx-panel" id="dx-panel-${cual}">
     <div class="dx-cinta">⚡ SUBASTA EXPRESS · ¡RÁPIDA! ⚡</div>
+    <div class="espera-banner" id="dx-espera-${cual}">
+      <div class="eb-icon">⚡</div>
+      <div class="eb-title">A LA ESPERA DE<br>UNA NUEVA SUBASTA</div>
+      <div class="eb-sub">Estamos preparando la próxima carta.<br>Atento a <b>@paldea.games</b> que la anunciamos por ahí 🔥</div>
+    </div>
     <div class="dx-head">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
         <span class="dx-tag">SUBASTA ${n}</span>
@@ -8174,6 +8260,11 @@ function htmlPanelTV(cual){
         <span class="dt-title" id="dt-title-${cual}">—</span>
       </div>
       <div class="pill pill-wait" id="dt-pill-${cual}" style="flex-shrink:0"><div class="dot-pulse"></div><span id="dt-pilltxt-${cual}">En espera</span></div>
+    </div>
+    <div class="espera-banner" id="dt-espera-${cual}">
+      <div class="eb-icon">⚡</div>
+      <div class="eb-title">A LA ESPERA DE<br>UNA NUEVA SUBASTA</div>
+      <div class="eb-sub">Estamos preparando la próxima carta · <b>@paldea.games</b> 🔥</div>
     </div>
     <div class="dt-top">
       <div class="dt-box">
@@ -9334,8 +9425,8 @@ function tickDual(){
     toast("🏁 ¡Subasta 2 finalizada!","warn");
   }
 
-  pintarTimerDual("a");
-  pintarTimerDual("b");
+  try{ pintarTimerDual("a"); }catch(e){ console.error("timer A:", e); }
+  try{ pintarTimerDual("b"); }catch(e){ console.error("timer B:", e); }
 
   // Carrusel tranquilo de fotos en la TV dual
   if(isTVMode){
@@ -9344,7 +9435,7 @@ function tickDual(){
       dualTickFoto = 0;
       for(const cual of ["a","b"]){
         const imgs = ST(cual).carta.imgs || [];
-        if(imgs.length > 1 && ST(cual).subasta.estado !== "finalizada"){
+        if(imgs.length > 1 && ST(cual).subasta.estado !== "finalizada" && ST(cual).subasta.estado !== "espera"){
           dtImgIdx[cual] = (dtImgIdx[cual] + 1) % imgs.length;
           pintarImgDualTV(cual);
         }
@@ -9566,13 +9657,16 @@ function renderDualTodo(){
   if(!CFG.modoDual) return;
   if(isTVMode){ renderDualTV(); return; }
   if(!document.getElementById("dx-panel-a")) return;
-  renderDualPanel("a");
-  renderDualPanel("b");
-  renderDualGanadorB();
-  renderEstadoLineA();
-  renderEstadoLineB();
-  renderBloqueadosB();
-  renderDualNav();
+  try{ renderDualPanel("a"); }catch(e){ console.error("panel A:", e); }
+  try{ renderDualPanel("b"); }catch(e){ console.error("panel B:", e); }
+  try{ renderDualGanadorB(); }catch(e){ console.error("ganadorB:", e); }
+  try{ renderEstadoLineA(); }catch(e){ console.error("estadoLineA:", e); }
+  try{ renderEstadoLineB(); }catch(e){ console.error("estadoLineB:", e); }
+  try{ renderBloqueadosB(); }catch(e){ console.error("bloqueadosB:", e); }
+  try{ renderDualNav(); }catch(e){ console.error("dualNav:", e); }
+  // Si el usuario está en la pantalla de elección, refrescarla también
+  // (si no, una subasta reseteada seguiría mostrando la carta anterior).
+  try{ if(document.body.classList.contains("dual-choosing")) renderDualChooser(); }catch(e){ console.error("chooser:", e); }
   try{ renderDualSwitch(); }catch(e){ console.error("dualSwitch:", e); }
   try{ renderStatsDual();  }catch(e){ console.error("statsDual:", e); }
   try{ renderHistorialGanadores(); }catch(e){}
@@ -9640,6 +9734,8 @@ function renderDualPanel(cual){
   // Sello express propio del panel
   const activaOProg = sub.estado === "activa" || sub.estado === "programada";
   panel.classList.toggle("dx-express", !!sub.express && activaOProg);
+  // En espera: banner sin datos de la carta anterior
+  panel.classList.toggle("dx-espera", sub.estado === "espera");
 
   // Pill de estado
   const pillMap = {
@@ -9859,7 +9955,7 @@ function renderDualTV(){
   // Con dos subastas en pantalla el título junto al logo no aplica: se limpia.
   const tvTit = document.getElementById("tv-card-title");
   if(tvTit) tvTit.textContent = "";
-  for(const cual of ["a","b"]) renderDualPanelTV(cual);
+  for(const cual of ["a","b"]){ try{ renderDualPanelTV(cual); }catch(e){ console.error("renderDualPanelTV " + cual + ":", e); } }
 }
 
 function renderDualPanelTV(cual){
@@ -9887,6 +9983,8 @@ function renderDualPanelTV(cual){
   // Sello express propio del panel
   const activaOProg = sub.estado === "activa" || sub.estado === "programada";
   panel.classList.toggle("dx-express", !!sub.express && activaOProg);
+  // En espera: banner sin datos de la carta anterior
+  panel.classList.toggle("dt-espera", sub.estado === "espera");
 
   // Pill
   const pillMap = {
@@ -9902,7 +10000,7 @@ function renderDualPanelTV(cual){
   if(pilltxt) pilltxt.textContent = ptxt;
 
   const tt = document.getElementById(`dt-title-${cual}`);
-  if(tt) tt.textContent = c.titulo || "—";
+  if(tt) tt.textContent = sub.estado === "espera" ? "" : (c.titulo || "—");
 
   // Precio / quién
   const precioEl = document.getElementById(`dt-price-${cual}`);
@@ -10408,9 +10506,11 @@ function renderLoginResumenDual(){
     const estadoTxt  = activa ? "● EN VIVO" : programada ? "📅 PROGRAMADA"
                      : sub.estado === "finalizada" ? "FINALIZADA" : "EN ESPERA";
     const estadoCls  = activa ? "activa" : programada ? "programada" : "otra";
-    const imgs  = c.imgs || [];
+    const enEspera = sub.estado === "espera";
+    const imgs  = enEspera ? [] : (c.imgs || []);
     const precio = sub.precioAct > 0 ? sub.precioAct : (sub.base || 0);
     let badges = "";
+    if(!enEspera){
     if((c.cond||"").toUpperCase() !== "NONE" && c.cond)
       badges += `<span class="lr-cond">🔍 ${esc(nombreEstado(c.cond))}</span>`;
     if(c.idioma)  badges += `<span>${esc(etiquetaIdioma(c.idioma))}</span>`;
@@ -10419,6 +10519,7 @@ function renderLoginResumenDual(){
       badges += `<span style="color:var(--gold);border-color:rgba(245,200,66,.4);background:rgba(245,200,66,.08)">🛡️ ${esc([c.slab.compania, c.slab.grado].filter(Boolean).join(" "))}</span>`;
     if(sub.express)
       badges += `<span style="color:var(--red);border-color:rgba(255,59,92,.4);background:rgba(255,59,92,.08)">⚡ EXPRESS</span>`;
+    }
     return `
     <div class="lr-card${sub.express && (activa || programada) ? " express" : ""}">
       <div class="lr-top">
@@ -10435,16 +10536,18 @@ function renderLoginResumenDual(){
           ${imgs.length ? `<div class="lr-foto-hint">🔍 toca la foto</div>` : ``}
         </div>
         <div style="min-width:0">
-          <div class="lr-titulo">${esc(c.titulo || "Carta en preparación")}</div>
-          ${c.set ? `<div style="font-size:10px;color:var(--muted2);margin-top:2px">${esc(c.set)}</div>` : ""}
+          <div class="lr-titulo">${enEspera ? "Nueva subasta próximamente" : esc(c.titulo || "Carta en preparación")}</div>
+          ${enEspera
+            ? `<div style="font-size:10px;color:var(--muted2);margin-top:2px">A la espera de una nueva subasta ⚡</div>`
+            : c.set ? `<div style="font-size:10px;color:var(--muted2);margin-top:2px">${esc(c.set)}</div>` : ""}
           <div class="lr-badges">${badges}</div>
         </div>
       </div>
       <div class="lr-nums">
-        <div class="lr-num"><div class="l">${sub.estado === "finalizada" ? "Precio final" : sub.precioAct > 0 ? "Oferta actual" : "Base"}</div><div class="v">${fmtCLP(precio)}</div></div>
+        <div class="lr-num"><div class="l">${sub.estado === "finalizada" ? "Precio final" : sub.precioAct > 0 ? "Oferta actual" : "Base"}</div><div class="v">${enEspera ? "—" : fmtCLP(precio)}</div></div>
         <div class="lr-num"><div class="l">${activa ? "Termina en" : sub.estado === "finalizada" ? "Cerró" : "Tiempo"}</div><div class="v tiempo" id="lr-timer-${cual}">--:--</div></div>
       </div>
-      <div class="lr-pujas">${st.pujas ? st.pujas.length : 0} pujas · Incrementos de ${fmtCLP(sub.inc || 0)}</div>
+      <div class="lr-pujas">${enEspera ? "Atento a @paldea.games ⚡" : `${st.pujas ? st.pujas.length : 0} pujas · Incrementos de ${fmtCLP(sub.inc || 0)}`}</div>
       ${sub.estado === "finalizada"
         ? `<div class="lr-pujas" style="color:var(--gold);font-weight:700">${st.lider
             ? `🏆 Ganó ${anonimizar(st.lider)} · ${fmtCLP(st.lider.monto || 0)}`
@@ -10464,14 +10567,15 @@ function renderDualNav(){
   nav.innerHTML = ["a","b"].map(cual => {
     const st   = ST(cual);
     const viva = st.subasta.estado === "activa";
+    const espera = st.subasta.estado === "espera";
     const precio = st.subasta.precioAct > 0 ? st.subasta.precioAct : (st.subasta.base || 0);
     return `<button class="dn-tab" onclick="irASubasta('${cual}')">
       <span class="dn-dot${viva ? " viva" : ""}"></span>
       <span style="min-width:0">
         <span class="dn-tag">${NOMde(cual)}</span><br>
-        <span class="dn-tit">${esc(st.carta.titulo || "En preparación")}</span>
+        <span class="dn-tit">${espera ? "Próximamente ⚡" : esc(st.carta.titulo || "En preparación")}</span>
       </span>
-      <span class="dn-price">${fmtCLP(precio)}</span>
+      <span class="dn-price">${espera ? "—" : fmtCLP(precio)}</span>
     </button>`;
   }).join("");
 }
@@ -10600,7 +10704,7 @@ function aplicarEleccionDual(){
     const sw = document.getElementById("dual-switch");  if(sw) sw.innerHTML = "";
     return;
   }
-  if(admin){ b.classList.add("dual-admin-ambas"); return; }
+  if(admin){ b.classList.add("dual-admin-ambas"); try{ renderDualTodo(); }catch(e){ console.error("render admin ambas:", e); } return; }
   let guardada = null;
   try{ guardada = localStorage.getItem("paldea_dual_elegida"); }catch(e){}
   dualElegida = (guardada === "a" || guardada === "b") ? guardada : null;
@@ -10609,6 +10713,9 @@ function aplicarEleccionDual(){
     renderDualChooser();
   } else {
     b.classList.add(dualElegida === "a" ? "dual-sel-a" : "dual-sel-b");
+    // Siempre repintar al restaurar una elección guardada: sin esto, al reingresar
+    // con sesión cálida el panel opuesto podía quedar como plantilla vacía ("fantasma").
+    try{ renderDualTodo(); }catch(e){ console.error("render tras elección guardada:", e); }
   }
 }
 
@@ -10679,14 +10786,15 @@ function renderDualChooser(){
   const tarjeta = (cual) => {
     const st  = ST(cual);
     const sub = st.subasta;
-    const foto = (st.carta.imgs || [])[0] || "";
+    const espera = sub.estado === "espera";
+    const foto = espera ? "" : ((st.carta.imgs || [])[0] || "");
     const hayOferta = sub.precioAct > 0;
     const precio = hayOferta ? sub.precioAct : (sub.base || 0);
-    const esSlab = !!(st.carta.slab && (st.carta.slab.compania || st.carta.slab.grado));
+    const esSlab = !espera && !!(st.carta.slab && (st.carta.slab.compania || st.carta.slab.grado));
     const cond = (st.carta.cond || "").toUpperCase();
     const nPujas = (st.pujas || []).length;
     // Estado de la carta (NM, LP…) — solo si es carta suelta; en slab manda el grado
-    const chipCond = (!esSlab && cond && cond !== "NONE")
+    const chipCond = (!espera && !esSlab && cond && cond !== "NONE")
       ? `<div style="margin-bottom:7px"><span style="font-size:9px;font-weight:800;letter-spacing:1px;padding:3px 10px;border-radius:20px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.35);color:var(--gold)">${esc(nombreEstado(cond))}</span></div>`
       : "";
     const fin = sub.estado === "finalizada";
@@ -10715,12 +10823,12 @@ function renderDualChooser(){
         ? `<span class="dc-imgw"><img class="dc-img" src="${esc(foto)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;dc-noimg&quot;>🃏</div>'"><span class="dc-zoom" title="Ver foto en grande" onclick="event.stopPropagation();openLightboxDual('${cual}',0)">🔍</span></span>`
         : `<div class="dc-noimg">🃏</div>`}
       ${chipCond}
-      <div class="dc-tit">${esc(st.carta.titulo || "Por anunciar")}</div>
-      <div class="dc-set">${esc(st.carta.set || "")}${st.carta.idioma ? ` · ${esc(etiquetaIdioma(st.carta.idioma))}` : ""}</div>
+      <div class="dc-tit">${espera ? "Nueva subasta próximamente" : esc(st.carta.titulo || "Por anunciar")}</div>
+      <div class="dc-set">${espera ? "A la espera de una nueva subasta ⚡" : `${esc(st.carta.set || "")}${st.carta.idioma ? ` · ${esc(etiquetaIdioma(st.carta.idioma))}` : ""}`}</div>
       ${esSlab ? `<div class="dc-set" style="color:var(--gold)">🏆 ${esc([st.carta.slab.compania, st.carta.slab.grado].filter(Boolean).join(" "))}${st.carta.slab.cert ? ` · Cert. ${esc(st.carta.slab.cert)}` : ""}</div>` : ""}
-      <div class="dc-precio">${fmtCLP(precio)}</div>
+      ${espera ? "" : `<div class="dc-precio">${fmtCLP(precio)}</div>
       <div style="font-size:9px;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase;margin-top:1px">${fin ? "Precio final" : hayOferta ? "Oferta actual en vivo" : "Precio base · sin pujas aún"}</div>
-      ${!fin ? `<div class="dc-set" style="margin-top:4px">${nPujas} puja${nPujas !== 1 ? "s" : ""} · incrementos de ${fmtCLP(sub.inc || 0)}</div>` : ""}
+      ${!fin ? `<div class="dc-set" style="margin-top:4px">${nPujas} puja${nPujas !== 1 ? "s" : ""} · incrementos de ${fmtCLP(sub.inc || 0)}</div>` : ""}`}
       ${estado}
       ${lineaGanador}
       ${botonEntrar}
@@ -10750,17 +10858,18 @@ function renderDualSwitch(){
   const otra = dualElegida === "a" ? "b" : "a";
   const st   = ST(otra);
   const sub  = st.subasta;
-  const foto = (st.carta.imgs || [])[0] || "";
+  const espera = sub.estado === "espera";
+  const foto = espera ? "" : ((st.carta.imgs || [])[0] || "");
   const precio = sub.precioAct > 0 ? sub.precioAct : (sub.base || 0);
   const sinFoto = `<span class="ds-thumb ds-flex">🃏</span>`;
   box.innerHTML = `
     ${foto ? `<img class="ds-thumb" src="${esc(foto)}" alt="" onerror="this.outerHTML='<span class=&quot;ds-thumb ds-flex&quot;>🃏</span>'">` : sinFoto}
     <span style="min-width:0">
       <span class="ds-tag" style="color:${otra === "a" ? "var(--blue)" : "var(--red)"}">⇄ IR A ${otra === "a" ? "SUBASTA 1 🔵" : "SUBASTA 2 🔴"}</span>
-      <span class="ds-tit">${esc(st.carta.titulo || "Por anunciar")}</span>
+      <span class="ds-tit">${espera ? "A la espera de nueva subasta" : esc(st.carta.titulo || "Por anunciar")}</span>
     </span>
     ${sub.estado === "finalizada" ? `<span class="ds-fin">🏁 FIN</span>` : ""}
-    <span class="ds-price">${fmtCLP(precio)}</span>
+    <span class="ds-price">${espera ? "" : fmtCLP(precio)}</span>
     <span class="ds-flecha">→</span>`;
   box.onclick = cambiarSubastaDual;
 }
