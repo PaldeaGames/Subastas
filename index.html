@@ -1872,6 +1872,110 @@ body.dual-on #a-label-carta{ display:none; }
 .dt-panel.dt-espera .dt-top, .dt-panel.dt-espera .dt-body{ display:none !important; }
 .dt-panel .espera-banner{ flex:1 1 auto; border:none; background:transparent; border-radius:0; }
 .dt-panel.dt-espera .espera-banner{ display:flex; flex-direction:column; align-items:center; justify-content:center; }
+
+/* ════════════════════════════
+   RESUMEN DEL PLAN DE SUBASTA (admin)
+   Muestra inicio, término y duración REALES antes de tocar INICIAR.
+════════════════════════════ */
+.resumen-prog{
+  background:rgba(0,230,122,.06); border:1px solid rgba(0,230,122,.35);
+  border-radius:10px; padding:10px 13px; margin-top:10px; min-height:56px;
+}
+.resumen-prog:empty{ display:none; }
+
+/* Botones de exportación de participantes */
+.exp-btn{
+  background:var(--s3); border:1px solid var(--border2); color:var(--text);
+  padding:7px 11px; border-radius:8px; font-size:11px; font-weight:600;
+  cursor:pointer; font-family:'Outfit',sans-serif; transition:all .15s;
+  line-height:1.3; text-align:center;
+}
+.exp-btn:hover{ border-color:var(--gold); color:var(--gold); }
+.exp-btn:active{ transform:scale(.96); }
+.exp-btn.principal{ background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#07070d; border-color:transparent; font-weight:800; }
+.exp-btn.principal:hover{ opacity:.9; color:#07070d; }
+.exp-btn.ig{ border-color:rgba(255,59,92,.4); color:#ff6a9d; }
+.exp-btn.ig:hover{ border-color:#ff3b5c; color:#ff3b5c; }
+.guardar-nota{
+  font-size:10px; color:var(--muted); line-height:1.6; margin-top:8px;
+  background:var(--s2); border:1px solid var(--border); border-radius:9px; padding:8px 11px;
+}
+body.dual-on .guardar-nota{ min-height:58px; }
+
+/* ════════════════════════════
+   GRÁFICO DE HORARIOS DE PUJA (admin)
+════════════════════════════ */
+#horarios-box{ margin-bottom:14px; }
+.hz-card{ background:var(--s2); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.hz-head{ padding:10px 14px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+.hz-tabs{ display:flex; gap:6px; flex-wrap:wrap; }
+.hz-body{ padding:12px 14px; }
+.hz-chart{ display:flex; align-items:flex-end; gap:2px; height:130px; }
+.hz-col{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; height:100%; cursor:default; }
+.hz-bar{
+  width:100%; border-radius:3px 3px 0 0; min-height:2px;
+  background:linear-gradient(180deg,var(--gold),var(--gold2));
+  transition:height .3s ease;
+}
+.hz-col.pico .hz-bar{ background:linear-gradient(180deg,#ff8a3a,#ff3b5c); }
+.hz-col.dentro{ background:rgba(0,230,122,.1); border-radius:4px; box-shadow:inset 0 0 0 1px rgba(0,230,122,.4); }
+.hz-col.dentro .hz-h{ color:var(--green); font-weight:700; }
+.hz-n{ font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--muted2); margin-bottom:3px; line-height:1; }
+.hz-h{ font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--muted); margin-top:4px; line-height:1; }
+@media(max-width:600px){ .hz-h{ font-size:7px; } .hz-n{ font-size:8px; } .hz-chart{ height:110px; } }
+.hz-dias{ display:flex; gap:5px; margin-top:12px; }
+.hz-dia{ flex:1; background:var(--s1); border:1px solid var(--border); border-radius:8px; padding:7px 4px; text-align:center; }
+.hz-dia .d{ font-size:9px; color:var(--muted2); text-transform:uppercase; letter-spacing:.5px; }
+.hz-dia .n{ font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; color:var(--gold); margin-top:2px; }
+.hz-dia.top{ border-color:rgba(245,200,66,.5); background:rgba(245,200,66,.07); }
+.hz-reco{
+  margin-top:12px; background:linear-gradient(100deg,rgba(0,230,122,.1),rgba(78,168,255,.04));
+  border:1px solid rgba(0,230,122,.35); border-radius:10px; padding:11px 13px;
+}
+.hz-vent{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:9px; }
+.hz-vent > div{ background:var(--s1); border:1px solid var(--border2); border-radius:8px; padding:8px; text-align:center; }
+.hz-vent .vh{ font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; color:var(--text); }
+.hz-vent .vp{ font-family:'JetBrains Mono',monospace; font-size:17px; font-weight:800; color:var(--gold); margin-top:2px; }
+.hz-vent .vl{ font-size:8px; color:var(--muted2); text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
+.hz-vent > div.mejor{ border-color:var(--green); background:rgba(0,230,122,.08); }
+.hz-vent > div.mejor .vp{ color:var(--green); }
+.hz-vacio{ padding:22px 14px; text-align:center; font-size:12px; color:var(--muted2); line-height:1.6; }
+
+/* ════════════════════════════
+   ZONA DE GANADORES: ESPEJO EXACTO ENTRE SUBASTA 1 Y 2
+   Ambas columnas reservan el mismo alto bloque por bloque, así nada se
+   desalinea porque a una le falte una nota, un respaldo o un ganador.
+════════════════════════════ */
+body.dual-on #dual-zonas{ align-items:stretch; }
+body.dual-on #dz-col-a, body.dual-on #dz-col-b{ display:flex; flex-direction:column; min-width:0; }
+body.dual-on #dz-col-a > .winner-wrap, body.dual-on #dz-col-b > .winner-wrap{ flex:0 0 auto; }
+body.dual-on #admin-ganador-box, body.dual-on #admin-ganador-box-b{ flex:1 1 auto; display:flex; flex-direction:column; }
+body.dual-on #admin-ganador-box textarea, body.dual-on #admin-ganador-box-b textarea{ flex:0 0 auto; }
+/* Notas de ayuda: mismo alto aunque el texto sea más corto en una */
+.msg-nota{ font-size:10px; color:var(--muted); margin-top:4px; line-height:1.4; }
+body.dual-on .msg-nota{ min-height:28px; }
+body.dual-on .ag-nota{ min-height:32px; }
+/* El encabezado del banner reserva su alto: si un título ocupa dos líneas,
+   la otra columna no se corre hacia arriba. */
+body.dual-on .winner-head{ min-height:50px; }
+body.dual-on .ag-respaldo{ min-height:104px; }
+body.dual-on .winner-msg{ min-height:54px; }
+/* Hueco espejo: cuando una subasta terminó y la otra no, la columna vacía
+   muestra un marcador del mismo alto para que no se desplace la otra. */
+.dz-hueco{
+  display:none; border:1.5px dashed var(--border2); border-radius:14px;
+  padding:22px 16px; text-align:center; color:var(--muted2); font-size:12px;
+  line-height:1.6; background:rgba(255,255,255,.012); margin-bottom:12px;
+}
+body.dual-on .dz-hueco.on{ display:block; }
+/* Caja del ganador doble: ocupa el ancho completo arriba de las dos columnas */
+#dz-combo{ display:none; }
+body.dual-on #dz-combo.on{
+  display:block; grid-column:1 / -1;
+  background:linear-gradient(135deg,rgba(245,200,66,.16),rgba(255,59,92,.05));
+  border:2px solid var(--gold); border-radius:16px; padding:16px;
+  box-shadow:0 0 34px rgba(245,200,66,.16); margin-bottom:4px;
+}
 </style>
 </head>
 <body>
@@ -2336,21 +2440,32 @@ body.dual-on #a-label-carta{ display:none; }
           <button onclick="copiarIgGanador()" title="Copiar" style="background:var(--gold);color:#07070d;border:none;border-radius:9px;padding:0 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">📋 Copiar</button>
           <button id="ag-abrir" onclick="abrirIgGanador()" title="Abrir perfil" style="background:var(--s3);color:var(--text);border:1px solid var(--border2);border-radius:9px;padding:0 12px;font-size:14px;cursor:pointer;white-space:nowrap">↗</button>
         </div>
-        <div id="ag-nota" style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5"></div>
+        <div id="ag-nota" class="ag-nota" style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5"></div>
 
-        <!-- Mensaje listo para enviar -->
+        <!-- 1) Mensaje de aviso al ganador (antes del pago) -->
         <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2)">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
-            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">✉️ Mensaje para el ganador</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">✉️ 1 · Aviso al ganador (antes del pago)</div>
             <button onclick="copiarMensajeGanador()" style="background:var(--gold);color:#07070d;border:none;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">📋 Copiar mensaje</button>
           </div>
           <textarea id="ag-mensaje" rows="9"
             style="width:100%;background:var(--s2);border:1.5px solid var(--border2);border-radius:9px;color:var(--text);padding:10px 12px;font-size:12px;line-height:1.55;font-family:'Outfit',sans-serif;outline:none;resize:vertical;box-sizing:border-box"></textarea>
-          <div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4">Se arma solo con la carta, el monto y el nombre del ganador. Edítalo si quieres antes de copiar. Recuerda pegar tus datos de transferencia.</div>
+          <div class="msg-nota">Se arma solo con la carta, el monto y el nombre del ganador. Edítalo si quieres antes de copiar. Recuerda pegar tus datos de transferencia.</div>
+        </div>
+
+        <!-- 2) Mensaje de coordinación de entrega (después del pago) -->
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green)">📦 2 · Coordinar entrega (después del pago)</div>
+            <button onclick="copiarMensajeEntrega('a')" style="background:var(--green);color:#07070d;border:none;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">📋 Copiar entrega</button>
+          </div>
+          <textarea id="ag-entrega" rows="12"
+            style="width:100%;background:var(--s2);border:1.5px solid rgba(0,230,122,.4);border-radius:9px;color:var(--text);padding:10px 12px;font-size:12px;line-height:1.55;font-family:'Outfit',sans-serif;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+          <div class="msg-nota">Envíalo apenas confirmes el pago. Trae tus horarios de retiro, el mapa y la opción de envío Starken por pagar. <button onclick="restaurarEntrega('a')" style="background:none;border:none;color:var(--gold);font-size:10px;cursor:pointer;text-decoration:underline;font-family:'Outfit',sans-serif;padding:0">↺ Restaurar texto original</button></div>
         </div>
 
         <!-- Contactos de respaldo: 2° y 3° lugar -->
-        <div id="ag-top23" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2)">
+        <div id="ag-top23" class="ag-respaldo" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2)">
           <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:8px">🥈 Respaldo si el 1° no paga</div>
           <div id="ag-top23-lista"></div>
         </div>
@@ -2466,7 +2581,7 @@ body.dual-on #a-label-carta{ display:none; }
     <!-- ADMIN -->
     <div id="admin-panel">
       <div class="admin-hdr">
-        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v50</span></span>
+        <span>⚙️ Panel de Administrador <span style="color:var(--muted);font-weight:400;letter-spacing:0">· v51</span></span>
         <button class="a-btn-sm" onclick="toggleAdmin()">✕ Cerrar</button>
       </div>
 
@@ -2775,12 +2890,16 @@ body.dual-on #a-label-carta{ display:none; }
         <div style="display:flex;align-items:center;font-size:11px;color:var(--muted2);padding:9px 4px;line-height:1.4">Minutos que se suman si alguien puja en el último minuto</div>
       </div>
 
+      <!-- Resumen del plan: inicio, término y duración REALES, en vivo -->
+      <div class="resumen-prog" id="a-resumen-prog"></div>
+
       <div class="sep"></div>
       <div class="admin-btns">
         <button class="a-btn go" onclick="adminStart()">▶ INICIAR</button>
         <button class="a-btn" onclick="adminUpdate()">💾 Guardar</button>
         <button class="a-btn danger" onclick="adminReset()">🗑 Resetear</button>
       </div>
+      <div class="guardar-nota">💾 <strong>Guardar</strong> deja listos y guardados: carta, fotos, precio base, incrementos, anti-snipe, inicio y término programados. <strong>INICIAR</strong> publica la subasta con ese plan y borra las pujas anteriores.</div>
 
       </div><!-- /admin-col-a -->
       <div id="admin-col-b">
@@ -2834,6 +2953,9 @@ body.dual-on #a-label-carta{ display:none; }
         </div>
       </div>
 
+      <!-- Gráfico de horarios de puja (lo rellena el JS) -->
+      <div id="horarios-box"></div>
+
       <!-- Estadísticas por subasta (modo paralelo; lo rellena el JS) -->
       <div id="stats-dual"></div>
 
@@ -2843,11 +2965,32 @@ body.dual-on #a-label-carta{ display:none; }
           <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">👥 Participantes</div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <div style="font-size:10px;color:var(--muted2)" id="stat-total-text">0 personas</div>
-            <button onclick="exportarCorreos()" style="background:none;border:1px solid var(--border);color:var(--muted2);padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif" title="Copiar correos que aceptaron marketing">📩 Exportar</button>
-            <button onclick="copiarNombreCorreo()" style="background:none;border:1px solid var(--border);color:var(--muted2);padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;font-family:'Outfit',sans-serif" title="Copiar nombre y correo de todos">📋 Nombre+Correo</button>
           </div>
         </div>
-        <div id="stat-lista" style="max-height:200px;overflow-y:auto">
+
+        <!-- Exportar la ficha COMPLETA de cada persona -->
+        <div style="padding:11px 14px;border-bottom:1px solid var(--border);background:rgba(245,200,66,.05)">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px">📥 Exportar datos</div>
+          <div style="font-size:10px;color:var(--muted2);line-height:1.5;margin-bottom:8px">
+            Todo lo que dejó cada persona al ingresar: <strong style="color:var(--text)">nombre, correo, Instagram, WhatsApp</strong>, si acepta novedades, hora de ingreso, cuántas veces pujó y su oferta más alta en cada subasta.
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px">
+            <button class="exp-btn principal" onclick="exportarFichaCompleta('copiar')" title="Copiar la ficha completa de todos (pégala en Excel o Sheets)">📋 Copiar ficha completa</button>
+            <button class="exp-btn" onclick="exportarFichaCompleta('csv')" title="Descargar un archivo .csv para Excel o Google Sheets">⬇️ Descargar CSV</button>
+          </div>
+          <div style="font-size:10px;color:var(--muted2);margin:7px 0 5px;letter-spacing:.3px">📷 Para armar grupos en Instagram:</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="exp-btn ig" onclick="copiarInstagrams('pujadores')" title="Solo de quienes pujaron en esta subasta">@ Instagram de pujadores</button>
+            <button class="exp-btn ig" onclick="copiarInstagrams('todos')" title="De todos los que ingresaron">@ Instagram de todos</button>
+            <button class="exp-btn" onclick="copiarWhatsapps('pujadores')" title="WhatsApp de quienes pujaron">💬 WhatsApp de pujadores</button>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">
+            <button class="exp-btn" onclick="exportarCorreos()" title="Solo los correos de quienes aceptaron recibir novedades">📩 Correos con marketing</button>
+            <button class="exp-btn" onclick="copiarNombreCorreo()" title="Nombre y correo de todos">📋 Nombre + correo</button>
+          </div>
+        </div>
+
+        <div id="stat-lista" style="max-height:260px;overflow-y:auto">
           <div style="padding:16px;text-align:center;font-size:12px;color:var(--muted2)">Aún no hay participantes</div>
         </div>
       </div>
@@ -3007,7 +3150,7 @@ body.dual-on #a-label-carta{ display:none; }
   <div class="modal-box" style="max-width:420px">
     <div style="font-size:52px;margin-bottom:8px;animation:float 2s ease-in-out infinite">🏆</div>
     <div id="modal-ganador-tag" style="display:none;margin-bottom:6px"><span style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--blue);background:rgba(78,168,255,.1);border:1px solid rgba(78,168,255,.3);padding:3px 10px;border-radius:20px">SUBASTA 1</span></div>
-    <div class="modal-title" style="color:var(--gold);font-size:26px">¡GANASTE LA SUBASTA!</div>
+    <div class="modal-title" id="modal-ganador-titulo" style="color:var(--gold);font-size:26px">¡GANASTE LA SUBASTA!</div>
     <div class="modal-amount" id="modal-ganador-monto">$0</div>
     <div class="modal-sub" style="margin-bottom:18px" id="modal-ganador-carta">—</div>
 
@@ -3178,7 +3321,7 @@ const firebaseConfig = {
 var offsetServidor = 0;
 function ahoraSrv(){ return Date.now() + offsetServidor; }
 
-console.log("%cPaldea Subastas v48 — anti-fantasma + banner de espera","color:#f5c842;font-weight:bold");
+console.log("%cPaldea Subastas v51 — horarios de puja, guardado completo, ganador doble y entrega","color:#f5c842;font-weight:bold");
 
 // Tick global del countdown 3-2-1: revisa cada 250ms si hay que disparar.
 // No compite con los otros ticks porque solo mira estado + resto, y una vez
@@ -3311,6 +3454,14 @@ const defaultState = {
     accessCode: "",
     accessCodeActivo: false,
     finTs:     null,
+    // ── Borrador del admin (se guarda con 💾 Guardar) ──
+    // Antes el término programado y la duración NO se guardaban en ningún
+    // lado: al reabrir el panel el campo de término volvía vacío y quedaba
+    // suelta la duración antigua. Por eso una subasta programada para
+    // "mañana a las 12" terminaba durando 55 minutos.
+    finProgTs: null,
+    durH:      0,
+    durM:      0,
   },
   pujas:       [],
   lider:       null,
@@ -4493,6 +4644,11 @@ function renderApp(){
   // Agenda de strikes (solo admin) — permanente, no se borra al resetear
   renderStrikes();
 
+  // Horarios de puja (solo admin): archiva lo nuevo y repinta el gráfico
+  if(admin){
+    try{ registrarActividadHist(); renderHorarios(); }catch(e){ console.error("horarios:", e); }
+  }
+
   // Winner
   const ww = document.getElementById("winner-wrap");
   if(sub.estado==="finalizada" && S.lider){
@@ -4598,6 +4754,7 @@ function renderAdminGanador(){
     ta.value = armarMensajeGanador();
     ta.oninput = () => { ta.dataset.editado = "1"; };
   }
+  prepararEntrega("a");
 
   document.getElementById("ag-nombre").textContent = S.lider.nombre;
   const infoLider = contactoDe(S.lider.uid);
@@ -4719,6 +4876,8 @@ function abrirIgGanador(){
 function llenarModalGanador(){
   const tag = document.getElementById("modal-ganador-tag");
   if(tag) tag.style.display = "none";   // modo individual: sin etiqueta de subasta
+  const tit = document.getElementById("modal-ganador-titulo");
+  if(tit) tit.textContent = "¡GANASTE LA SUBASTA!";
   document.getElementById("modal-ganador-monto").textContent = fmtCLP(S.lider.monto);
   document.getElementById("modal-ganador-carta").textContent = S.carta.titulo || "";
   // El contacto ya se pidió al ingresar: aquí solo se le recuerda por dónde
@@ -4760,9 +4919,15 @@ function checkModalGanador(){
 function cerrarModalGanador(){
   const m = document.getElementById("modal-ganador");
   if(m) m.classList.remove("open");
-  // En modo paralelo el aviso puede ser de la Subasta 2: se marca en SU nodo.
-  const nodo = (CFG.modoDual && modalGanadorCual === "b") ? SUBASTA_REF_B : SUBASTA_REF;
-  set(ref(db, `${nodo}/ganadorAvisado`), true).catch(()=>{});
+  // En modo paralelo el aviso puede ser de la Subasta 2 —o de las dos a la
+  // vez, cuando la misma persona se llevó ambas cartas.
+  if(CFG.modoDual && modalGanadorCual === "ambas"){
+    set(ref(db, `${SUBASTA_REF}/ganadorAvisado`),   true).catch(()=>{});
+    set(ref(db, `${SUBASTA_REF_B}/ganadorAvisado`), true).catch(()=>{});
+  } else {
+    const nodo = (CFG.modoDual && modalGanadorCual === "b") ? SUBASTA_REF_B : SUBASTA_REF;
+    set(ref(db, `${nodo}/ganadorAvisado`), true).catch(()=>{});
+  }
   if(CFG.modoDual){
     modalGanadorCual = null;
     // Si la otra subasta también tiene modal pendiente para este usuario, mostrarlo
@@ -4884,6 +5049,88 @@ function copiarMensajeGanador(){
   navigator.clipboard.writeText(ta.value)
     .then(()=> toast("✅ Mensaje copiado — pégalo en Instagram o WhatsApp","ok"))
     .catch(()=>{ document.execCommand("copy"); toast("✅ Mensaje copiado","ok"); });
+}
+
+// ══════════════════════════════════════
+//  MENSAJE DE COORDINACIÓN DE ENTREGA (después del pago)
+// ══════════════════════════════════════
+// Se envía una vez confirmada la transferencia: ofrece retiro en tienda
+// (con horarios y mapa) o envío Starken por pagar. El admin lo puede editar;
+// lo editado se recuerda en este navegador y "↺ Restaurar" vuelve al original.
+const ENTREGA_KEY   = "paldea_msg_entrega_v1";
+const PALDEA_MAPA   = "https://maps.app.goo.gl/iuDSCBxPxVADgiUKA";
+const ENTREGA_BASE  = `¡Pago recibido! 🙌 Muchas gracias por tu compra en Paldea Games.
+
+¿Necesitas envío o retiro?
+
+📍 Retiro en Paldea Games (somos tienda online con opción de retiro presencial)
+
+🕒 Horarios:
+Lunes a viernes: 10.00 a 18.30
+Sábado: 10.00 a 14.00
+
+${PALDEA_MAPA}
+
+🚛 Envío: Starken por pagar (el despacho lo cancelas al retirar en la sucursal). Si prefieres esta opción, mándame:
+• Nombre completo
+• RUT
+• Teléfono
+• Sucursal de Starken más cercana
+
+Avísame cuál prefieres y lo dejo listo 💛
+@paldea.games`;
+
+function plantillaEntrega(){
+  try{
+    const guardada = localStorage.getItem(ENTREGA_KEY);
+    if(guardada && guardada.trim()) return guardada;
+  }catch(e){}
+  return ENTREGA_BASE;
+}
+
+// Arma el mensaje de entrega agregando qué carta (o cartas) va a recibir
+function armarMensajeEntrega(cual){
+  const base = plantillaEntrega();
+  if(cual === "ambas"){
+    const c1 = [S.carta.titulo, S.carta.set].filter(Boolean).join(" · ");
+    const c2 = [SB.carta.titulo, SB.carta.set].filter(Boolean).join(" · ");
+    return base + `\n\n📦 Van juntas en un mismo despacho:\n• ${c1}\n• ${c2}`;
+  }
+  const st = (cual === "b") ? SB : S;
+  const carta = [st.carta.titulo, st.carta.set].filter(Boolean).join(" · ");
+  return carta ? base + `\n\n📦 Tu carta: ${carta}` : base;
+}
+
+function idEntrega(cual){
+  return cual === "b" ? "ag-entrega-b" : cual === "ambas" ? "combo-entrega" : "ag-entrega";
+}
+
+function copiarMensajeEntrega(cual){
+  const ta = document.getElementById(idEntrega(cual));
+  if(!ta) return;
+  // Lo que el admin dejó escrito pasa a ser su plantilla para la próxima vez
+  try{ localStorage.setItem(ENTREGA_KEY, ta.value); }catch(e){}
+  ta.select();
+  navigator.clipboard.writeText(ta.value)
+    .then(()=> toast("📦 Mensaje de entrega copiado","ok"))
+    .catch(()=>{ document.execCommand("copy"); toast("📦 Mensaje de entrega copiado","ok"); });
+}
+
+function restaurarEntrega(cual){
+  try{ localStorage.removeItem(ENTREGA_KEY); }catch(e){}
+  const ta = document.getElementById(idEntrega(cual));
+  if(ta){ ta.value = armarMensajeEntrega(cual); delete ta.dataset.editado; }
+  toast("↺ Texto de entrega restaurado","ok");
+}
+
+// Rellena un textarea de entrega sin pisar lo que el admin esté escribiendo
+function prepararEntrega(cual){
+  const ta = document.getElementById(idEntrega(cual));
+  if(!ta) return;
+  if(!ta.dataset.editado){
+    ta.value = armarMensajeEntrega(cual);
+    ta.oninput = () => { ta.dataset.editado = "1"; };
+  }
 }
 
 function reabrirModalGanador(){
@@ -5454,12 +5701,14 @@ function recalcDuracion(px){
   const durH     = document.getElementById(px+"dur");
   const durM     = document.getElementById(px+"durm");
   if(!finCampo || !hint || !durH || !durM) return;
+  const cualP = px === "b-" ? "b" : "a";
 
   if(!finCampo.value){
     // Modo manual: campos habilitados, sin hint
     durH.disabled = false; durM.disabled = false;
     durH.style.opacity = ""; durM.style.opacity = "";
     hint.style.display = "none";
+    try{ renderResumenProg(cualP); }catch(e){}
     return;
   }
 
@@ -5476,6 +5725,7 @@ function recalcDuracion(px){
     hint.style.display = "block";
     hint.style.color = "var(--red)";
     hint.textContent = "⚠️ El término debe ser DESPUÉS del inicio";
+    try{ renderResumenProg(cualP); }catch(e){}
     return;
   }
 
@@ -5489,6 +5739,7 @@ function recalcDuracion(px){
   hint.style.display = "block";
   hint.style.color = "var(--gold)";
   hint.textContent = `⏱ Duración automática: ${h} h ${m} min — termina ${fechaLegible(finTs)}`;
+  try{ renderResumenProg(cualP); }catch(e){}
 }
 
 // Término a X minutos desde AHORA (para pruebas rápidas del cierre).
@@ -5950,19 +6201,69 @@ function fillAdminFields(soloLimpios){
   if(!soloLimpios){
     const iniEl = document.getElementById("a-inicio");
     if(iniEl){
-      const iniProg = S.subasta.inicioProgTs || S.subasta.inicioTs;
-      iniEl.value = (iniProg && S.subasta.estado === "programada") ? aDatetimeLocal(new Date(iniProg)) : "";
+      // El borrador guardado manda. Si no hay borrador, se usa el inicio real
+      // de una subasta programada. Así "Guardar" conserva la programación
+      // aunque la subasta siga en espera.
+      const iniProg = S.subasta.inicioProgTs
+        || (S.subasta.estado === "programada" ? S.subasta.inicioTs : null);
+      iniEl.value = iniProg ? aDatetimeLocal(new Date(iniProg)) : "";
     }
-    // Término programado: se muestra el fin real para que no quede en blanco
+    // Término programado: primero el borrador guardado, después el fin real
     const finEl = document.getElementById("a-fin");
     if(finEl){
       const vivaA = S.subasta.estado === "programada" || S.subasta.estado === "activa";
-      finEl.value = (S.subasta.finTs && vivaA) ? aDatetimeLocal(new Date(S.subasta.finTs)) : "";
-      recalcDuracion("a-");
+      const finProg = S.subasta.finProgTs || (vivaA ? S.subasta.finTs : null);
+      finEl.value = finProg ? aDatetimeLocal(new Date(finProg)) : "";
     }
+    // Duración manual guardada (solo tiene efecto si no hay término programado)
+    const dH = document.getElementById("a-dur");
+    const dM = document.getElementById("a-durm");
+    if(dH) dH.value = S.subasta.durH ? S.subasta.durH : "";
+    if(dM) dM.value = S.subasta.durM ? S.subasta.durM : "";
+    recalcDuracion("a-");
   }
   renderImgList();
+  renderResumenProg("a");
   formLleno.a = true;
+}
+
+// ── Resumen visible del plan antes de iniciar ──
+// Muestra en una línea cuándo empieza, cuándo termina y cuánto dura, leyendo
+// los campos tal como están AHORA. Así se ve el error antes de tocar INICIAR.
+function renderResumenProg(cual){
+  const px = cual === "b" ? "b-" : "a-";
+  const box = document.getElementById(px + "resumen-prog");
+  if(!box) return;
+  const iniEl = document.getElementById(px + "inicio");
+  const finEl = document.getElementById(px + "fin");
+  const durH  = parseFloat((document.getElementById(px + "dur")  || {}).value) || 0;
+  const durM  = parseFloat((document.getElementById(px + "durm") || {}).value) || 0;
+
+  const iniTs = (iniEl && iniEl.value) ? new Date(iniEl.value).getTime() : null;
+  const finTs = (finEl && finEl.value) ? new Date(finEl.value).getTime() : null;
+  const baseTs = iniTs || Date.now();
+  const totalMs = finTs ? (finTs - baseTs) : (durH * 60 + durM) * 60000;
+
+  if(!totalMs || totalMs <= 0){
+    box.style.borderColor = "rgba(255,59,92,.4)";
+    box.style.background  = "rgba(255,59,92,.06)";
+    box.innerHTML = (finTs && finTs <= baseTs)
+      ? `<span style="color:var(--red);font-weight:700">⚠️ El término es anterior al inicio</span> — el término quedó en <b>${fechaLegible(finTs)}</b> y el inicio en <b>${iniTs ? fechaLegible(iniTs) : "ahora"}</b>. Corrige el día o la hora.`
+      : `<span style="color:var(--red);font-weight:700">⚠️ Falta la duración</span> — pon un término programado o escribe horas/minutos.`;
+    return;
+  }
+  const totalMin = Math.round(totalMs / 60000);
+  const hh = Math.floor(totalMin / 60), mm = totalMin % 60;
+  const finReal = baseTs + totalMs;
+  box.style.borderColor = "rgba(0,230,122,.35)";
+  box.style.background  = "rgba(0,230,122,.06)";
+  box.innerHTML = `
+    <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:5px">✅ Así va a quedar</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted2);line-height:1.6">
+      <span>▶ Inicia: <b style="color:var(--text)">${iniTs ? fechaLegible(iniTs) : "al tocar INICIAR"}</b></span>
+      <span>🏁 Termina: <b style="color:var(--text)">${fechaLegible(finReal)}</b></span>
+      <span>⏱ Dura: <b style="color:var(--gold)">${hh > 0 ? hh + " h " : ""}${mm} min</b></span>
+    </div>`;
 }
 
 // Refresco automático: se llama cuando llegan datos frescos de Firebase.
@@ -6128,6 +6429,33 @@ function leerFormulario(){
   const inicioVal = document.getElementById("a-inicio").value;
   if(inicioVal) S.subasta.inicioProgTs = new Date(inicioVal).getTime();
   else S.subasta.inicioProgTs = null;
+  // Término programado y duración manual: parte del borrador que SÍ se guarda
+  const finVal = document.getElementById("a-fin").value;
+  S.subasta.finProgTs = finVal ? new Date(finVal).getTime() : null;
+  S.subasta.durH = parseFloat(document.getElementById("a-dur").value)  || 0;
+  S.subasta.durM = parseFloat(document.getElementById("a-durm").value) || 0;
+  try{ renderResumenProg("a"); }catch(e){}
+}
+
+// Duración real que va a tener la subasta, calculada en el momento de iniciar.
+// El término programado MANDA sobre los campos de horas/minutos: si está
+// puesto, la duración se recalcula contra el inicio de verdad, para que
+// "mañana a las 12" dure lo que tiene que durar y no lo que quedó escrito.
+function calcularDuracionMs(px){
+  const finEl = document.getElementById(px + "fin");
+  const iniEl = document.getElementById(px + "inicio");
+  if(finEl && finEl.value){
+    const finTs  = new Date(finEl.value).getTime();
+    const baseTs = (iniEl && iniEl.value) ? new Date(iniEl.value).getTime() : Date.now();
+    if(isNaN(finTs)) return { ms: 0, error: "La fecha de término no es válida" };
+    if(finTs <= baseTs) return { ms: 0, error: "El término programado debe ser DESPUÉS del inicio" };
+    return { ms: finTs - baseTs, error: null };
+  }
+  const h = parseFloat((document.getElementById(px + "dur")  || {}).value) || 0;
+  const m = parseFloat((document.getElementById(px + "durm") || {}).value) || 0;
+  const ms = (h * 60 + m) * 60 * 1000;
+  if(ms <= 0) return { ms: 0, error: "Define una duración (horas o minutos) o un término programado" };
+  return { ms, error: null };
 }
 
 // Guarda solo carta + configuración, sin tocar pujas ni visitantes
@@ -6144,7 +6472,12 @@ function adminUpdate(){
     express: S.subasta.express,
     antisnipeAgrega: S.subasta.antisnipeAgrega,
     antisnipeVentana: 1,
-    inicioProgTs: S.subasta.inicioProgTs
+    inicioProgTs: S.subasta.inicioProgTs,
+    // Guardar = guardar TODO el borrador: término programado y duración
+    // incluidos. Sin esto, al reabrir el panel el término volvía vacío.
+    finProgTs: S.subasta.finProgTs,
+    durH: S.subasta.durH,
+    durM: S.subasta.durM
   };
   const policies = S.policies;
 
@@ -6171,7 +6504,11 @@ function adminUpdate(){
     marcarFormGuardado("a");
     renderApp();
     try{ if(CFG.modoDual) renderDualTodo(); }catch(e){}
-    toast("✅ Cambios guardados","ok");
+    try{ renderResumenProg("a"); }catch(e){}
+    // El aviso dice QUÉ quedó guardado: carta, fotos, precios y programación
+    const nf = (S.carta.imgs || []).length;
+    const prog = S.subasta.inicioProgTs ? fechaLegible(S.subasta.inicioProgTs) : "sin inicio programado";
+    toast(`✅ Guardado: carta, ${nf} foto${nf!==1?"s":""}, precios y programación (${prog})`,"ok");
   }).catch(err=>{
     console.error("Error al guardar:", err);
     toast("No se pudo guardar. Reintenta.","err");
@@ -6184,20 +6521,13 @@ function adminStart(){
   // Con término programado, la duración se recalcula AL MOMENTO de iniciar:
   // si el inicio es "ahora", cada minuto que pasó cambia el cálculo.
   recalcDuracion();
-  const finCampo = document.getElementById("a-fin");
-  if(finCampo && finCampo.value){
-    const finTs  = new Date(finCampo.value).getTime();
-    const iniC   = document.getElementById("a-inicio");
-    const baseTs = (iniC && iniC.value) ? new Date(iniC.value).getTime() : Date.now();
-    if(isNaN(finTs) || finTs <= baseTs){
-      toast("⚠️ El término programado debe ser después del inicio","err");
-      return;
-    }
-  }
-  const durH = parseFloat(document.getElementById("a-dur").value)  || 0;
-  const durM = parseFloat(document.getElementById("a-durm").value) || 0;
-  const totalMs = (durH*60 + durM) * 60 * 1000;
-  if(totalMs<=0){ toast("Define duración (horas o minutos)","err"); return; }
+  // La duración se calcula SIEMPRE desde el término programado cuando existe.
+  // Antes se leían los campos de horas/minutos, que podían haber quedado con
+  // un valor viejo (de ahí la subasta de 55 min en vez de 24 h 55).
+  const { ms: totalMs, error: errDur } = calcularDuracionMs("a-");
+  if(errDur){ toast("⚠️ " + errDur, "err"); return; }
+  const durH = Math.floor(totalMs / 3600000);
+  const durM = Math.round((totalMs % 3600000) / 60000);
 
   // Iniciar borra las pujas existentes: antes lo hacía sin avisar
   const nPujas = (S.pujas||[]).length;
@@ -6208,6 +6538,24 @@ function adminStart(){
   const inicioProgTs = S.subasta.inicioProgTs;
   const ahora = ahoraSrv();
 
+  // Confirmación explícita con el plan real: fecha de inicio, de término y
+  // duración. Si algo quedó mal configurado, se ve ANTES de publicarlo.
+  {
+    const iniReal = (inicioProgTs && inicioProgTs > ahora) ? inicioProgTs : ahora;
+    const finReal = iniReal + totalMs;
+    const resumen = `¿Iniciar la Subasta 1?\n\n`
+      + `🃏 ${S.carta.titulo}\n`
+      + `▶ Inicia: ${fechaLegible(iniReal)}${(inicioProgTs && inicioProgTs > ahora) ? " (programada)" : " (ahora)"}\n`
+      + `🏁 Termina: ${fechaLegible(finReal)}\n`
+      + `⏱ Duración: ${durH} h ${durM} min\n`
+      + `💰 Base ${fmtCLP(S.subasta.base)} · incrementos de ${fmtCLP(S.subasta.inc)}\n`
+      + `⚡ Anti-snipe: +${S.subasta.antisnipeAgrega} min`;
+    if(!confirm(resumen)) return;
+  }
+
+  // Antes de borrar las pujas, archivarlas en el historial de horarios
+  try{ registrarActividadHist(); }catch(e){}
+
   if(inicioProgTs && inicioProgTs > ahora){
     // Inicio programado en el futuro
     S.subasta.estado    = "programada";
@@ -6217,6 +6565,9 @@ function adminStart(){
     S.subasta.precioAct = 0;
     S.subasta.finTs     = inicioProgTs + totalMs;
     S.subasta.inicioTs  = inicioProgTs;
+    S.subasta.finProgTs = S.subasta.finTs;   // borrador al día con lo publicado
+    S.subasta.durH      = durH;
+    S.subasta.durM      = durM;
     S.subasta.antisnipeActivo = false;
     S.subasta.antisnipeUsado  = false;
     S.pujas             = [];
@@ -6237,6 +6588,9 @@ function adminStart(){
     S.subasta.finTs     = ahora + totalMs;
     S.subasta.inicioTs  = ahora;
     S.subasta.inicioProgTs = null;
+    S.subasta.finProgTs = S.subasta.finTs;
+    S.subasta.durH      = durH;
+    S.subasta.durM      = durM;
     S.subasta.antisnipeActivo = false;
     S.subasta.antisnipeUsado  = false;   // faltaba: arrancaba con el anti-snipe gastado
     S.pujas             = [];
@@ -6322,6 +6676,10 @@ function adminReset(){
 
   if(!confirm(msg)) return;
   if(nMkt > 0 && !confirm(`Vas a perder ${nMkt} correo${nMkt!==1?"s":""} de marketing.\n\n¿Los exportaste ya?`)) return;
+  if(nVis > 0 && !confirm(`Último aviso: se borran los ${nVis} participante${nVis!==1?"s":""} con sus Instagram y WhatsApp.\n\n¿Ya tocaste "📋 Copiar ficha completa" o "⬇️ Descargar CSV"?`)) return;
+
+  // El historial de horarios NO se borra: se archiva lo que haya antes de limpiar
+  try{ registrarActividadHist(); }catch(e){}
 
   if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
   if(scheduleTimeout){ clearTimeout(scheduleTimeout); scheduleTimeout = null; }
@@ -7812,6 +8170,374 @@ async function migrarDatos(){
   renderApp();
 }
 
+// ══════════════════════════════════════
+//  HORARIOS DE PUJA — ¿a qué hora pujan de verdad?
+// ══════════════════════════════════════
+// Sirve para decidir a qué hora conviene lanzar una subasta express y cuánto
+// debería durar. Como Firebase borra las pujas al iniciar una subasta nueva,
+// aquí se va acumulando un historial propio en ESTE navegador: cada vez que
+// el admin mira el panel, las pujas que todavía no estaban se archivan.
+const HIST_PUJAS_KEY = "paldea_hist_pujas_v1";
+const HIST_ING_KEY   = "paldea_hist_ingresos_v1";
+let hzVista = "pujas";    // "pujas" | "ingresos"
+let hzRango = "todo";     // "todo" | "actual"
+let hzVentana = 2;        // duración elegida para resaltar: 1, 2 o 3 horas
+let hzVentanaManual = false;  // true cuando el admin eligió una a mano
+
+function leerHist(clave){
+  try{ const r = localStorage.getItem(clave); return r ? JSON.parse(r) : []; }
+  catch(e){ return []; }
+}
+function guardarHist(clave, arr){
+  // Tope para no llenar el navegador: se conservan los 6000 más recientes
+  if(arr.length > 6000) arr = arr.slice(-6000);
+  try{ localStorage.setItem(clave, JSON.stringify(arr)); }catch(e){}
+}
+
+// Archiva lo nuevo que vea el admin. Devuelve true si cambió algo.
+function registrarActividadHist(){
+  if(!admin) return false;
+  let cambio = false;
+
+  // ── Pujas ──
+  const hp = leerHist(HIST_PUJAS_KEY);
+  const vistas = new Set(hp.map(x => x.id));
+  [["a", S], ["b", SB]].forEach(([cual, st]) => {
+    (st.pujas || []).forEach(p => {
+      if(!p || !p.timestamp) return;
+      const id = p.id || `${cual}_${p.timestamp}_${p.monto}`;
+      if(vistas.has(id)) return;
+      vistas.add(id);
+      hp.push({ id, ts: p.timestamp, monto: p.monto || 0, sub: cual, uid: p.uid || "" });
+      cambio = true;
+    });
+  });
+  if(cambio) guardarHist(HIST_PUJAS_KEY, hp);
+
+  // ── Ingresos (cuándo entra la gente) ──
+  const hi = leerHist(HIST_ING_KEY);
+  const vistosI = new Set(hi.map(x => x.id));
+  let cambioI = false;
+  (P.visitantes || []).forEach(v => {
+    if(!v || !v.timestamp) return;
+    const id = `${v.uid || v.ig || "?"}_${v.timestamp}`;
+    if(vistosI.has(id)) return;
+    vistosI.add(id);
+    hi.push({ id, ts: v.timestamp });
+    cambioI = true;
+  });
+  if(cambioI) guardarHist(HIST_ING_KEY, hi);
+
+  return cambio || cambioI;
+}
+
+// Devuelve los timestamps a graficar según la vista y el rango elegidos
+function datosHorarios(){
+  if(hzRango === "actual"){
+    if(hzVista === "ingresos") return (P.visitantes || []).map(v => v.timestamp).filter(Boolean);
+    const a = (S.pujas || []).map(p => p.timestamp);
+    const b = CFG.modoDual ? (SB.pujas || []).map(p => p.timestamp) : [];
+    return a.concat(b).filter(Boolean);
+  }
+  const clave = hzVista === "ingresos" ? HIST_ING_KEY : HIST_PUJAS_KEY;
+  return leerHist(clave).map(x => x.ts).filter(Boolean);
+}
+
+// La mejor franja de N horas seguidas (puede cruzar la medianoche)
+function mejorVentana(porHora, horas){
+  let mejor = { h: 0, n: -1 };
+  for(let h = 0; h < 24; h++){
+    let n = 0;
+    for(let k = 0; k < horas; k++) n += porHora[(h + k) % 24];
+    if(n > mejor.n) mejor = { h, n };
+  }
+  return mejor;
+}
+
+function renderHorarios(){
+  const box = document.getElementById("horarios-box");
+  if(!box) return;
+  if(!admin){ box.innerHTML = ""; return; }
+
+  const ts = datosHorarios();
+  const total = ts.length;
+  const etiqueta = hzVista === "ingresos" ? "ingresos" : "pujas";
+
+  const tabs = `
+    <div class="hz-tabs">
+      <button class="chip-btn" style="${hzVista==="pujas"?"border-color:var(--gold);color:var(--gold)":""}" onclick="hzSet('vista','pujas')">🔨 Pujas</button>
+      <button class="chip-btn" style="${hzVista==="ingresos"?"border-color:var(--gold);color:var(--gold)":""}" onclick="hzSet('vista','ingresos')">👥 Ingresos</button>
+      <span style="width:1px;height:16px;background:var(--border2);margin:0 2px"></span>
+      <button class="chip-btn" style="${hzRango==="todo"?"border-color:var(--gold);color:var(--gold)":""}" onclick="hzSet('rango','todo')">📚 Historial</button>
+      <button class="chip-btn" style="${hzRango==="actual"?"border-color:var(--gold);color:var(--gold)":""}" onclick="hzSet('rango','actual')">⚡ Esta subasta</button>
+    </div>`;
+
+  if(total === 0){
+    box.innerHTML = `
+      <div class="hz-card">
+        <div class="hz-head">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">📊 Horarios de actividad</div>
+          ${tabs}
+        </div>
+        <div class="hz-vacio">
+          Todavía no hay ${etiqueta} registradas.<br>
+          El historial se va llenando solo cada vez que abres este panel con una subasta en curso.
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Conteo por hora del día y por día de la semana
+  const porHora = new Array(24).fill(0);
+  const porDia  = new Array(7).fill(0);
+  ts.forEach(t => {
+    const d = new Date(t);
+    porHora[d.getHours()]++;
+    porDia[d.getDay()]++;
+  });
+  const maxH = Math.max(...porHora);
+
+  const v1 = mejorVentana(porHora, 1);
+  const v2 = mejorVentana(porHora, 2);
+  const v3 = mejorVentana(porHora, 3);
+  const pct = (n) => Math.round(n * 100 / total);
+
+  // Duración recomendada: la más corta que capture al menos el 70% de la
+  // actividad. Alargar más allá de eso solo agrega tiempo muerto.
+  let reco = v3, recoH = 3;
+  if(pct(v2.n) >= 70){ reco = v2; recoH = 2; }
+  if(pct(v1.n) >= 70){ reco = v1; recoH = 1; }
+  // Mientras el admin no elija otra, la franja resaltada es la recomendada
+  if(!hzVentanaManual) hzVentana = recoH;
+  const elegida = hzVentana === 1 ? v1 : hzVentana === 3 ? v3 : v2;
+
+  const dentro = new Set();
+  for(let k = 0; k < hzVentana; k++) dentro.add((elegida.h + k) % 24);
+
+  const barras = porHora.map((n, h) => {
+    const alto = maxH > 0 ? Math.round((n / maxH) * 100) : 0;
+    const clases = ["hz-col", n === maxH && n > 0 ? "pico" : "", dentro.has(h) ? "dentro" : ""].filter(Boolean).join(" ");
+    return `<div class="${clases}" title="${String(h).padStart(2,"0")}:00 · ${n} ${etiqueta}">
+      <div class="hz-n">${n > 0 ? n : ""}</div>
+      <div class="hz-bar" style="height:${alto}%"></div>
+      <div class="hz-h">${String(h).padStart(2,"0")}</div>
+    </div>`;
+  }).join("");
+
+  const nomDias = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+  const maxD = Math.max(...porDia);
+  const dias = porDia.map((n, i) =>
+    `<div class="hz-dia${n === maxD && n > 0 ? " top" : ""}"><div class="d">${nomDias[i]}</div><div class="n">${n}</div></div>`
+  ).join("");
+
+  const franja = (v, horas) => `${String(v.h).padStart(2,"0")}:00–${String((v.h + horas) % 24).padStart(2,"0")}:00`;
+  const caja = (v, horas) => `
+    <div class="${horas === recoH ? "mejor" : ""}" style="cursor:pointer" onclick="hzSet('ventana',${horas})" title="Ver esta franja en el gráfico">
+      <div class="vh">${franja(v, horas)}</div>
+      <div class="vp">${pct(v.n)}%</div>
+      <div class="vl">${horas} hora${horas !== 1 ? "s" : ""}${horas === recoH ? " · recomendada" : ""}</div>
+    </div>`;
+
+  box.innerHTML = `
+    <div class="hz-card">
+      <div class="hz-head">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">📊 Horarios de actividad · ${total} ${etiqueta}</div>
+        ${tabs}
+      </div>
+      <div class="hz-body">
+        <div class="hz-chart">${barras}</div>
+        <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:5px;letter-spacing:.5px">Hora del día (0–23) · el borde verde marca la franja de ${hzVentana} h seleccionada</div>
+
+        <div class="hz-dias">${dias}</div>
+        <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:5px;letter-spacing:.5px">Día de la semana</div>
+
+        <div class="hz-reco">
+          <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:5px">⚡ Para tu próxima express</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6">
+            La hora más movida es las <b style="color:var(--gold)">${String(porHora.indexOf(maxH)).padStart(2,"0")}:00</b>.
+            Con una subasta de <b style="color:var(--green)">${recoH} hora${recoH !== 1 ? "s" : ""}</b> entre
+            <b style="color:var(--green)">${franja(reco, recoH)}</b> alcanzas al <b>${pct(reco.n)}%</b> de las ${etiqueta}.
+            ${recoH === 3
+              ? "La actividad está repartida, así que acortarla deja gente fuera."
+              : pct(v3.n) - pct(v2.n) < 10
+                ? "Estirarla más casi no suma gente: no vale la pena."
+                : `Si quieres más alcance, con 3 horas (${franja(v3,3)}) llegas al ${pct(v3.n)}%.`}
+          </div>
+          <div class="hz-vent">${caja(v1,1)}${caja(v2,2)}${caja(v3,3)}</div>
+          <button class="exp-btn principal" style="width:100%;margin-top:9px" onclick="usarVentanaExpress(${elegida.h},${hzVentana})">
+            ⚡ Programar Subasta 1 express de ${hzVentana} h desde las ${String(elegida.h).padStart(2,"0")}:00
+          </button>
+          <div style="font-size:9px;color:var(--muted);margin-top:5px;line-height:1.5">
+            Rellena los campos de arriba (express encendido, inicio y término). Revísalos y después toca <b>INICIAR</b>.
+          </div>
+        </div>
+
+        <div style="font-size:9px;color:var(--muted);margin-top:10px;line-height:1.5">
+          💾 El historial se guarda solo en este navegador y <b>no se borra al resetear</b> la subasta.
+          <button onclick="borrarHistHorarios()" style="background:none;border:none;color:var(--muted2);font-size:9px;cursor:pointer;text-decoration:underline;font-family:'Outfit',sans-serif;padding:0">Borrar historial de horarios</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function hzSet(campo, valor){
+  if(campo === "vista")   hzVista   = valor;
+  if(campo === "rango")   hzRango   = valor;
+  if(campo === "ventana"){ hzVentana = valor; hzVentanaManual = true; }
+  renderHorarios();
+}
+
+function borrarHistHorarios(){
+  if(!confirm("¿Borrar el historial de horarios de este navegador?\n\nSe pierden las estadísticas de a qué hora pujan. No afecta a las subastas ni a los participantes.")) return;
+  try{ localStorage.removeItem(HIST_PUJAS_KEY); localStorage.removeItem(HIST_ING_KEY); }catch(e){}
+  renderHorarios();
+  toast("Historial de horarios borrado","warn");
+}
+
+// Deja el formulario de la Subasta 1 listo para una express en esa franja.
+// No inicia nada: el admin revisa y toca INICIAR.
+function usarVentanaExpress(hora, horas){
+  if(!admin) return;
+  const panel = document.getElementById("admin-panel");
+  if(panel && panel.style.display !== "block"){ panel.style.display = "block"; fillAdminFields(); }
+
+  const ini = new Date();
+  ini.setHours(hora, 0, 0, 0);
+  // Si esa hora ya pasó hoy, se programa para mañana
+  if(ini.getTime() <= Date.now()) ini.setDate(ini.getDate() + 1);
+  const fin = new Date(ini.getTime() + horas * 3600000);
+
+  const exp = document.getElementById("a-express");
+  if(exp){ exp.checked = true; exp.dataset.tocado = "1"; toggleExpressUI("a-"); }
+  const iniEl = document.getElementById("a-inicio");
+  const finEl = document.getElementById("a-fin");
+  if(iniEl){ iniEl.value = aDatetimeLocal(ini); iniEl.dataset.tocado = "1"; }
+  if(finEl){ finEl.value = aDatetimeLocal(fin); finEl.dataset.tocado = "1"; }
+  recalcDuracion("a-");
+
+  if(iniEl) iniEl.scrollIntoView({ behavior: "smooth", block: "center" });
+  toast(`⚡ Express de ${horas} h cargada: ${fechaLegible(ini.getTime())} → ${fechaLegible(fin.getTime())}. Revisa y toca INICIAR.`,"ok");
+}
+
+// ══════════════════════════════════════
+//  EXPORTACIÓN COMPLETA DE PARTICIPANTES
+// ══════════════════════════════════════
+// Antes solo se podía sacar "nombre + correo". Ahora se exporta TODO lo que
+// la persona dejó al ingresar (Instagram, WhatsApp, correo, marketing) más
+// su actividad en cada subasta, para poder armar grupos de Instagram con
+// quienes realmente están pujando.
+function fichaParticipantes(){
+  const visitantes = P.visitantes || [];
+  return visitantes.map(v => {
+    const clave = v.uid || v.ig;
+    const act = (cual) => {
+      const st = ST(cual);
+      const mias = (st.pujas || []).filter(p => (p.uid || p.ig) === clave);
+      return { n: mias.length, max: mias.reduce((m,p) => Math.max(m, p.monto||0), 0) };
+    };
+    const a = act("a");
+    const b = CFG.modoDual ? act("b") : { n:0, max:0 };
+    return {
+      nombre:    v.nombre || "",
+      email:     v.email || "",
+      ig:        v.ig || "",
+      whatsapp:  v.whatsapp || "",
+      marketing: !!v.marketing,
+      entrada:   v.entrada || "",
+      fecha:     v.timestamp ? new Date(v.timestamp).toLocaleDateString("es-CL") : "",
+      pujasA:    a.n, maxA: a.max,
+      pujasB:    b.n, maxB: b.max,
+      pujoAlgo:  (a.n + b.n) > 0,
+      uid:       v.uid || ""
+    };
+  });
+}
+
+const EXP_COLS = ["Nombre","Correo","Instagram","WhatsApp","Novedades","Fecha","Hora ingreso",
+                  "Pujas S1","Mayor S1","Pujas S2","Mayor S2","¿Pujó?"];
+
+function filaFicha(f){
+  return [
+    f.nombre, f.email, f.ig, f.whatsapp,
+    f.marketing ? "SI" : "NO",
+    f.fecha, f.entrada,
+    f.pujasA, f.maxA ? f.maxA : "",
+    f.pujasB, f.maxB ? f.maxB : "",
+    f.pujoAlgo ? "SI" : "NO"
+  ];
+}
+
+function descargarArchivo(nombre, contenido, tipo){
+  try{
+    const blob = new Blob(["﻿" + contenido], { type: tipo + ";charset=utf-8;" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = nombre;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 400);
+    return true;
+  }catch(e){ console.error("descarga:", e); return false; }
+}
+
+function exportarFichaCompleta(modo){
+  const fichas = fichaParticipantes();
+  if(fichas.length === 0){ toast("No hay participantes aún","warn"); return; }
+  // Los que más pujaron primero: así la lista sirve para priorizar contactos
+  fichas.sort((x,y) => (y.pujasA + y.pujasB) - (x.pujasA + x.pujasB) || Math.max(y.maxA,y.maxB) - Math.max(x.maxA,x.maxB));
+
+  if(modo === "csv"){
+    // Comillas al estilo CSV (no confundir con esc(), que escapa HTML)
+    const q = (v) => `"${String(v == null ? "" : v).replace(/"/g,'""')}"`;
+    const csv = [EXP_COLS.map(q).join(",")]
+      .concat(fichas.map(f => filaFicha(f).map(q).join(",")))
+      .join("\r\n");
+    const hoy = new Date().toISOString().slice(0,10);
+    if(descargarArchivo(`paldea-participantes-${hoy}.csv`, csv, "text/csv")){
+      toast(`⬇️ CSV con ${fichas.length} participante${fichas.length!==1?"s":""} descargado`,"ok");
+    } else {
+      toast("No se pudo descargar. Usa 'Copiar ficha completa'.","err");
+    }
+    return;
+  }
+
+  // Separado por tabulaciones: se pega directo en Excel o Google Sheets
+  const texto = [EXP_COLS.join("\t")]
+    .concat(fichas.map(f => filaFicha(f).join("\t")))
+    .join("\n");
+  navigator.clipboard.writeText(texto)
+    .then(()=> toast(`📋 Ficha de ${fichas.length} participante${fichas.length!==1?"s":""} copiada — pégala en Excel`,"ok"))
+    .catch(()=> prompt("Copia la ficha completa:", texto));
+}
+
+// Instagram listos para pegar en el buscador de un grupo nuevo
+function copiarInstagrams(quienes){
+  let fichas = fichaParticipantes().filter(f => f.ig);
+  if(quienes === "pujadores") fichas = fichas.filter(f => f.pujoAlgo);
+  if(fichas.length === 0){
+    toast(quienes === "pujadores"
+      ? "Nadie que haya pujado dejó su Instagram"
+      : "Todavía nadie dejó su Instagram","warn");
+    return;
+  }
+  // Sin repetidos y sin la arroba doble
+  const usuarios = [...new Set(fichas.map(f => "@" + String(f.ig).replace(/^@+/,"")))];
+  const texto = usuarios.join("\n");
+  navigator.clipboard.writeText(texto)
+    .then(()=> toast(`📷 ${usuarios.length} Instagram copiado${usuarios.length!==1?"s":""} — pégalos en el grupo`,"ok"))
+    .catch(()=> prompt("Copia los Instagram:", texto));
+}
+
+function copiarWhatsapps(quienes){
+  let fichas = fichaParticipantes().filter(f => f.whatsapp);
+  if(quienes === "pujadores") fichas = fichas.filter(f => f.pujoAlgo);
+  if(fichas.length === 0){ toast("Nadie dejó su WhatsApp todavía","warn"); return; }
+  const nums = [...new Set(fichas.map(f => f.whatsapp))];
+  const texto = nums.join("\n");
+  navigator.clipboard.writeText(texto)
+    .then(()=> toast(`💬 ${nums.length} WhatsApp copiado${nums.length!==1?"s":""}`,"ok"))
+    .catch(()=> prompt("Copia los WhatsApp:", texto));
+}
+
 function exportarCorreos(){
   const lista = (P.visitantes||[]).filter(v => v.marketing && v.email);
   if(lista.length === 0){ toast("Nadie aceptó recibir novedades aún","warn"); return; }
@@ -8613,12 +9339,16 @@ function htmlAdminB(){
     <div style="display:flex;align-items:center;font-size:11px;color:var(--muted2);padding:9px 4px;line-height:1.4">Minutos que se suman si alguien puja en el último minuto</div>
   </div>
 
+  <!-- Resumen del plan: inicio, término y duración REALES, en vivo -->
+  <div class="resumen-prog" id="b-resumen-prog"></div>
+
   <div class="sep"></div>
   <div class="admin-btns">
     <button class="a-btn go" onclick="adminStartB()">▶ INICIAR 2</button>
     <button class="a-btn" onclick="adminUpdateB()">💾 Guardar 2</button>
     <button class="a-btn danger" onclick="adminResetB()">🗑 Resetear 2</button>
   </div>
+  <div class="guardar-nota">💾 <strong>Guardar 2</strong> deja listos y guardados: carta, fotos, precio base, incrementos, anti-snipe, inicio y término programados. <strong>INICIAR 2</strong> publica la subasta con ese plan y borra las pujas anteriores.</div>
 
   <div id="b-bloqueados-section" style="display:none;margin-top:10px">
     <div class="sep"></div>
@@ -8660,13 +9390,17 @@ function construirDualUI(){
   const dz = document.getElementById("dual-zonas");
   if(dz){
     dz.innerHTML = `
-      <div id="dz-col-a"><div class="dz-etiqueta">🃏 Subasta 1</div></div>
+      <div id="dz-combo"></div>
+      <div id="dz-col-a"><div class="dz-etiqueta">🃏 Subasta 1</div>
+        <div class="dz-hueco" id="dz-hueco-a">🕐 La Subasta 1 todavía no finaliza.<br>Cuando cierre, aquí aparecen el ganador y los mensajes.</div>
+      </div>
       <div id="dz-col-b"><div class="dz-etiqueta">🃏 Subasta 2</div>
+        <div class="dz-hueco" id="dz-hueco-b">🕐 La Subasta 2 todavía no finaliza.<br>Cuando cierre, aquí aparecen el ganador y los mensajes.</div>
         <div class="winner-wrap" id="winner-wrap-b" style="display:none">
           <div class="winner-head">
             <div class="winner-trophy">🏆</div>
             <div class="winner-head-txt">
-              <div class="winner-title">SUBASTA 2 FINALIZADA</div>
+              <div class="winner-title">SUBASTA FINALIZADA</div>
               <div class="winner-ts" id="w-ts-b">—</div>
             </div>
             <div class="winner-price" id="w-price-b">$0</div>
@@ -8682,7 +9416,7 @@ function construirDualUI(){
         </div>
         <div id="admin-ganador-box-b" style="display:none;background:linear-gradient(135deg,rgba(245,200,66,.1),rgba(245,200,66,.02));border:1.5px solid var(--gold);border-radius:14px;padding:14px 16px;margin-bottom:12px">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-            <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold)">🏆 Contactar al ganador · Subasta 2</div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold)">🏆 Contactar al ganador</div>
             <div id="ag-estado-b" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px"></div>
           </div>
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
@@ -8705,16 +9439,31 @@ function construirDualUI(){
             <button onclick="copiarIgGanadorB()" title="Copiar" style="background:var(--gold);color:#07070d;border:none;border-radius:9px;padding:0 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">📋 Copiar</button>
             <button id="ag-abrir-b" onclick="abrirIgGanadorB()" title="Abrir perfil" style="background:var(--s3);color:var(--text);border:1px solid var(--border2);border-radius:9px;padding:0 12px;font-size:14px;cursor:pointer;white-space:nowrap">↗</button>
           </div>
-          <div id="ag-nota-b" style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5"></div>
+          <div id="ag-nota-b" class="ag-nota" style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5"></div>
+
+          <!-- 1) Aviso al ganador — espejo exacto de la Subasta 1 -->
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2)">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
-              <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">✉️ Mensaje para el ganador</div>
+              <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">✉️ 1 · Aviso al ganador (antes del pago)</div>
               <button onclick="copiarMensajeGanadorB()" style="background:var(--gold);color:#07070d;border:none;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">📋 Copiar mensaje</button>
             </div>
             <textarea id="ag-mensaje-b" rows="9"
               style="width:100%;background:var(--s2);border:1.5px solid var(--border2);border-radius:9px;color:var(--text);padding:10px 12px;font-size:12px;line-height:1.55;font-family:'Outfit',sans-serif;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+            <div class="msg-nota">Se arma solo con la carta, el monto y el nombre del ganador. Edítalo si quieres antes de copiar. Recuerda pegar tus datos de transferencia.</div>
           </div>
-          <div id="ag-top23-b" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2)">
+
+          <!-- 2) Coordinación de entrega — espejo exacto de la Subasta 1 -->
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+              <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green)">📦 2 · Coordinar entrega (después del pago)</div>
+              <button onclick="copiarMensajeEntrega('b')" style="background:var(--green);color:#07070d;border:none;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">📋 Copiar entrega</button>
+            </div>
+            <textarea id="ag-entrega-b" rows="12"
+              style="width:100%;background:var(--s2);border:1.5px solid rgba(0,230,122,.4);border-radius:9px;color:var(--text);padding:10px 12px;font-size:12px;line-height:1.55;font-family:'Outfit',sans-serif;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+            <div class="msg-nota">Envíalo apenas confirmes el pago. Trae tus horarios de retiro, el mapa y la opción de envío Starken por pagar. <button onclick="restaurarEntrega('b')" style="background:none;border:none;color:var(--gold);font-size:10px;cursor:pointer;text-decoration:underline;font-family:'Outfit',sans-serif;padding:0">↺ Restaurar texto original</button></div>
+          </div>
+
+          <div id="ag-top23-b" class="ag-respaldo" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2)">
             <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:8px">🥈 Respaldo si el 1° no paga</div>
             <div id="ag-top23-lista-b"></div>
           </div>
@@ -8946,6 +9695,11 @@ function leerFormularioB(){
   const inicioVal = document.getElementById("b-inicio").value;
   if(inicioVal) SB.subasta.inicioProgTs = new Date(inicioVal).getTime();
   else SB.subasta.inicioProgTs = null;
+  const finVal = document.getElementById("b-fin").value;
+  SB.subasta.finProgTs = finVal ? new Date(finVal).getTime() : null;
+  SB.subasta.durH = parseFloat(document.getElementById("b-dur").value)  || 0;
+  SB.subasta.durM = parseFloat(document.getElementById("b-durm").value) || 0;
+  try{ renderResumenProg("b"); }catch(e){}
 }
 
 // Rellena el formulario b- con lo que hay en SB (al abrir el panel admin).
@@ -8990,18 +9744,25 @@ function fillAdminFieldsB(soloLimpios){
   if(!soloLimpios){
     const iniEl = document.getElementById("b-inicio");
     if(iniEl){
-      const iniProg = SB.subasta.inicioProgTs || SB.subasta.inicioTs;
-      iniEl.value = (iniProg && SB.subasta.estado === "programada") ? aDatetimeLocal(new Date(iniProg)) : "";
+      const iniProg = SB.subasta.inicioProgTs
+        || (SB.subasta.estado === "programada" ? SB.subasta.inicioTs : null);
+      iniEl.value = iniProg ? aDatetimeLocal(new Date(iniProg)) : "";
     }
     const finEl = document.getElementById("b-fin");
     if(finEl){
       const vivaB = SB.subasta.estado === "programada" || SB.subasta.estado === "activa";
-      finEl.value = (SB.subasta.finTs && vivaB) ? aDatetimeLocal(new Date(SB.subasta.finTs)) : "";
-      recalcDuracion("b-");
+      const finProg = SB.subasta.finProgTs || (vivaB ? SB.subasta.finTs : null);
+      finEl.value = finProg ? aDatetimeLocal(new Date(finProg)) : "";
     }
+    const dH = document.getElementById("b-dur");
+    const dM = document.getElementById("b-durm");
+    if(dH) dH.value = SB.subasta.durH ? SB.subasta.durH : "";
+    if(dM) dM.value = SB.subasta.durM ? SB.subasta.durM : "";
+    recalcDuracion("b-");
   }
   renderImgListB();
   renderEstadoLineB();
+  renderResumenProg("b");
   formLleno.b = true;
 }
 
@@ -9043,7 +9804,10 @@ function adminUpdateB(){
     express: SB.subasta.express,
     antisnipeAgrega: SB.subasta.antisnipeAgrega,
     antisnipeVentana: 1,
-    inicioProgTs: SB.subasta.inicioProgTs
+    inicioProgTs: SB.subasta.inicioProgTs,
+    finProgTs: SB.subasta.finProgTs,
+    durH: SB.subasta.durH,
+    durM: SB.subasta.durM
   };
   runTransaction(ref(db, SUBASTA_REF_B), (actual) => {
     // Primera vez: el nodo subasta_activa_b todavía no existe en Firebase.
@@ -9068,7 +9832,10 @@ function adminUpdateB(){
     marcarFormGuardado("b");
     renderDualTodo();
     renderEstadoLineB();
-    toast("✅ Subasta 2 guardada","ok");
+    try{ renderResumenProg("b"); }catch(e){}
+    const nf = (SB.carta.imgs || []).length;
+    const prog = SB.subasta.inicioProgTs ? fechaLegible(SB.subasta.inicioProgTs) : "sin inicio programado";
+    toast(`✅ Subasta 2 guardada: carta, ${nf} foto${nf!==1?"s":""}, precios y programación (${prog})`,"ok");
   }).catch(err=>{
     console.error("Error al guardar B:", err);
     const permiso = err && (err.code === "PERMISSION_DENIED" || /permission/i.test(err.message||""));
@@ -9083,20 +9850,10 @@ function adminStartB(){
   leerFormularioB();
   marcarFormGuardado("b");
   recalcDuracion("b-");
-  const finCampo = document.getElementById("b-fin");
-  if(finCampo && finCampo.value){
-    const finTs  = new Date(finCampo.value).getTime();
-    const iniC   = document.getElementById("b-inicio");
-    const baseTs = (iniC && iniC.value) ? new Date(iniC.value).getTime() : Date.now();
-    if(isNaN(finTs) || finTs <= baseTs){
-      toast("⚠️ Subasta 2: el término programado debe ser después del inicio","err");
-      return;
-    }
-  }
-  const durH = parseFloat(document.getElementById("b-dur").value)  || 0;
-  const durM = parseFloat(document.getElementById("b-durm").value) || 0;
-  const totalMs = (durH*60 + durM) * 60 * 1000;
-  if(totalMs<=0){ toast("Subasta 2: define duración (horas o minutos)","err"); return; }
+  const { ms: totalMs, error: errDurB } = calcularDuracionMs("b-");
+  if(errDurB){ toast("⚠️ Subasta 2: " + errDurB, "err"); return; }
+  const durH = Math.floor(totalMs / 3600000);
+  const durM = Math.round((totalMs % 3600000) / 60000);
 
   const nPujas = (SB.pujas||[]).length;
   if(nPujas > 0){
@@ -9108,11 +9865,30 @@ function adminStartB(){
   modalGanadorVisto.b = false;
   top23VistoDual.b    = false;
 
+  {
+    const iniReal = (inicioProgTs && inicioProgTs > ahora) ? inicioProgTs : ahora;
+    const finReal = iniReal + totalMs;
+    const resumen = `¿Iniciar la Subasta 2?\n\n`
+      + `🃏 ${SB.carta.titulo}\n`
+      + `▶ Inicia: ${fechaLegible(iniReal)}${(inicioProgTs && inicioProgTs > ahora) ? " (programada)" : " (ahora)"}\n`
+      + `🏁 Termina: ${fechaLegible(finReal)}\n`
+      + `⏱ Duración: ${durH} h ${durM} min\n`
+      + `💰 Base ${fmtCLP(SB.subasta.base)} · incrementos de ${fmtCLP(SB.subasta.inc)}\n`
+      + `⚡ Anti-snipe: +${SB.subasta.antisnipeAgrega} min`;
+    if(!confirm(resumen)) return;
+  }
+
+  // Antes de borrar las pujas, archivarlas en el historial de horarios
+  try{ registrarActividadHist(); }catch(e){}
+
   if(inicioProgTs && inicioProgTs > ahora){
     SB.subasta.estado    = "programada";
     SB.subasta.precioAct = 0;
     SB.subasta.finTs     = inicioProgTs + totalMs;
     SB.subasta.inicioTs  = inicioProgTs;
+    SB.subasta.finProgTs = SB.subasta.finTs;
+    SB.subasta.durH      = durH;
+    SB.subasta.durM      = durM;
     SB.subasta.antisnipeActivo = false;
     SB.subasta.antisnipeUsado  = false;
     SB.pujas             = [];
@@ -9128,6 +9904,9 @@ function adminStartB(){
     SB.subasta.finTs     = ahora + totalMs;
     SB.subasta.inicioTs  = ahora;
     SB.subasta.inicioProgTs = null;
+    SB.subasta.finProgTs = SB.subasta.finTs;
+    SB.subasta.durH      = durH;
+    SB.subasta.durM      = durM;
     SB.subasta.antisnipeActivo = false;
     SB.subasta.antisnipeUsado  = false;
     SB.pujas             = [];
@@ -9203,6 +9982,7 @@ function adminResetB(){
   msg += "• El ganador de la Subasta 2\n";
   msg += "\n(Se conservan: la carta 2, sus fotos y sus bloqueados.\nLa Subasta 1 y los participantes NO se tocan)\n\n¿Continuar?";
   if(!confirm(msg)) return;
+  try{ registrarActividadHist(); }catch(e){}
 
   SB.subasta.estado        = "espera";
   SB.subasta.precioAct     = 0;
@@ -9858,6 +10638,8 @@ function renderDualTodo(){
   try{ renderDualPanel("a"); }catch(e){ console.error("panel A:", e); }
   try{ renderDualPanel("b"); }catch(e){ console.error("panel B:", e); }
   try{ renderDualGanadorB(); }catch(e){ console.error("ganadorB:", e); }
+  try{ renderComboGanador(); }catch(e){ console.error("comboGanador:", e); }
+  try{ renderHuecosEspejo(); }catch(e){ console.error("huecosEspejo:", e); }
   try{ renderEstadoLineA(); }catch(e){ console.error("estadoLineA:", e); }
   try{ renderEstadoLineB(); }catch(e){ console.error("estadoLineB:", e); }
   try{ renderBloqueadosB(); }catch(e){ console.error("bloqueadosB:", e); }
@@ -9867,6 +10649,7 @@ function renderDualTodo(){
   try{ if(document.body.classList.contains("dual-choosing")) renderDualChooser(); }catch(e){ console.error("chooser:", e); }
   try{ renderDualSwitch(); }catch(e){ console.error("dualSwitch:", e); }
   try{ renderStatsDual();  }catch(e){ console.error("statsDual:", e); }
+  if(admin){ try{ if(registrarActividadHist()) renderHorarios(); }catch(e){ console.error("horarios dual:", e); } }
   try{ renderHistorialGanadores(); }catch(e){}
   if(!admin && user){
     try{ checkModalGanadorDual(); }catch(e){ console.error("modalGanadorDual:", e); }
@@ -10379,6 +11162,158 @@ function copiarMensajeGanadorB(){
     .catch(()=>{ document.execCommand("copy"); toast("✅ Mensaje copiado","ok"); });
 }
 
+// ══════════════════════════════════════
+//  MISMO GANADOR EN LAS DOS SUBASTAS
+// ══════════════════════════════════════
+// Cuando la misma persona se lleva ambas cartas, no tiene sentido mandarle
+// dos mensajes: se arma UNO solo con las dos cartas, el total y una sola
+// coordinación de pago y entrega.
+function mismoGanadorEnAmbas(){
+  if(!CFG.modoDual) return false;
+  if(S.subasta.estado !== "finalizada" || SB.subasta.estado !== "finalizada") return false;
+  if(!S.lider || !SB.lider) return false;
+  // El uid de Google es la identidad confiable; Instagram queda de respaldo
+  if(S.lider.uid && SB.lider.uid) return S.lider.uid === SB.lider.uid;
+  if(S.lider.ig && SB.lider.ig)   return S.lider.ig === SB.lider.ig;
+  return false;
+}
+
+function totalAmbas(){
+  return (S.lider ? S.lider.monto : 0) + (SB.lider ? SB.lider.monto : 0);
+}
+
+// Mensaje único: las dos cartas, los dos montos y el total a transferir
+function armarMensajeGanadorDoble(){
+  const nombre = (S.lider && S.lider.nombre) ? S.lider.nombre.split(" ")[0] : "";
+  const c1 = [S.carta.titulo, S.carta.set].filter(Boolean).join(" · ");
+  const c2 = [SB.carta.titulo, SB.carta.set].filter(Boolean).join(" · ");
+  return `¡Hola${nombre ? " " + nombre : ""}! 🎉🎉 Te escribimos de Paldea Games.
+
+¡Felicidades, te llevaste LAS DOS CARTAS de hoy!
+
+🃏 ${c1 || "Carta 1"} — ${S.lider ? fmtCLP(S.lider.monto) : ""}
+🃏 ${c2 || "Carta 2"} — ${SB.lider ? fmtCLP(SB.lider.monto) : ""}
+
+💰 TOTAL A TRANSFERIR: ${fmtCLP(totalAmbas())}
+(es un solo pago por las dos cartas)
+
+Para coordinar:
+💰 Tienes 1 hora para realizar el pago por transferencia.
+📦 Las dos cartas van juntas en un mismo despacho, así que pagas un solo envío. Puedes elegir envío Starken por pagar o retiro presencial.
+
+Cualquier duda me dices. ¡Gracias por participar! 💛
+@paldea.games`;
+}
+
+function copiarMensajeCombo(){
+  const ta = document.getElementById("combo-mensaje");
+  if(!ta) return;
+  ta.select();
+  navigator.clipboard.writeText(ta.value)
+    .then(()=> toast("🏆 Mensaje único copiado (las dos cartas)","ok"))
+    .catch(()=>{ document.execCommand("copy"); toast("🏆 Mensaje único copiado","ok"); });
+}
+
+function copiarContactoCombo(){
+  const { valor } = contactoGanador();
+  if(!valor){ toast("El ganador aún no tiene contacto registrado","warn"); return; }
+  copiarContacto(valor);
+}
+
+function abrirContactoCombo(){ abrirIgGanador(); }
+
+// Caja del ganador doble: ocupa el ancho completo arriba de las dos columnas
+function renderComboGanador(){
+  const box = document.getElementById("dz-combo");
+  if(!box) return;
+  if(!CFG.modoDual || !admin || !mismoGanadorEnAmbas()){
+    box.classList.remove("on");
+    box.innerHTML = "";
+    return;
+  }
+
+  const info = contactoDe(S.lider.uid);
+  const { valor: contacto, tipo } = contactoGanador();
+  const email = (info && info.email) || "";
+  const c1 = [S.carta.titulo, S.carta.set].filter(Boolean).join(" · ");
+  const c2 = [SB.carta.titulo, SB.carta.set].filter(Boolean).join(" · ");
+
+  box.classList.add("on");
+  box.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <span style="font-size:24px;line-height:1">🏆🏆</span>
+      <div style="min-width:0;flex:1">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--gold);line-height:1.1">MISMO GANADOR EN LAS DOS SUBASTAS</div>
+        <div style="font-size:11px;color:var(--muted2);margin-top:2px">Manda un solo mensaje, cobra un solo total y despacha las dos cartas juntas.</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:800;color:var(--gold);line-height:1">${fmtCLP(totalAmbas())}</div>
+        <div style="font-size:9px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase">Total a cobrar</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px;margin-bottom:11px">
+      <div style="background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:9px 11px">
+        <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--blue)">SUBASTA 1</div>
+        <div style="font-size:12px;font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c1 || "—")}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--gold);margin-top:3px">${fmtCLP(S.lider.monto)}</div>
+      </div>
+      <div style="background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:9px 11px">
+        <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--red)">SUBASTA 2</div>
+        <div style="font-size:12px;font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c2 || "—")}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--gold);margin-top:3px">${fmtCLP(SB.lider.monto)}</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:11px">
+      <div style="min-width:0;flex:1">
+        <div style="font-size:15px;font-weight:700">${esc(S.lider.nombre)}</div>
+        <div style="font-size:11px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(email || "—")}</div>
+      </div>
+      <div style="display:flex;gap:7px;align-items:center;flex-shrink:0">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:${contacto ? "var(--text)" : "var(--muted)"}">${esc(contacto || "Sin contacto")}</span>
+        <button onclick="copiarContactoCombo()" title="Copiar contacto" style="background:var(--gold);color:#07070d;border:none;border-radius:8px;padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">📋</button>
+        <button onclick="abrirContactoCombo()" title="${tipo === "wa" ? "Abrir WhatsApp" : "Abrir perfil"}" style="background:var(--s3);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer">↗</button>
+      </div>
+    </div>
+
+    <div style="padding-top:11px;border-top:1px solid rgba(245,200,66,.25)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2)">✉️ 1 · Mensaje único por las dos cartas</div>
+        <button onclick="copiarMensajeCombo()" style="background:var(--gold);color:#07070d;border:none;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">📋 Copiar mensaje</button>
+      </div>
+      <textarea id="combo-mensaje" rows="14"
+        style="width:100%;background:var(--s2);border:1.5px solid var(--gold);border-radius:9px;color:var(--text);padding:10px 12px;font-size:12px;line-height:1.55;font-family:'Outfit',sans-serif;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+      <div class="msg-nota">Trae las dos cartas, los dos montos y el total sumado. Edítalo si quieres antes de copiar. Recuerda pegar tus datos de transferencia.</div>
+    </div>
+
+    <div style="margin-top:11px;padding-top:11px;border-top:1px solid rgba(245,200,66,.25)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green)">📦 2 · Coordinar entrega (después del pago)</div>
+        <button onclick="copiarMensajeEntrega('ambas')" style="background:var(--green);color:#07070d;border:none;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">📋 Copiar entrega</button>
+      </div>
+      <textarea id="combo-entrega" rows="12"
+        style="width:100%;background:var(--s2);border:1.5px solid rgba(0,230,122,.4);border-radius:9px;color:var(--text);padding:10px 12px;font-size:12px;line-height:1.55;font-family:'Outfit',sans-serif;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+      <div class="msg-nota">Las dos cartas van en un mismo despacho, así que paga un solo envío. <button onclick="restaurarEntrega('ambas')" style="background:none;border:none;color:var(--gold);font-size:10px;cursor:pointer;text-decoration:underline;font-family:'Outfit',sans-serif;padding:0">↺ Restaurar texto original</button></div>
+    </div>`;
+
+  const tm = document.getElementById("combo-mensaje");
+  if(tm){ tm.value = armarMensajeGanadorDoble(); tm.oninput = () => { tm.dataset.editado = "1"; }; }
+  prepararEntrega("ambas");
+}
+
+// Hueco espejo: si una subasta cerró y la otra no, la columna sin ganador
+// muestra un marcador del mismo porte para que las dos sigan alineadas.
+function renderHuecosEspejo(){
+  const unaFin  = S.subasta.estado  === "finalizada";
+  const dosFin  = SB.subasta.estado === "finalizada";
+  const mostrar = CFG.modoDual && (unaFin || dosFin);
+  const hA = document.getElementById("dz-hueco-a");
+  const hB = document.getElementById("dz-hueco-b");
+  if(hA) hA.classList.toggle("on", mostrar && !unaFin);
+  if(hB) hB.classList.toggle("on", mostrar && !dosFin);
+}
+
 // Banner SUBASTA 2 FINALIZADA (columna derecha de la zona superior)
 function renderDualGanadorB(){
   const ww = document.getElementById("winner-wrap-b");
@@ -10467,6 +11402,7 @@ function renderAdminGanadorB(){
     ta.value = armarMensajeGanadorB();
     ta.oninput = () => { ta.dataset.editado = "1"; };
   }
+  prepararEntrega("b");
 
   document.getElementById("ag-nombre-b").textContent = SB.lider.nombre;
   document.getElementById("ag-email-b").textContent  = (g && g.email) || (infoLider && infoLider.email) || "—";
@@ -10567,7 +11503,41 @@ function guardarGanadorEnHistorialB(){
 }
 
 // ── Modal del ganador en modo paralelo (uno por subasta, en fila) ──
+// cual puede ser "a", "b" o "ambas" (se llevó las dos cartas).
 function llenarModalGanadorDual(cual){
+  const tit = document.getElementById("modal-ganador-titulo");
+
+  if(cual === "ambas"){
+    const tagX = document.getElementById("modal-ganador-tag");
+    if(tagX){
+      tagX.style.display = "block";
+      tagX.querySelector("span").textContent = "LAS DOS SUBASTAS";
+    }
+    if(tit) tit.textContent = "¡GANASTE LAS DOS CARTAS!";
+    document.getElementById("modal-ganador-monto").textContent = fmtCLP(totalAmbas());
+    const c1 = [S.carta.titulo, S.carta.set].filter(Boolean).join(" · ");
+    const c2 = [SB.carta.titulo, SB.carta.set].filter(Boolean).join(" · ");
+    const cartaEl = document.getElementById("modal-ganador-carta");
+    if(cartaEl){
+      cartaEl.innerHTML =
+        `<div style="text-align:left;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:10px 12px;line-height:1.7">
+          <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--blue)">SUBASTA 1</div>
+          <div style="font-size:13px;color:var(--text)">${esc(c1 || "—")} · <b style="color:var(--gold);font-family:'JetBrains Mono',monospace">${fmtCLP(S.lider.monto)}</b></div>
+          <div style="height:7px"></div>
+          <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--red)">SUBASTA 2</div>
+          <div style="font-size:13px;color:var(--text)">${esc(c2 || "—")} · <b style="color:var(--gold);font-family:'JetBrains Mono',monospace">${fmtCLP(SB.lider.monto)}</b></div>
+          <div style="margin-top:9px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--muted2)">💰 Es <b style="color:var(--text)">un solo pago</b> por las dos cartas y <b style="color:var(--text)">un solo envío</b>.</div>
+        </div>`;
+    }
+    const contX = document.getElementById("modal-ganador-contacto");
+    if(contX){
+      const wa = user.whatsapp || "", ig = user.ig || "";
+      contX.textContent = wa && ig ? `💬 ${wa} · 📷 ${ig}` : wa ? `💬 ${wa}` : ig ? `📷 ${ig}` : "—";
+    }
+    return;
+  }
+
+  if(tit) tit.textContent = "¡GANASTE LA SUBASTA!";
   const st = ST(cual);
   const tag = document.getElementById("modal-ganador-tag");
   if(tag){
@@ -10590,6 +11560,23 @@ function llenarModalGanadorDual(cual){
 function checkModalGanadorDual(){
   if(isTVMode) return;
   if(!user || admin) return;
+
+  // Se llevó las dos: un solo aviso con las dos cartas y el total
+  if(mismoGanadorEnAmbas()){
+    const miaA = S.lider.uid ? (S.lider.uid === user.uid) : (S.lider.ig === user.ig);
+    if(miaA && !(S.ganadorAvisado && SB.ganadorAvisado)
+       && !(modalGanadorVisto.a && modalGanadorVisto.b)){
+      const m = document.getElementById("modal-ganador");
+      if(m && m.classList.contains("open")) return;
+      modalGanadorVisto.a = true;
+      modalGanadorVisto.b = true;
+      modalGanadorCual = "ambas";
+      llenarModalGanadorDual("ambas");
+      m.classList.add("open");
+      return;
+    }
+  }
+
   for(const cual of ["a","b"]){
     const st = ST(cual);
     if(st.subasta.estado !== "finalizada" || !st.lider){ modalGanadorVisto[cual] = false; continue; }
@@ -10618,8 +11605,10 @@ function reabrirModalGanadorDual(cual){
     ? (st.lider.uid === user.uid)
     : (st.lider.ig === user.ig);
   if(!soyGanador) return;
-  modalGanadorCual = cual;
-  llenarModalGanadorDual(cual);
+  // Si ganó las dos, el botón de cualquiera de los dos banners abre el aviso único
+  const quien = mismoGanadorEnAmbas() ? "ambas" : cual;
+  modalGanadorCual = quien;
+  llenarModalGanadorDual(quien);
   document.getElementById("modal-ganador").classList.add("open");
 }
 
@@ -11173,6 +12162,20 @@ window.aplicarHoraFin  = aplicarHoraFin;
 window.limpiarFin      = limpiarFin;
 window.copiarMensajeGanador = copiarMensajeGanador;
 window.exportarCorreos = exportarCorreos;
+// ── Exportación completa de participantes ──
+window.exportarFichaCompleta = exportarFichaCompleta;
+window.copiarInstagrams      = copiarInstagrams;
+window.copiarWhatsapps       = copiarWhatsapps;
+// ── Horarios de puja ──
+window.hzSet               = hzSet;
+window.borrarHistHorarios  = borrarHistHorarios;
+window.usarVentanaExpress  = usarVentanaExpress;
+// ── Mensaje de entrega y ganador doble ──
+window.copiarMensajeEntrega = copiarMensajeEntrega;
+window.restaurarEntrega     = restaurarEntrega;
+window.copiarMensajeCombo   = copiarMensajeCombo;
+window.copiarContactoCombo  = copiarContactoCombo;
+window.abrirContactoCombo   = abrirContactoCombo;
 window.migrarDatos     = migrarDatos;
 window.copiarIgGanador = copiarIgGanador;
 window.abrirIgGanador  = abrirIgGanador;
